@@ -1,0 +1,63 @@
+{
+  "defaultGameValues": {
+    "gameCoinAddress": "AINU",
+    "coinChainName": "BSC",
+    "minPlayers": 3,
+    "maxPlayers": 15,
+    "players": [],
+    "currentStage": 0,
+    "stageStartTime": 0,
+    "stageEndTime": 0,
+    "hasStageEnded": true,
+    "requiredDoorSelectionStage": 0,
+    "currentChoiceMakingPlayer": 0,
+    "gameEndReason": ""
+  },
+  "defaultPlayerValues": {
+    "userSocketId": "",
+    "reasonForRemovalFromGame": "",
+    "doorPattern": [],
+    "hasMadeChoice": false,
+    "selectedDoor": -1,
+    "wantToSwitchDoor": false,
+    "totalPoints": 0
+  },
+  "generalValues": {
+    "maxGameCap": 7,
+    "stageStepDuration": 0.5,
+    "doorPointsList": [
+      6,
+      3,
+      2,
+      1,
+      1,
+      0,
+      0,
+      -1,
+      -2,
+      -4
+    ],
+    "openableDoorList": [
+      6,
+      3,
+      1,
+      1,
+      0,
+      0,
+      -1,
+      -2
+    ],
+    "numberOfDoorsToOpen": 3,
+    "nonSelectionPenalty": -5
+  },
+  "stageDurationsSecs": {
+    "0": 450,
+    "1": 20,
+    "2": 90,
+    "3": 60,
+    "4": 90,
+    "5": 0,
+    "6": 0,
+    "7": 0
+  }
+}

@@ -1,11 +1,16 @@
+"use strict";
+
 const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
-const Web3 = require('web3');
-const uuidv4 = require("uuid").v4();
-const angularJson = require("./angular.json");
+const angularJson = require('./angular.json');
+const toolSet = require("./private/ToolSet");
 
-const portNumber = process.env["PORT"];
+let portNumber = process.env["PORT"];
+if (portNumber == null) {
+  portNumber = 6969;
+}
+
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
@@ -23,28 +28,43 @@ app.get('*/web3.min.js', (req, res) => {
 app.get('*/socket.io.js', (req, res) => {
   res.sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
 });
-// --- //
 
 // ---- SERVE STATIC FILES ---- //
 app.get('*.*', express.static(outputFolder, {maxAge: '1y'}));
-// --- //
 
 // ---- SERVE APPLICATION PATHS ---- //
 app.all('*', function (req, res) {
   res.status(200).sendFile(`/`, {root: outputFolder});
 });
-// --- //
+
 
 let activeSocketConnections = 0;
-
+const pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
 io.on('connection', (socket) => {
-    activeSocketConnections++;
-    console.log('Socket connection made. Id : ' + socket.id + ", IP : " +  ", Active Connections : " + activeSocketConnections);
+  activeSocketConnections++;
+  console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + activeSocketConnections);
 
-    // TODO : Handle Socket Events...
+  // TODO : Handle Socket Events...
+  socket.on('createNewGame', () => {
+    try {
+      // TODO : Call pythonProcess (sendInputToScript) to create a new game
+      // Currently, below line is a dummy line
+      pythonProcess.sendInputToScript({"command": "createNewGame"});
+      const newGame = -1;
+      console.log("New Game Created : " + newGame);
 
-    socket.on('disconnect', () => {
-        activeSocketConnections--;
-        console.log('Socket connection closed. Active Connections : ' + activeSocketConnections);
-    });
+      socket.emit('newGameCreated', {
+        gameId: newGame
+      });
+    } catch (e) {
+      socket.emit('gameCreationError', {
+        error: e,
+      });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    activeSocketConnections--;
+    console.log('Socket connection closed. Active Connections : ' + activeSocketConnections);
+  });
 });
