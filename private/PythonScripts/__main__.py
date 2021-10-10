@@ -1,43 +1,43 @@
-import json
-import sys
 import threading
 import time
 
+import IOTools
 
-def print_json_to_stdout(message):
-    print(f"{json.dumps(message)}")
-    sys.stdout.flush()
-
-
-_input_buffer = []
+should_continue = True
+IOElements = []
 
 
-class ContinuousFileReader:
-    def __init__(self, comm_file_path):
-        self.should_read = True
-        self.comm_file_path = comm_file_path
+def exit_function():
+    global should_continue
+    should_continue = False
 
-    def stop_reading(self):
-        self.should_read = False
 
-    def run(self):
-        in_file = open(self.comm_file_path)
-        while self.should_read:
-            for line in in_file:
-                if line != '':
-                    try:
-                        inp = json.loads(line)
-                        # print_json_to_stdout(inp)
-                        _input_buffer.append(inp)
-                    except json.decoder.JSONDecodeError:
-                        # TODO : Handle this exception...
-                        # Input is not of json format
-                        pass
-            time.sleep(0.2)
-        in_file.close()
+def build_io_threads():
+    c_f_r = IOTools.ContinuousFileReader("./communicationFile.txt")
+    c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function)
+    c_o_w = IOTools.ContinuousOutputWriter()
+    c_f_r_th = threading.Thread(target=c_f_r.run)
+    c_i_h_th = threading.Thread(target=c_i_h.run)
+    c_o_w_th = threading.Thread(target=c_o_w.run)
+    IOElements.append({"Object": c_f_r, "Thread": c_f_r_th})
+    IOElements.append({"Object": c_i_h, "Thread": c_i_h_th})
+    IOElements.append({"Object": c_o_w, "Thread": c_o_w_th})
+    c_f_r_th.start()
+    c_i_h_th.start()
+    c_o_w_th.start()
+
+
+class GameHandler:
+    # TODO : Complete this...
+    def __init__(self):
+        pass
 
 
 if __name__ == '__main__':
-    c_f_r = ContinuousFileReader("./communicationFile.txt")
-    th = threading.Thread(target=c_f_r.run)
-    th.start()
+    build_io_threads()
+    while should_continue:
+        time.sleep(2)
+    for io_elem in IOElements:
+        io_elem["Object"].stop()
+        if io_elem["Thread"].is_alive():
+            io_elem["Thread"].join()
