@@ -73,7 +73,7 @@ class Game:
             else:
                 new_player[key] = copy.deepcopy(self.default_player_values[key])
         self.gameState["players"].append(new_player)
-        return True
+        return True, "Player Added Successfully"
 
     def pay_for_player(self, player_index: int):
         # TODO : Complete this...

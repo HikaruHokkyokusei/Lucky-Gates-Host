@@ -40,6 +40,14 @@ app.all('*', function (req, res) {
 
 let activeSocketConnections = 0;
 const pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
+
+// Shutdown Handler
+process.on("SIGINT", () => {
+  console.log("Shutdown Handler Start");
+  pythonProcess.stopScript();
+  console.log("Shutdown Handler Over");
+});
+
 io.on('connection', (socket) => {
   activeSocketConnections++;
   console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + activeSocketConnections);
@@ -47,9 +55,7 @@ io.on('connection', (socket) => {
   // TODO : Handle Socket Events...
   socket.on('createNewGame', () => {
     try {
-      // TODO : Call pythonProcess (sendInputToScript) to create a new game
-      // Currently, below line is a dummy line
-      pythonProcess.sendInputToScript({"command": "game"});
+      pythonProcess.sendInputToScript({"command": "game", "action": "createNewGame", "options": { }}); // TODO : Add options
       const newGame = -1;
       console.log("New Game Created : " + newGame);
 

@@ -68,6 +68,9 @@ class ContinuousInputHandler:
             self.game_handler.rebuild_pending_games()
         elif command == "game":
             self.game_handler.handle_input(inp)
+        elif command == "user":
+            # TODO : Update DB for number of ticket for the specified user
+            pass
         else:
             # TODO : Probably log using a logger...
             pass
@@ -89,6 +92,23 @@ class DBHandler:
     def stop(self):
         self.cluster.close()
 
+    def delete_matching_documents(self, collection_name, match_document):
+        self.database[collection_name].delete_many(match_document)
+
+    def pop_all_documents(self, collection_name, common_key):
+        found_documents = self.database[collection_name].find({})
+        self.database[collection_name].delete_many({common_key: {"$regex": ".*"}})
+        return found_documents
+
     def get_pending_game_list(self):
-        # TODO : Complete this...
-        pass
+        popped_doc_list = self.pop_all_documents("PendingGames", "gameId")
+        return_list = []
+        for document in popped_doc_list:
+            return_list.append(document["gameState"])
+        return return_list
+
+    def upsert_document(self, collection_name, match_document, new_document):
+        self.database[collection_name].update_one(match_document, {"$set": new_document}, upsert=True)
+
+    def insert_new_document(self, collection_name, new_document):
+        self.database[collection_name].insert_one(new_document)
