@@ -8,13 +8,18 @@ function PythonProcess(pythonFilePath = './PythonScripts/',
                        pythonFileName = '__main__.py',
                        communicationFileName = 'communicationFile.txt') {
 
-  this.pythonProcess = childProcess.spawn('python', [pythonFileName], {cwd: pythonFilePath});
+  this.pythonProcess = childProcess.spawn('python',
+    [pythonFileName, process.env["DBUsername"], process.env["DBPassword"], process.env["DBClusterName"], process.env["DBName"]],
+    {cwd: pythonFilePath});
   this.pythonProcess.stdout.on('data', (data) => {
     data = JSON.parse("" + data);
     scriptOutputHandler(data);
   });
   this.pythonProcess.stderr.on('data', (data) => {
     console.log('Error during execution of Py script :\n' + data);
+  });
+  this.pythonProcess.on('exit', (code, signal) => {
+    console.log('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
   });
 
   this.communicationFilePath = pythonFilePath + communicationFileName;
@@ -31,7 +36,7 @@ function PythonProcess(pythonFilePath = './PythonScripts/',
   }
 
   this.stopScript = () => {
-
+    this.sendInputToScript({"command": "exit"});
   };
 
   return this;

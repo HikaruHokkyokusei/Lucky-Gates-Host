@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
     try {
       // TODO : Call pythonProcess (sendInputToScript) to create a new game
       // Currently, below line is a dummy line
-      pythonProcess.sendInputToScript({"command": "createNewGame"});
+      pythonProcess.sendInputToScript({"command": "game"});
       const newGame = -1;
       console.log("New Game Created : " + newGame);
 
@@ -68,3 +68,5 @@ io.on('connection', (socket) => {
     console.log('Socket connection closed. Active Connections : ' + activeSocketConnections);
   });
 });
+
+// setTimeout(() => { pythonProcess.stopScript(); }, 7500);

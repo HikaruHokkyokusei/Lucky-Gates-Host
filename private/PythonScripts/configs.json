@@ -50,7 +50,7 @@
     "numberOfDoorsToOpen": 3,
     "nonSelectionPenalty": -5
   },
-  "stageDurationsSecs": {
+  "stageDurations": {
     "0": 450,
     "1": 20,
     "2": 90,

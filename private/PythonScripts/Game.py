@@ -5,9 +5,11 @@ import uuid
 
 
 class Game:
-    def __init__(self, general_values, default_game_values, default_players_values, build_options, stage_durations):
+    def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
+                 build_options, stage_durations):
+        self.handler_parent = handler_parent
         self.general_values = copy.deepcopy(general_values)
-        self.default_players_values = copy.deepcopy(default_players_values)
+        self.default_player_values = copy.deepcopy(default_player_values)
         self.stageDurations = copy.deepcopy(stage_durations)
         self.step_duration = self.general_values["stageStepDuration"]
 
@@ -69,7 +71,7 @@ class Game:
             if key in options:
                 new_player[key] = options[key]
             else:
-                new_player[key] = copy.deepcopy(self.default_players_values[key])
+                new_player[key] = copy.deepcopy(self.default_player_values[key])
         self.gameState["players"].append(new_player)
         return True
 
