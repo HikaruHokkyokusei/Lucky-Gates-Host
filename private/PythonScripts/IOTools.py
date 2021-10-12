@@ -86,6 +86,7 @@ class DBHandler:
     def __init__(self, username, password, cluster_name, database_name):
         cluster_name = cluster_name.replace(" ", "").lower()
         connect_url = f"mongodb+srv://{username}:{password}@{cluster_name}.zm0r5.mongodb.net/test?retryWrites=true"
+        # OutputBuffer.append({"message": connect_url})
         self.cluster = pymongo.MongoClient(connect_url)
         self.database = self.cluster[database_name]
 

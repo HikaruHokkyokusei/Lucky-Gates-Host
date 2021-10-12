@@ -1,5 +1,5 @@
 let loginForm, loginButton, loginErrorMsg;
-let commandInput, optionsTextArea,outputTextArea;
+let emitEventInput, commandInput, optionsTextArea,outputTextArea;
 let socket;
 
 window.onload = () => {
@@ -19,6 +19,7 @@ window.onload = () => {
   loginForm = document.getElementById("login-form");
   loginButton = document.getElementById("login-form-submit");
   loginErrorMsg = document.getElementById("login-error-msg");
+  emitEventInput = document.getElementById("emitEventInput");
   commandInput = document.getElementById("commandInput");
   optionsTextArea = document.getElementById("optionsTextArea")
   outputTextArea = document.getElementById("outputTextArea");
@@ -36,9 +37,14 @@ window.onload = () => {
 };
 
 function sendAdminAction() {
-  let options = (optionsTextArea.value === "") ? "{}" : JSON.parse(optionsTextArea.value);
-  socket.emit("adminAction", {
-    "command": commandInput.value.toLowerCase(),
-    "options": options
-  });
+  let options = (optionsTextArea.value === "") ? "{}" : optionsTextArea.value;
+  options = JSON.parse(options);
+  if (emitEventInput.value === "" || emitEventInput.value === "adminAction") {
+    socket.emit("adminAction", {
+      "command": commandInput.value.toLowerCase(),
+      "options": options
+    });
+  } else {
+    socket.emit(emitEventInput.value, options);
+  }
 }

@@ -4,10 +4,7 @@ const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
 const angularJson = require('./angular.json');
-const toolSet = require("./private/ToolSet");
-
-const adminUsername = process.env["adminUsername"];
-const adminPassword = process.env["adminPassword"];
+const serverSupplement = require("./server-supplement");
 
 let portNumber = process.env["PORT"];
 if (portNumber == null) {
@@ -45,17 +42,11 @@ app.all('*', function (req, res) {
   res.status(200).sendFile(`/`, {root: outputFolder});
 });
 
-
-let adminSocketId = null;
-let activeSocketConnections = 0;
-let pythonProcess;
-pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
-
 // Shutdown Handler
 process.on("SIGINT", () => {
   console.log("Shutdown Handler Start");
   try {
-    pythonProcess.stopScript();
+    serverSupplement.pythonFunctions["stopScript"]();
   } catch (e) {
 
   }
@@ -64,26 +55,21 @@ process.on("SIGINT", () => {
 });
 
 io.on('connection', (socket) => {
-  activeSocketConnections++;
-  console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + activeSocketConnections);
+  serverSupplement.updateConnectionList(socket);
+  console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + serverSupplement.connectionCount());
 
   socket.on("authenticateAdmin", (credentials) => {
-    if (credentials["username"] === adminUsername && credentials["password"] === adminPassword) {
-      adminSocketId = socket.id;
-      console.log(adminSocketId + " has gained admin privileges...");
+    if (serverSupplement.setAdmin(socket.id, credentials)) {
       socket.emit("hideForum");
     }
   });
 
   socket.on("adminAction", (commands) => {
     let reply;
-    if (socket.id === adminSocketId) {
-
+    if (serverSupplement.isAdmin(socket.id)) {
       switch (commands["command"]) {
         case "exit":
-          if (pythonProcess != null) {
-            pythonProcess.stopScript();
-          }
+          serverSupplement.pythonFunctions["stopScript"]();
           reply = "Success"
           break;
       }
@@ -94,30 +80,20 @@ io.on('connection', (socket) => {
     socket.emit("setOutput", reply);
   });
 
-  // TODO : Handle Socket Events...
   socket.on('createNewGame', () => {
-    try {
-      pythonProcess.sendInputToScript({"command": "game", "action": "createNewGame", "options": { }}); // TODO : Add options
-      const newGame = -1;
-      console.log("New Game Created : " + newGame);
+    serverSupplement.pythonFunctions["createNewGame"]();
+  });
 
-      socket.emit('newGameCreated', {
-        gameId: newGame
-      });
-    } catch (e) {
-      socket.emit('gameCreationError', {
-        error: e,
-      });
-    }
+  socket.on('addPlayerToGame', () => {
+    serverSupplement.pythonFunctions["addPlayerToGame"]();
+  });
+
+  socket.on('buyTicketsForPlayer', () => {
+    serverSupplement.pythonFunctions["buyTicketsForPlayer"]();
   });
 
   socket.on('disconnect', () => {
-    if (socket.id === adminSocketId) {
-      adminSocketId = null;
-    }
-    activeSocketConnections--;
-    console.log('Socket connection closed. Active Connections : ' + activeSocketConnections);
+    serverSupplement.deleteConnection(socket);
+    console.log('Socket connection closed. Active Connections : ' + serverSupplement.connectionCount());
   });
 });
-
-// setTimeout(() => { pythonProcess.stopScript(); }, 7500);
