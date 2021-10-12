@@ -44,13 +44,15 @@ class GameHandler:
 
     def stop(self):
         for game in self.activeGames:
-            # TODO : Add more functionalities
-            # Stop games... Save states to DB
-            pass
+            game.stop()
+            self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
-        exit_message = {"message": "Script Exited"}
+        exit_message = {"message": "Python Script Exited"}
         print(f"{json.dumps(exit_message)}")
         sys.stdout.flush()
+
+    def game_completed(self, game_id):
+        self.activeGames.pop(game_id, None)
 
     @staticmethod
     def save_pending_game_in_database(game_id, game_state):
@@ -62,19 +64,19 @@ class GameHandler:
         DBHandler.insert_new_document("CompletedGames", {"gameId": game_id, "gameState": game_state})
 
     @staticmethod
-    def send_output(message):
-        IOTools.OutputBuffer.append(message)
+    def send_output(body: dict, command: str, action: str, request_id: str = None, origin: str = None):
+        if request_id is not None and origin is not None:
+            IOTools.append_output_buffer(body, command, action, request_id, origin)
+        elif request_id is not None:
+            IOTools.append_output_buffer(body, command, action, request_id=request_id)
+        elif origin is not None:
+            IOTools.append_output_buffer(body, command, action, origin=origin)
+        else:
+            IOTools.append_output_buffer(body, command, action)
 
     def handle_input(self, inp):
-        action = inp["action"]
-        if action is None:
-            return
-        elif action == "createNewGame":
-            options = inp["options"]
-            self.create_new_game(options["gameCoinAddress"], options["coinChainName"])
-        else:
-            # TODO : Add more Handlers
-            pass
+        # TODO : Complete this...
+        pass
 
     def create_game_with_options(self, build_options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
@@ -86,15 +88,16 @@ class GameHandler:
                         build_options=build_options, stage_durations=self.configs["stageDurations"])
         th = threading.Thread(target=new_game.run)
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
+        return new_game.get_game_id()
 
     def create_new_game(self, game_coin_address=None, coin_chain_name=None):
         if game_coin_address is None:
-            self.create_game_with_options({})
+            return self.create_game_with_options({})
         else:
-            self.create_game_with_options({
-            "gameCoinAddress": game_coin_address,
-            "coinChainName": coin_chain_name
-        })
+            return self.create_game_with_options({
+                "gameCoinAddress": game_coin_address,
+                "coinChainName": coin_chain_name
+            })
 
     def rebuild_pending_games(self):
         game_states_list = None

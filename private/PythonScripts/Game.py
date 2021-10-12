@@ -37,13 +37,23 @@ class Game:
             "wantToSwitchDoor"
         ]
 
+        if "gameId" in build_options:
+            game_id = build_options["gameId"]
+        else:
+            game_id = str(uuid.uuid4()) + "-" + str(uuid.uuid4())
+
         self.gameState = {
             "buildSuccess": False,
-            "gameId": build_options["gameId"] if "gameId" in build_options else uuid.uuid4()
+            "gameId": game_id,
         }
         for key in self.game_key_list:
             self.gameState[key] = build_options[key] if key in build_options \
                 else copy.deepcopy(default_game_values[key])
+        self.gameState["buildSuccess"] = True
+        self.shouldRunGame = True
+
+    def stop(self):
+        self.shouldRunGame = False
 
     def get_game_id(self):
         return self.gameState["gameId"]
@@ -124,8 +134,8 @@ class Game:
                                                  f"Removed For Securing Least Total Points : {min_points}", False)
                     removed_player_count += 1
 
-    def is_current_state_equal_to(self, stage: int):
-        return self.gameState["currentStage"] == stage
+    def is_current_state_equal_to(self, stage: int) -> bool:
+        return self.gameState["currentStage"] == stage and self.shouldRunGame
 
     def get_stage_start_time(self):
         return self.gameState["stageStartTime"]
@@ -153,18 +163,10 @@ class Game:
         # TODO : Complete this function and ask js if it has sent the transfer Transaction...
         pass
 
-    def send_game_to_archive(self, archive_name="Completed"):
-        # TODO : Complete this...
-        game_id = self.gameState["gameId"]
-
-        # Check if game_id present in saved states. If yes, then remove it from saved states...
-
-        if archive_name == "Completed":
-            pass
-        elif archive_name == "Pending Reward":
-            pass
-
     def run(self):
+        if not self.gameState["buildSuccess"]:
+            return
+
         if self.get_stage_start_time() == 0:
             self.set_current_stage_to(self.gameState["currentStage"])
 
@@ -197,7 +199,7 @@ class Game:
                 self.set_current_stage_to(2)
 
         # Stages 2 to 4
-        while 2 <= self.gameState["currentStage"] <= 4:
+        while self.shouldRunGame and 2 <= self.gameState["currentStage"] <= 4:
             # Pre-Check-1
             if self.gameState["currentChoiceMakingPlayer"] >= len(self.gameState["players"]):
                 self.remove_players_with_least_points()
@@ -265,9 +267,17 @@ class Game:
             while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
                 time.sleep(secs=self.step_duration)
 
-            self.send_game_to_archive("Completed" if self.has_reward_been_sent() else "Pending Reward")
             self.set_current_stage_to(6)
 
-        # TODO : Complete below stages...
         # --> 6) Database Clear Stage
+        if self.is_current_state_equal_to(6):
+            if self.has_reward_been_sent():
+                self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
+            elif len(self.gameState["players"]) > 0:
+                self.handler_parent.save_pending_game_in_database(self.get_game_id(), self.gameState)
+
+            self.set_current_stage_to(7)
+
         # --> 7) Waiting to be Deleted
+        if self.shouldRunGame:
+            self.handler_parent.game_completed(self.get_game_id())

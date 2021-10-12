@@ -2,10 +2,26 @@ import json
 import pymongo
 import sys
 import time
+import uuid
 
 InputBuffer = []
 OutputBuffer = []
 sleepTime = 0.2
+
+
+def append_output_buffer(body: dict, command: str, action: str,
+                         request_id: str = str(uuid.uuid4()), origin: str = "py"):
+    message = {
+        "Header": {
+            "command": command,
+            "action": action,
+            "requestId": request_id,
+            "origin": origin,
+            "sender": "py"
+        },
+        "Body": body
+    }
+    OutputBuffer.append(message)
 
 
 class ContinuousOutputWriter:
@@ -58,7 +74,7 @@ class ContinuousInputHandler:
         self.should_handle = False
 
     def root_handler(self, inp):
-        command = inp.pop("command", None)
+        command = inp["Header"]["command"]
         if command is None:
             return
         elif command == "exit":
