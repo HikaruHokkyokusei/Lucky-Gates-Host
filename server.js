@@ -6,6 +6,9 @@ const {Server} = require('socket.io');
 const angularJson = require('./angular.json');
 const toolSet = require("./private/ToolSet");
 
+const adminUsername = process.env["adminUsername"];
+const adminPassword = process.env["adminPassword"];
+
 let portNumber = process.env["PORT"];
 if (portNumber == null) {
   portNumber = 6969;
@@ -29,6 +32,11 @@ app.get('*/socket.io.js', (req, res) => {
   res.sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
 });
 
+// --- SERVE ADMIN FILES --- //
+app.get("*/admin-access/:fileName", (req, res) => {
+  res.sendFile(__dirname + "/admin-access/" + req.params.fileName);
+})
+
 // ---- SERVE STATIC FILES ---- //
 app.get('*.*', express.static(outputFolder, {maxAge: '1y'}));
 
@@ -38,19 +46,53 @@ app.all('*', function (req, res) {
 });
 
 
+let adminSocketId = null;
 let activeSocketConnections = 0;
-const pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
+let pythonProcess;
+pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
 
 // Shutdown Handler
 process.on("SIGINT", () => {
   console.log("Shutdown Handler Start");
-  pythonProcess.stopScript();
+  try {
+    pythonProcess.stopScript();
+  } catch (e) {
+
+  }
   console.log("Shutdown Handler Over");
+  process.exit();
 });
 
 io.on('connection', (socket) => {
   activeSocketConnections++;
   console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + activeSocketConnections);
+
+  socket.on("authenticateAdmin", (credentials) => {
+    if (credentials["username"] === adminUsername && credentials["password"] === adminPassword) {
+      adminSocketId = socket.id;
+      console.log(adminSocketId + " has gained admin privileges...");
+      socket.emit("hideForum");
+    }
+  });
+
+  socket.on("adminAction", (commands) => {
+    let reply;
+    if (socket.id === adminSocketId) {
+
+      switch (commands["command"]) {
+        case "exit":
+          if (pythonProcess != null) {
+            pythonProcess.stopScript();
+          }
+          reply = "Success"
+          break;
+      }
+    } else {
+      reply = "You do not have admin access";
+    }
+
+    socket.emit("setOutput", reply);
+  });
 
   // TODO : Handle Socket Events...
   socket.on('createNewGame', () => {
@@ -70,6 +112,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    if (socket.id === adminSocketId) {
+      adminSocketId = null;
+    }
     activeSocketConnections--;
     console.log('Socket connection closed. Active Connections : ' + activeSocketConnections);
   });
