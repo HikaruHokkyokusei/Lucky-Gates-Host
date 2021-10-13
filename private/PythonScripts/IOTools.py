@@ -9,9 +9,9 @@ OutputBuffer = []
 sleepTime = 0.2
 
 
-def append_output_buffer(body: dict, command: str, action: str,
+def append_packet_buffer(body: dict, command: str, action: str,
                          request_id: str = str(uuid.uuid4()), origin: str = "py"):
-    message = {
+    packet = {
         "Header": {
             "command": command,
             "action": action,
@@ -21,7 +21,7 @@ def append_output_buffer(body: dict, command: str, action: str,
         },
         "Body": body
     }
-    OutputBuffer.append(message)
+    OutputBuffer.append(packet)
 
 
 class ContinuousOutputWriter:
@@ -73,17 +73,16 @@ class ContinuousInputHandler:
     def stop(self):
         self.should_handle = False
 
-    def root_handler(self, inp):
-        command = inp["Header"]["command"]
+    def root_handler(self, packet):
+        command = packet["Header"]["command"]
         if command is None:
             return
         elif command == "exit":
-            # TODO : Make this block more robust
             self.exit_function()
         elif command == "rebuildFromDB":
             self.game_handler.rebuild_pending_games()
         elif command == "game":
-            self.game_handler.handle_input(inp)
+            self.game_handler.handle_game_packet(packet)
         elif command == "user":
             # TODO : Update DB for number of ticket for the specified user
             pass
@@ -94,7 +93,10 @@ class ContinuousInputHandler:
     def run(self):
         while self.should_handle:
             while len(InputBuffer) > 0:
-                self.root_handler(InputBuffer.pop(0))
+                try:
+                    self.root_handler(InputBuffer.pop(0))
+                except Exception as e:
+                    print(e, file=sys.stderr)
             time.sleep(sleepTime)
 
 

@@ -17,6 +17,7 @@
     "userSocketId": "",
     "reasonForRemovalFromGame": "",
     "doorPattern": [],
+    "doorsOpenedByGame": [],
     "hasMadeChoice": false,
     "selectedDoor": -1,
     "wantToSwitchDoor": false,

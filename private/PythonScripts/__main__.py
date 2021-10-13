@@ -54,6 +54,12 @@ class GameHandler:
     def game_completed(self, game_id):
         self.activeGames.pop(game_id, None)
 
+    def get_game(self, game_id: str) -> Game | None:
+        if game_id in self.activeGames:
+            return self.activeGames[game_id]["Game"]
+        else:
+            return None
+
     @staticmethod
     def save_pending_game_in_database(game_id, game_state):
         DBHandler.upsert_document("PendingGames", {"gameId": game_id}, {"gameState": game_state})
@@ -64,19 +70,82 @@ class GameHandler:
         DBHandler.insert_new_document("CompletedGames", {"gameId": game_id, "gameState": game_state})
 
     @staticmethod
-    def send_output(body: dict, command: str, action: str, request_id: str = None, origin: str = None):
+    def send_output(body: dict, command: str, action: str = None, request_id: str = None, origin: str = None):
         if request_id is not None and origin is not None:
-            IOTools.append_output_buffer(body, command, action, request_id, origin)
+            IOTools.append_packet_buffer(body, command, action, request_id, origin)
         elif request_id is not None:
-            IOTools.append_output_buffer(body, command, action, request_id=request_id)
+            IOTools.append_packet_buffer(body, command, action, request_id=request_id)
         elif origin is not None:
-            IOTools.append_output_buffer(body, command, action, origin=origin)
+            IOTools.append_packet_buffer(body, command, action, origin=origin)
         else:
-            IOTools.append_output_buffer(body, command, action)
+            IOTools.append_packet_buffer(body, command, action)
 
-    def handle_input(self, inp):
-        # TODO : Complete this...
-        pass
+    def handle_game_packet(self, packet):
+        action = packet["Header"]["action"]
+        packet_body = packet["Body"]
+
+        reply_body = {"error": None}
+
+        if action == "createNewGame":
+            reply_command = "gameCreation"
+
+            g_c_a = packet_body["gameCoinAddress"]
+            c_c_n = packet_body["coinChainName"]
+            try:
+                if g_c_a is not None and c_c_n is not None:
+                    game_id, game_state = self.create_new_game(g_c_a, c_c_n)
+                else:
+                    game_id, game_state = self.create_new_game()
+
+                reply_body["gameId"] = game_id
+                reply_body["gameState"] = game_state
+            except self.GameException as e:
+                reply_body["error"] = str(e)
+        elif action == "addPlayerToGame":
+            reply_command = "playerAddition"
+            reply_body["result"] = "Failure"
+            reply_body["gameId"] = packet_body["gameId"]
+            reply_body["playerId"] = packet_body["playerId"]
+
+            try:
+                success, message = self.add_player_to_game(packet_body["gameId"], packet_body["playerAddress"])
+                if not success:
+                    reply_body["error"] = message
+                else:
+                    reply_body["result"] = "Success"
+            except self.GameException as e:
+                reply_body["error"] = str(e)
+        elif action == "savePlayerDoorSelection":
+            reply_command = "doorSelection"
+            reply_body["result"] = "Failure"
+            reply_body["gameId"] = packet_body["gameId"]
+            reply_body["playerId"] = packet_body["playerId"]
+
+            game = self.get_game(packet_body["gameId"])
+            success, message = game.set_door_selection_for_player(packet_body["playerId"], packet_body["doorNumber"])
+
+            if success:
+                reply_body["result"] = "Success"
+            else:
+                reply_body["error"] = message
+        elif action == "savePlayerSwitchSelection":
+            reply_command = "switchSelection"
+            reply_body["result"] = "Failure"
+            reply_body["gameId"] = packet_body["gameId"]
+            reply_body["playerId"] = packet_body["playerId"]
+
+            game = self.get_game(packet_body["gameId"])
+            success, message = game.set_switch_selection_for_player(packet_body["playerId"], packet_body["wantToSwitch"])
+
+            if success:
+                reply_body["result"] = "Success"
+            else:
+                reply_body["error"] = message
+        else:
+            return
+
+        self.send_output(reply_body, reply_command, request_id=packet["Header"]["requestId"],
+                         origin=packet["Header"]["origin"])
 
     def create_game_with_options(self, build_options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
@@ -88,7 +157,7 @@ class GameHandler:
                         build_options=build_options, stage_durations=self.configs["stageDurations"])
         th = threading.Thread(target=new_game.run)
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
-        return new_game.get_game_id()
+        return new_game.get_game_id(), new_game.gameState
 
     def create_new_game(self, game_coin_address=None, coin_chain_name=None):
         if game_coin_address is None:
@@ -112,12 +181,11 @@ class GameHandler:
 
     def add_player_to_game(self, game_id, player_address):
         # TODO : Add check for number of tickets for the player
-        if game_id in self.activeGames:
-            # TODO : Convert Player Address to checksum address
-            success, message = self.activeGames[game_id]["Game"].add_new_player({"playerId": player_address})
+        game = self.get_game(game_id)
+        if game_id is not None:
+            return game.add_player_to_game({"playerId": player_address})
         else:
-            # TODO : Send reply back to js
-            pass
+            raise self.GameException("No such game exists")
 
 
 if __name__ == '__main__':

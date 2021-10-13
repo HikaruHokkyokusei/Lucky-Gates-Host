@@ -32,6 +32,7 @@ class Game:
             "reasonForRemovalFromGame",
             "totalPoints",
             "doorPattern",
+            "doorsOpenedByGame",
             "hasMadeChoice",
             "selectedDoor",
             "wantToSwitchDoor"
@@ -94,11 +95,12 @@ class Game:
     def reset_player_doors(self, player_index):
         if 0 <= player_index < len(self.gameState["players"]):
             current_player = self.gameState["players"][player_index]
-            current_player["hasMadeChoice"] = False
             current_player["selectedDoor"] = -1
             current_player["wantToSwitchDoor"] = False
             current_player["doorPattern"] = copy.deepcopy(self.general_values["doorPointsList"])
+            current_player["doorsOpenedByGame"] = []
             random.shuffle(current_player["doorPattern"])
+            current_player["hasMadeChoice"] = False
 
     def remove_player_from_game(self, player_index: int, remove_reason, should_refund=False):
         if 0 <= player_index < len(self.gameState["players"]):
@@ -133,6 +135,35 @@ class Game:
                     self.remove_player_from_game(players_with_min_points[player_index] - removed_player_count,
                                                  f"Removed For Securing Least Total Points : {min_points}", False)
                     removed_player_count += 1
+
+    def set_door_selection_for_player(self, player_id: str, door_index: int):
+        if self.is_current_state_equal_to(2) or self.is_current_state_equal_to(4):
+            choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
+            if choice_maker["playerId"] == player_id:
+                if not choice_maker["hasMadeChoice"]:
+                    if 0 <= door_index < len(choice_maker["doorPattern"]):
+                        if door_index not in choice_maker["doorsOpenedByGame"]:
+                            if choice_maker["wantToSwitchDoor"] and door_index != choice_maker["selectedDoor"]:
+                                choice_maker["selectedDoor"] = door_index
+                                choice_maker["hasMadeChoice"] = True
+                                return True, "Success"
+                            else:
+                                return False, "Invalid Door Number"
+                        else:
+                            return False, "Invalid Door Number"
+                    else:
+                        return False, "Invalid Door Number"
+                else:
+                    return False, "Players has already made the choice"
+            else:
+                return False, "Wrong Player"
+        else:
+            return False, "Cannot open door in current stage"
+
+    def set_switch_selection_for_player(self, player_id: str, want_to_switch: bool):
+        # TODO : Complete this...
+        # Copy from  --->   set_door_selection_for_player
+        pass
 
     def is_current_state_equal_to(self, stage: int) -> bool:
         return self.gameState["currentStage"] == stage and self.shouldRunGame
