@@ -59,6 +59,7 @@ class Game:
         self.shouldRunGame = False
 
     def send_information_to_players(self, reply_body, action):
+        reply_body["gameId"] = self.get_game_id()
         self.handler_parent.send_output(body=reply_body, command="informPlayers", action=action)
 
     def get_game_id(self):
@@ -107,14 +108,37 @@ class Game:
             random.shuffle(current_player["doorPattern"])
             current_player["hasMadeChoice"] = False
 
+    def open_doors_for_player(self, current_player):
+        openable_points = copy.deepcopy(self.general_values["openableDoorList"])
+        random.shuffle(openable_points)
+        openable_points = openable_points[:self.general_values["numberOfDoorsToOpen"]]
+        door_list_len = len(current_player["doorPattern"])
+
+        for curr_point in openable_points:
+            for index in range(int(door_list_len / 2)):
+                mirror_index = door_list_len - index - 1
+                if index != current_player["selectedDoor"] and index not in current_player["doorsOpenedByGame"] and \
+                        current_player["doorPattern"][index] == curr_point:
+                    current_player["doorsOpenedByGame"].append(index)
+                    break
+                elif mirror_index != current_player["selectedDoor"] and \
+                        mirror_index not in current_player["doorsOpenedByGame"] and \
+                        current_player["doorPattern"][mirror_index] == curr_point:
+                    current_player["doorsOpenedByGame"].append(mirror_index)
+                    break
+
     def remove_player_from_game(self, player_index: int, remove_reason, should_refund=False):
         if 0 <= player_index < len(self.gameState["players"]):
             removed_player = self.gameState["players"].pop(player_index)
             removed_player["reasonForRemovalFromGame"] = remove_reason
+            self.send_information_to_players({
+                "playerId": removed_player["playerId"],
+                "reasonForRemoval": remove_reason
+            }, "playerRemovedFromGame")
 
-        if should_refund:
-            # TODO : Complete this...
-            pass
+            if should_refund:
+                # TODO : Complete this...
+                pass
 
     def remove_all_players(self, remove_reason, should_refund):
         while len(self.gameState["players"]) > 0:
@@ -132,6 +156,14 @@ class Game:
                     min_points = self.gameState["players"][i]["totalPoints"]
                     players_with_min_points = [i]
 
+            players_and_points = {}
+            for player in self.gameState["players"]:
+                players_and_points[player["playerId"]] = player["totalPoints"]
+            self.send_information_to_players({
+                "playerAndPoints": players_and_points,
+                "minPoints": min_points
+            }, "displayScoreboard")
+
             if len(players_with_min_points) < len(self.gameState["players"]):
                 players_with_min_points.sort()
                 removed_player_count = 0
@@ -140,6 +172,10 @@ class Game:
                     self.remove_player_from_game(players_with_min_points[player_index] - removed_player_count,
                                                  f"Removed For Securing Least Total Points : {min_points}", False)
                     removed_player_count += 1
+            else:
+                self.send_information_to_players({
+                    "reason": "All Players Have Same Points"
+                }, "noPlayerRemoved")
 
     def set_door_selection_for_player(self, player_id: str, door_index: int):
         if self.is_current_state_equal_to(2) or self.is_current_state_equal_to(4):
@@ -179,8 +215,8 @@ class Game:
         else:
             return False, "Cannot make choice in current stage"
 
-    def is_current_state_equal_to(self, stage: int) -> bool:
-        return self.gameState["currentStage"] == stage and self.shouldRunGame
+    def is_current_state_equal_to(self, stage: int, ignore_run_check: bool = False) -> bool:
+        return self.gameState["currentStage"] == stage and (ignore_run_check or self.shouldRunGame)
 
     def get_stage_start_time(self):
         return self.gameState["stageStartTime"]
@@ -260,6 +296,14 @@ class Game:
             if self.is_current_state_equal_to(2):
                 self.reset_player_doors(self.gameState["currentChoiceMakingPlayer"])
 
+                self.send_information_to_players({
+                    "playerId": current_player["playerId"],
+                    "currentStage": 2,
+                    "stageStartTime": self.get_stage_start_time(),
+                    "stageEndTime": self.get_stage_end_time(),
+                    "inputMessage": "Choose Door"
+                }, "getPlayerInput")
+
                 while time.time() < self.get_stage_end_time():
                     if current_player["hasMadeChoice"]:
                         break
@@ -271,10 +315,23 @@ class Game:
                 else:
                     current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
                     self.gameState["currentChoiceMakingPlayer"] += 1
+                    self.send_information_to_players({
+                        "playerId": current_player["playerId"],
+                        "penaltyPoints": self.general_values["nonSelectionPenalty"],
+                        "totalPoints": current_player["totalPoints"]
+                    }, "nonSelectionPenalty")
                     self.set_current_stage_to(2)
 
             # --> 3) Door Switch Choice Stage
             if self.is_current_state_equal_to(3):
+                self.send_information_to_players({
+                    "playerId": current_player["playerId"],
+                    "currentStage": 3,
+                    "stageStartTime": self.get_stage_start_time(),
+                    "stageEndTime": self.get_stage_end_time(),
+                    "inputMessage": "Want to Switch Door"
+                }, "getPlayerInput")
+
                 while time.time() < self.get_stage_end_time():
                     if current_player["hasMadeChoice"]:
                         current_player["hasMadeChoice"] = False
@@ -290,6 +347,23 @@ class Game:
 
             # --> 4) Door Selection After Switch Stage
             if self.is_current_state_equal_to(4):
+                self.open_doors_for_player(current_player)
+
+                doors_opened = copy.deepcopy(current_player["doorsOpenedByGame"])
+                respective_points = []
+                for index in doors_opened:
+                    respective_points.append(current_player["doorPattern"][index])
+
+                self.send_information_to_players({
+                    "playerId": current_player["playerId"],
+                    "currentStage": 2,
+                    "stageStartTime": self.get_stage_start_time(),
+                    "stageEndTime": self.get_stage_end_time(),
+                    "doorsOpenedByGame": doors_opened,
+                    "respectivePoints": respective_points,
+                    "inputMessage": "Choose New Door"
+                }, "openDoorsAndGetPlayerInput")
+
                 while time.time() < self.get_stage_end_time():
                     if current_player["hasMadeChoice"]:
                         break
@@ -298,9 +372,20 @@ class Game:
                 if current_player["hasMadeChoice"]:
                     current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
                     current_player["hasMadeChoice"] = False
+                    self.send_information_to_players({
+                        "playerId": current_player["playerId"],
+                        "openedDoors": [current_player["selectedDoor"]],
+                        "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
+                        "totalPoints": current_player["totalPoints"]
+                    }, "openFinalDoor")
                     self.set_current_stage_to(3)
                 else:
                     current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
+                    self.send_information_to_players({
+                        "playerId": current_player["playerId"],
+                        "penaltyPoints": self.general_values["nonSelectionPenalty"],
+                        "totalPoints": current_player["totalPoints"]
+                    }, "nonSelectionPenalty")
                     self.set_current_stage_to(2)
 
                 self.gameState["currentChoiceMakingPlayer"] += 1
@@ -308,6 +393,13 @@ class Game:
         # --> 5) Game End and Reward Distribution Stage
         if self.is_current_state_equal_to(5):
             winner_player = self.gameState["players"][0]
+            self.send_information_to_players({
+                "playerId": winner_player["playerId"],
+                "totalPoints": winner_player["totalPoints"],
+                "rewardAmount": 0,  # TODO : Change this...
+                "rewardCoinAddress": self.gameState["gameCoinAddress"],
+                "rewardCoinChainName": self.gameState["coinChainName"]
+            }, "winnerSelected")
             self.send_reward_to_winner()
             while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
                 time.sleep(secs=self.step_duration)
@@ -315,7 +407,8 @@ class Game:
             self.set_current_stage_to(6)
 
         # --> 6) Database Clear Stage
-        if self.is_current_state_equal_to(6):
+        if self.is_current_state_equal_to(6, True):
+            # TODO : Check logic here... Possibly, there can ve error here, or in previous stage.
             if self.has_reward_been_sent():
                 self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
             elif len(self.gameState["players"]) > 0:
