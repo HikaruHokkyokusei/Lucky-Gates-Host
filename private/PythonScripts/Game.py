@@ -1,4 +1,5 @@
 import copy
+import json
 import random
 import time
 import uuid
@@ -41,11 +42,12 @@ class Game:
         if "gameId" in build_options:
             game_id = build_options["gameId"]
         else:
-            game_id = str(uuid.uuid4()) + "-" + str(uuid.uuid4())
+            game_id = uuid.uuid4().hex + uuid.uuid4().hex
 
+        # json.loads is unnecessary, but I have added it, so as to prevent editor warnings...
         self.gameState = {
             "buildSuccess": False,
-            "gameId": game_id,
+            "gameId": json.loads('"' + game_id + '"'),
         }
         for key in self.game_key_list:
             self.gameState[key] = build_options[key] if key in build_options \
@@ -55,6 +57,9 @@ class Game:
 
     def stop(self):
         self.shouldRunGame = False
+
+    def send_information_to_players(self, reply_body, action):
+        self.handler_parent.send_output(body=reply_body, command="informPlayers", action=action)
 
     def get_game_id(self):
         return self.gameState["gameId"]
@@ -143,12 +148,11 @@ class Game:
                 if not choice_maker["hasMadeChoice"]:
                     if 0 <= door_index < len(choice_maker["doorPattern"]):
                         if door_index not in choice_maker["doorsOpenedByGame"]:
-                            if choice_maker["wantToSwitchDoor"] and door_index != choice_maker["selectedDoor"]:
-                                choice_maker["selectedDoor"] = door_index
-                                choice_maker["hasMadeChoice"] = True
-                                return True, "Success"
-                            else:
+                            if choice_maker["wantToSwitchDoor"] and door_index == choice_maker["selectedDoor"]:
                                 return False, "Invalid Door Number"
+                            choice_maker["selectedDoor"] = door_index
+                            choice_maker["hasMadeChoice"] = True
+                            return True, "Success"
                         else:
                             return False, "Invalid Door Number"
                     else:
@@ -161,9 +165,19 @@ class Game:
             return False, "Cannot open door in current stage"
 
     def set_switch_selection_for_player(self, player_id: str, want_to_switch: bool):
-        # TODO : Complete this...
-        # Copy from  --->   set_door_selection_for_player
-        pass
+        if self.is_current_state_equal_to(3):
+            choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
+            if choice_maker["playerId"] == player_id:
+                if not choice_maker["hasMadeChoice"]:
+                    choice_maker["wantToSwitchDoor"] = want_to_switch
+                    choice_maker["hasMadeChoice"] = True
+                    return True, "Success"
+                else:
+                    return False, "Players has already made the choice"
+            else:
+                return False, "Wrong Player"
+        else:
+            return False, "Cannot make choice in current stage"
 
     def is_current_state_equal_to(self, stage: int) -> bool:
         return self.gameState["currentStage"] == stage and self.shouldRunGame

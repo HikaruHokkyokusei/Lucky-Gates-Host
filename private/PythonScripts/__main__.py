@@ -1,9 +1,10 @@
-from Game import Game
-import IOTools
 import json
 import sys
 import threading
 import time
+
+import IOTools
+from Game import Game
 
 shouldContinue = True
 Game_Handler = None
@@ -135,7 +136,8 @@ class GameHandler:
             reply_body["playerId"] = packet_body["playerId"]
 
             game = self.get_game(packet_body["gameId"])
-            success, message = game.set_switch_selection_for_player(packet_body["playerId"], packet_body["wantToSwitch"])
+            success, message = game.set_switch_selection_for_player(packet_body["playerId"],
+                                                                    packet_body["wantToSwitch"])
 
             if success:
                 reply_body["result"] = "Success"
