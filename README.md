@@ -2,7 +2,7 @@
   <img width="192" src="https://media.giphy.com/media/3HMUcKCsiyBhiFKzeB/giphy.gif" alt="Welcome To">
 </p>
 
-<h1 align="center"><font color="#26fd00">Lucky Gates Bot</font></h1>
+<h1 align="center"><font color="#26fd00">Lucky Gates Host</font></h1>
 
 Base framework for the project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 12.2.8.
 

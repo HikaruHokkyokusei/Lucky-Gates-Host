@@ -1,5 +1,5 @@
 {
-  "name": "lucky-gates-bot",
+  "name": "lucky-gates-host",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

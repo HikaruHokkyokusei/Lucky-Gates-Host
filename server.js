@@ -14,7 +14,7 @@ if (portNumber == null) {
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
-const outputFolder = __dirname + "/" + angularJson["projects"]["Lucky-Gates-Bot"]["architect"]["build"]["options"]["outputPath"];
+const outputFolder = __dirname + "/" + angularJson["projects"]["Lucky-Gates-Host"]["architect"]["build"]["options"]["outputPath"];
 
 httpServer.listen(portNumber, () => {
   console.log('Listening on port ' + process.env.PORT);
