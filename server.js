@@ -47,11 +47,15 @@ process.on("SIGINT", () => {
   console.log("Shutdown Handler Start");
   try {
     serverSupplement.pythonFunctions["stopScript"]();
+    setTimeout(() => {
+      console.log("Shutdown Handler Over (Success)");
+      process.exit();
+    }, 15000);
   } catch (e) {
     console.log(e);
+    console.log("Shutdown Handler Over (Error)");
+    process.exit();
   }
-  console.log("Shutdown Handler Over");
-  process.exit();
 });
 
 io.on('connection', (socket) => {
