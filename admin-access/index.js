@@ -13,7 +13,11 @@ window.onload = () => {
   });
 
   socket.on("setOutput", (content) => {
-    outputTextArea.innerHTML = content;
+    if (typeof content == "object") {
+      outputTextArea.innerHTML = JSON.stringify(content, undefined, 4);
+    } else {
+      outputTextArea.innerHTML = content;
+    }
   });
 
   loginForm = document.getElementById("login-form");

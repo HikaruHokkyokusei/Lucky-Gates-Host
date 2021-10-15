@@ -68,8 +68,8 @@ io.on('connection', (socket) => {
     let reply;
     if (serverSupplement.isAdmin(socket.id)) {
       switch (commands["command"]) {
-        case "exit":
-          serverSupplement.pythonFunctions["stopScript"]();
+        case "transloadPacket":
+          serverSupplement.pythonFunctions["sendRawPacketToScript"](commands["options"]);
           reply = "Success"
           break;
       }

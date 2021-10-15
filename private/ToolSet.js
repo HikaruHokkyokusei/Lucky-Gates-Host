@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const childProcess = require('child_process');
+const uuid = require("uuid");
 
 function PythonProcess(pythonFilePath = './PythonScripts/',
                        scriptOutputHandler = (generatedOutput) => { console.log(generatedOutput); },
@@ -34,9 +35,27 @@ function PythonProcess(pythonFilePath = './PythonScripts/',
       });
     }
   }
+  this.sendRawPacketToScript = ({command, action = null, requestId = uuid.v4(), origin = "js", body = {}}) => {
+    if (command == null) {
+      return
+    }
+
+    let packet = {
+      "Header": {
+        "command": command,
+        "action": action,
+        "requestId": requestId,
+        "origin": origin,
+        "sender": "js"
+      },
+      "Body": body
+    };
+
+    this.sendInputToScript(packet);
+  }
 
   this.stopScript = () => {
-    this.sendInputToScript({"command": "exit"});
+    this.sendRawPacketToScript({command: "exit"});
   };
 
   return this;

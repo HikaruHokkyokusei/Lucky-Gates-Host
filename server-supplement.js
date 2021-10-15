@@ -8,7 +8,7 @@ let adminSocketId = null;
 const setAdmin = (socketId, credentials) => {
   if (credentials["username"] === adminUsername && credentials["password"] === adminPassword) {
     adminSocketId = socketId;
-    console.log(socket.id + " has gained admin privileges...");
+    console.log(socketId + " has gained admin privileges...");
     return true;
   } else {
     return false;
@@ -35,17 +35,26 @@ const deleteConnection = (socket) => {
   }
 }
 
-let pythonProcess;
-pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/"); // TODO : Set output handler
+function scriptOutputHandler(packet) {
+  if (adminSocketId != null) {
+    connectedSockets[adminSocketId].emit('setOutput', packet);
+  }
 
-pythonProcess.sendInputToScript({"command": "rebuildFromDB"});
-
-function stopScript() {
-  pythonProcess.stopScript();
+  // TODO : Complete this function...
 }
 
-function createNewGame() {
-  pythonProcess.sendInputToScript({"command": "game", "action": "createNewGame", "options": { }}); // TODO : Add options
+let pythonProcess;
+pythonProcess = new toolSet.PythonProcess("./private/PythonScripts/", scriptOutputHandler);
+
+pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
+
+function createNewGame(gameCoinAddress, coinChainName) {
+  let body = {};
+  if (gameCoinAddress != null && coinChainName != null) {
+    body["gameCoinAddress"] = gameCoinAddress;
+    body["coinChainName"] = coinChainName;
+  }
+  pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
 }
 
 function addPlayerToGame() {
@@ -57,11 +66,14 @@ function buyTicketsForPlayer() {
 }
 
 let pythonFunctions = {
+  "sendRawPacketToScript": pythonProcess.sendRawPacketToScript,
   "createNewGame": createNewGame,
-  "stopScript": stopScript,
   "addPlayerToGame": addPlayerToGame,
-  "buyTicketsForPlayer": buyTicketsForPlayer
+  "buyTicketsForPlayer": buyTicketsForPlayer,
+  "stopScript": pythonProcess.stopScript,
 };
+
+Object.freeze(pythonFunctions);
 
 module.exports = {
   setAdmin: setAdmin,
