@@ -44,6 +44,9 @@ function scriptOutputHandler(packet) {
   if (adminSocketId != null) {
     connectedSockets[adminSocketId].emit('setOutput', packet);
   }
+  if (packet["message"] === "Python Script Exited") {
+    console.log("Python Script Exited");
+  }
 
   // TODO : Complete this function...
 }

@@ -48,7 +48,7 @@ process.on("SIGINT", () => {
   try {
     serverSupplement.pythonFunctions["stopScript"]();
   } catch (e) {
-
+    console.log(e);
   }
   console.log("Shutdown Handler Over");
   process.exit();

@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Page</title>
+
   <link rel="icon" type="image/png" href="./admin-access/fairy%20tail.png">
   <link rel="stylesheet" href="./admin-access/index.css">
+
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
   <script type="text/javascript" src="./node_modules/socket.io/client-dist/socket.io.js"></script>
+  <script type="text/javascript" src="./admin-access/index.js"></script>
 </head>
 <body>
 <div class="wrapper">
@@ -26,22 +29,21 @@
       <br>
       <input class="formElement" type="password" id="password" placeholder="Password">
       <br>
-      <button class="formElement" type="button" id="submit">Gib me admin privileges...</button>
+      <button class="formElement" type="submit" id="submit">Gib me admin privileges...</button>
     </form>
 
     <hr id="hr">
 
-    <form id="InputFieldForm">
+    <form id="InputFieldForm" onSubmit="return false">
       <input class="formElement" type="text" id="emitEvent" placeholder="Event to Emit">
       <br>
       <input class="formElement" type="text" id="command" placeholder="Command">
       <br>
-      <textarea class="formElement" id="options" placeholder="Output By Server"></textarea>
+      <textarea class="formElement" id="options" placeholder="Options"></textarea>
       <br>
-      <button class="formElement" type="button" id="sendToServer">Send to Server</button>
+      <button class="formElement" type="submit" id="sendToServer">Send to Server</button>
     </form>
   </div>
 </div>
-<script type="text/javascript" src="./admin-access/index.js"></script>
 </body>
 </html>
