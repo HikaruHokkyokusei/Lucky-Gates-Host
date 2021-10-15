@@ -1,54 +1,63 @@
-let loginForm, loginButton, loginErrorMsg;
-let emitEventInput, commandInput, optionsTextArea,outputTextArea;
+let sendButton, outputTextArea;
 let socket;
 
-window.onload = () => {
-  socket = io.connect(window.location.origin);
+socket = io.connect(window.location.origin);
 
-  socket.on("hideForum", () => {
-    const mainHolder = document.getElementById("main-holder");
-    document.getElementById("login-header").innerHTML = "Welcome to Admin Console";
-    mainHolder.removeChild(document.getElementById("login-error-msg-holder"))
-    mainHolder.removeChild(loginForm);
-  });
+socket.on("hideForum", () => {
+  let rightDiv = document.getElementById("right");
+  rightDiv.removeChild(document.getElementById("LoginForm"));
+  rightDiv.removeChild(document.getElementById("hr"));
 
-  socket.on("setOutput", (content) => {
-    if (typeof content == "object") {
-      outputTextArea.innerHTML = JSON.stringify(content, undefined, 4);
-    } else {
-      outputTextArea.innerHTML = content;
-    }
-  });
+  let inputFieldForm = document.getElementById("InputFieldForm");
+  inputFieldForm.innerHTML += "<br>\n" +
+    "<textarea class=\"formElement\" id=\"outputTA\" placeholder=\"Options\"></textarea>";
 
-  loginForm = document.getElementById("login-form");
-  loginButton = document.getElementById("login-form-submit");
-  loginErrorMsg = document.getElementById("login-error-msg");
-  emitEventInput = document.getElementById("emitEventInput");
-  commandInput = document.getElementById("commandInput");
-  optionsTextArea = document.getElementById("optionsTextArea")
-  outputTextArea = document.getElementById("outputTextArea");
+  outputTextArea = document.getElementById("outputTA");
+  inputFieldForm.style.visibility = "visible";
+});
 
-  loginButton.addEventListener("click", (e) => {
+socket.on("setOutput", (content) => {
+  if (typeof content == "object") {
+    outputTextArea.innerHTML = JSON.stringify(content, undefined, 4);
+  } else {
+    outputTextArea.innerHTML = content;
+  }
+});
+
+
+document.getElementById("submit")
+  .addEventListener("click", (e) => {
     e.preventDefault();
-    const username = loginForm.username.value;
-    const password = loginForm.password.value;
+
+    let usernameInput, passwordInput;
+    usernameInput = document.getElementById("username");
+    passwordInput = document.getElementById("password");
 
     socket.emit("authenticateAdmin", {
-      username: username,
-      password: password
+      username: usernameInput.value,
+      password: passwordInput.value
     });
   });
-};
 
-function sendAdminAction() {
-  let options = (optionsTextArea.value === "") ? "{}" : optionsTextArea.value;
-  options = JSON.parse(options);
-  if (emitEventInput.value === "" || emitEventInput.value === "adminAction") {
-    socket.emit("adminAction", {
-      "command": commandInput.value.toLowerCase(),
-      "options": options
-    });
-  } else {
-    socket.emit(emitEventInput.value, options);
-  }
-}
+document.getElementById("sendToServer")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+
+    let emitEventInput, commandInput, optionsTextArea;
+    emitEventInput = document.getElementById("emitEvent");
+    commandInput = document.getElementById("command");
+    optionsTextArea = document.getElementById("options");
+
+    let options = (optionsTextArea.innerHTML === "") ? "{}" : optionsTextArea.innerHTML;
+    options = JSON.parse(options);
+
+    if (emitEventInput.value === "" || emitEventInput.value === "adminAction") {
+
+      socket.emit("adminAction", {
+        "command": commandInput.value.toLowerCase(),
+        "options": options
+      });
+    } else {
+      socket.emit(emitEventInput.value, options);
+    }
+  });

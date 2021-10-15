@@ -3,40 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Page</title>
+  <link rel="icon" type="image/png" href="./admin-access/fairy%20tail.png">
   <link rel="stylesheet" href="./admin-access/index.css">
-  <script type="text/javascript" src="./admin-access/index.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
   <script type="text/javascript" src="./node_modules/socket.io/client-dist/socket.io.js"></script>
 </head>
 <body>
-<main id="main-holder">
+<div class="wrapper">
+  <div class="child" id="left"></div>
+  <script>
+    let editor = ace.edit("left");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/json");
+  </script>
 
-  <h1 id="login-header">Login</h1>
+  <div class="child" id="right">
+    <form id="LoginForm">
+      <h5>あいことば</h5>
+      <h1>合言葉</h1>
+      <br>
+      <input class="formElement" type="text" id="username" placeholder="Username">
+      <br>
+      <input class="formElement" type="password" id="password" placeholder="Password">
+      <br>
+      <button class="formElement" type="button" id="submit">Gib me admin privileges...</button>
+    </form>
 
-  <div id="login-error-msg-holder">
-    <p id="login-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
+    <hr id="hr">
+
+    <form id="InputFieldForm">
+      <input class="formElement" type="text" id="emitEvent" placeholder="Event to Emit">
+      <br>
+      <input class="formElement" type="text" id="command" placeholder="Command">
+      <br>
+      <textarea class="formElement" id="options" placeholder="Output By Server"></textarea>
+      <br>
+      <button class="formElement" type="button" id="sendToServer">Send to Server</button>
+    </form>
   </div>
-
-  <form id="login-form">
-    <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
-    <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
-    <button type="submit" id="login-form-submit">Login</button>
-    <br>
-    <br>
-  </form>
-
-  <div>
-    <input id="emitEventInput" type="text" placeholder="Emit Event" class="login-form-field">
-    <br>
-    <input id="commandInput" type="text" placeholder="Command" class="login-form-field">
-    <br>
-    <textarea style="resize: none; height: 100px;" id="optionsTextArea" placeholder="Additional Parameters (JSON)" class="login-form-field"></textarea>
-    <br>
-    <button id="sendButton" onClick="sendAdminAction()">Send</button>
-    <br>
-    <br>
-    <textarea style="resize: none; height: 100px;" id="outputTextArea" placeholder="Result from Server..." class="login-form-field"></textarea>
-  </div>
-
-</main>
+</div>
+<script type="text/javascript" src="./admin-access/index.js"></script>
 </body>
 </html>

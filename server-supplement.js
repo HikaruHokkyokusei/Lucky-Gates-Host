@@ -6,6 +6,11 @@ const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
 let adminSocketId = null;
 const setAdmin = (socketId, credentials) => {
+  if (socketId == null || credentials == null) {
+    adminSocketId = null;
+    return false;
+  }
+
   if (credentials["username"] === adminUsername && credentials["password"] === adminPassword) {
     adminSocketId = socketId;
     console.log(socketId + " has gained admin privileges...");
