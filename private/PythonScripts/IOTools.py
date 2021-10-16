@@ -74,7 +74,10 @@ class ContinuousInputHandler:
         self.should_handle = False
 
     def root_handler(self, packet):
-        command = packet["Header"]["command"]
+        header = packet.get("Header")
+        if header is None:
+            return
+        command = header.get("command")
         if command is None:
             return
         elif command == "exit":

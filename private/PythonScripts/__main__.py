@@ -82,16 +82,16 @@ class GameHandler:
             IOTools.append_packet_buffer(body, command, action)
 
     def handle_game_packet(self, packet):
-        action = packet["Header"]["action"]
-        packet_body = packet["Body"]
+        action = packet["Header"].get("action")
+        packet_body = packet.get("Body")
 
         reply_body = {"error": None}
 
         if action == "createNewGame":
             reply_command = "gameCreation"
 
-            g_c_a = packet_body["gameCoinAddress"]
-            c_c_n = packet_body["coinChainName"]
+            g_c_a = packet_body.get("gameCoinAddress") if packet_body is not None else None
+            c_c_n = packet_body.get("coinChainName") if packet_body is not None else None
             try:
                 if g_c_a is not None and c_c_n is not None:
                     game_id, game_state = self.create_new_game(g_c_a, c_c_n)
@@ -105,10 +105,12 @@ class GameHandler:
         elif action == "addPlayerToGame":
             reply_command = "playerAddition"
             reply_body["result"] = "Failure"
-            reply_body["gameId"] = packet_body["gameId"]
-            reply_body["playerId"] = packet_body["playerId"]
+            reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
+            reply_body["playerAddress"] = packet_body.get("playerAddress") if packet_body is not None else None
 
             try:
+                if reply_body["gameId"] is None or reply_body["playerAddress"] is None:
+                    raise self.GameException("Either of gameId or playerAddress field missing from the body")
                 success, message = self.add_player_to_game(packet_body["gameId"], packet_body["playerAddress"])
                 if not success:
                     reply_body["error"] = message
@@ -119,35 +121,46 @@ class GameHandler:
         elif action == "savePlayerDoorSelection":
             reply_command = "doorSelection"
             reply_body["result"] = "Failure"
-            reply_body["gameId"] = packet_body["gameId"]
-            reply_body["playerId"] = packet_body["playerId"]
+            reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
+            reply_body["playerAddress"] = packet_body.get("playerAddress") if packet_body is not None else None
 
-            game = self.get_game(packet_body["gameId"])
-            success, message = game.set_door_selection_for_player(packet_body["playerId"], packet_body["doorNumber"])
-
-            if success:
-                reply_body["result"] = "Success"
+            if reply_body["gameId"] is not None and reply_body["playerAddress"] is not None:
+                game = self.get_game(reply_body["gameId"])
+                door_number = packet_body.get("door_number")
+                if door_number is not None:
+                    success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
+                    if success:
+                        reply_body["result"] = "Success"
+                    else:
+                        reply_body["error"] = message
+                else:
+                    reply_body["error"] = "No Door Number Specified"
             else:
-                reply_body["error"] = message
+                reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
         elif action == "savePlayerSwitchSelection":
             reply_command = "switchSelection"
             reply_body["result"] = "Failure"
-            reply_body["gameId"] = packet_body["gameId"]
-            reply_body["playerId"] = packet_body["playerId"]
+            reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
+            reply_body["playerAddress"] = packet_body.get("playerAddress") if packet_body is not None else None
 
-            game = self.get_game(packet_body["gameId"])
-            success, message = game.set_switch_selection_for_player(packet_body["playerId"],
-                                                                    packet_body["wantToSwitch"])
-
-            if success:
-                reply_body["result"] = "Success"
+            if reply_body["gameId"] is not None and reply_body["playerAddress"] is not None:
+                game = self.get_game(reply_body["gameId"])
+                want_to_switch = packet_body.get("wantToSwitch")
+                if want_to_switch is not None:
+                    success, message = game.set_switch_selection_for_player(reply_body["playerAddress"], want_to_switch)
+                    if success:
+                        reply_body["result"] = "Success"
+                    else:
+                        reply_body["error"] = message
+                else:
+                    reply_body["error"] = "Switch Choice Not Specified"
             else:
-                reply_body["error"] = message
+                reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
         else:
             return
 
-        self.send_output(reply_body, reply_command, request_id=packet["Header"]["requestId"],
-                         origin=packet["Header"]["origin"])
+        self.send_output(reply_body, reply_command, request_id=packet["Header"].get("requestId"),
+                         origin=packet["Header"].get("origin"))
 
     def create_game_with_options(self, build_options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
@@ -185,7 +198,7 @@ class GameHandler:
         # TODO : Add check for number of tickets for the player
         game = self.get_game(game_id)
         if game_id is not None:
-            return game.add_player_to_game({"playerId": player_address})
+            return game.add_player_to_game({"playerAddress": player_address})
         else:
             raise self.GameException("No such game exists")
 
@@ -196,8 +209,11 @@ if __name__ == '__main__':
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
         io_elements = build_io_threads()
 
-        while shouldContinue:
-            time.sleep(2.5)
+        try:
+            while shouldContinue:
+                time.sleep(2.5)
+        except KeyboardInterrupt:
+            pass
 
         for io_elem in io_elements:
             io_elem["Object"].stop()

@@ -79,9 +79,9 @@ class Game:
         if len(self.gameState["players"]) >= self.gameState["maxPlayers"]:
             return False, "Max Players Have Joined The Game"
 
-        new_player = {"playerId": options["playerId"]}
+        new_player = {"playerAddress": options["playerAddress"]}
         for existing_player in self.gameState["players"]:
-            if existing_player["playerId"] == new_player["playerId"]:
+            if existing_player["playerAddress"] == new_player["playerAddress"]:
                 return False, "Player Already Exists In The Game"
 
         for key in self.player_key_list:
@@ -132,7 +132,7 @@ class Game:
             removed_player = self.gameState["players"].pop(player_index)
             removed_player["reasonForRemovalFromGame"] = remove_reason
             self.send_information_to_players({
-                "playerId": removed_player["playerId"],
+                "playerAddress": removed_player["playerAddress"],
                 "reasonForRemoval": remove_reason
             }, "playerRemovedFromGame")
 
@@ -158,7 +158,7 @@ class Game:
 
             players_and_points = {}
             for player in self.gameState["players"]:
-                players_and_points[player["playerId"]] = player["totalPoints"]
+                players_and_points[player["playerAddress"]] = player["totalPoints"]
             self.send_information_to_players({
                 "playerAndPoints": players_and_points,
                 "minPoints": min_points
@@ -177,10 +177,10 @@ class Game:
                     "reason": "All Players Have Same Points"
                 }, "noPlayerRemoved")
 
-    def set_door_selection_for_player(self, player_id: str, door_index: int):
+    def set_door_selection_for_player(self, player_address: str, door_index: int):
         if self.is_current_state_equal_to(2) or self.is_current_state_equal_to(4):
             choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
-            if choice_maker["playerId"] == player_id:
+            if choice_maker["playerAddress"] == player_address:
                 if not choice_maker["hasMadeChoice"]:
                     if 0 <= door_index < len(choice_maker["doorPattern"]):
                         if door_index not in choice_maker["doorsOpenedByGame"]:
@@ -200,10 +200,10 @@ class Game:
         else:
             return False, "Cannot open door in current stage"
 
-    def set_switch_selection_for_player(self, player_id: str, want_to_switch: bool):
+    def set_switch_selection_for_player(self, player_address: str, want_to_switch: bool):
         if self.is_current_state_equal_to(3):
             choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
-            if choice_maker["playerId"] == player_id:
+            if choice_maker["playerAddress"] == player_address:
                 if not choice_maker["hasMadeChoice"]:
                     choice_maker["wantToSwitchDoor"] = want_to_switch
                     choice_maker["hasMadeChoice"] = True
@@ -297,7 +297,7 @@ class Game:
                 self.reset_player_doors(self.gameState["currentChoiceMakingPlayer"])
 
                 self.send_information_to_players({
-                    "playerId": current_player["playerId"],
+                    "playerAddress": current_player["playerAddress"],
                     "currentStage": 2,
                     "stageStartTime": self.get_stage_start_time(),
                     "stageEndTime": self.get_stage_end_time(),
@@ -316,7 +316,7 @@ class Game:
                     current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
                     self.gameState["currentChoiceMakingPlayer"] += 1
                     self.send_information_to_players({
-                        "playerId": current_player["playerId"],
+                        "playerAddress": current_player["playerAddress"],
                         "penaltyPoints": self.general_values["nonSelectionPenalty"],
                         "totalPoints": current_player["totalPoints"]
                     }, "nonSelectionPenalty")
@@ -325,7 +325,7 @@ class Game:
             # --> 3) Door Switch Choice Stage
             if self.is_current_state_equal_to(3):
                 self.send_information_to_players({
-                    "playerId": current_player["playerId"],
+                    "playerAddress": current_player["playerAddress"],
                     "currentStage": 3,
                     "stageStartTime": self.get_stage_start_time(),
                     "stageEndTime": self.get_stage_end_time(),
@@ -355,7 +355,7 @@ class Game:
                     respective_points.append(current_player["doorPattern"][index])
 
                 self.send_information_to_players({
-                    "playerId": current_player["playerId"],
+                    "playerAddress": current_player["playerAddress"],
                     "currentStage": 2,
                     "stageStartTime": self.get_stage_start_time(),
                     "stageEndTime": self.get_stage_end_time(),
@@ -373,7 +373,7 @@ class Game:
                     current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
                     current_player["hasMadeChoice"] = False
                     self.send_information_to_players({
-                        "playerId": current_player["playerId"],
+                        "playerAddress": current_player["playerAddress"],
                         "openedDoors": [current_player["selectedDoor"]],
                         "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
                         "totalPoints": current_player["totalPoints"]
@@ -382,7 +382,7 @@ class Game:
                 else:
                     current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
                     self.send_information_to_players({
-                        "playerId": current_player["playerId"],
+                        "playerAddress": current_player["playerAddress"],
                         "penaltyPoints": self.general_values["nonSelectionPenalty"],
                         "totalPoints": current_player["totalPoints"]
                     }, "nonSelectionPenalty")
@@ -394,7 +394,7 @@ class Game:
         if self.is_current_state_equal_to(5):
             winner_player = self.gameState["players"][0]
             self.send_information_to_players({
-                "playerId": winner_player["playerId"],
+                "playerAddress": winner_player["playerAddress"],
                 "totalPoints": winner_player["totalPoints"],
                 "rewardAmount": 0,  # TODO : Change this...
                 "rewardCoinAddress": self.gameState["gameCoinAddress"],
