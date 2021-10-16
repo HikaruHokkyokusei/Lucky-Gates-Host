@@ -1,38 +1,37 @@
 "use strict";
 
-const fs = require('fs');
 const childProcess = require('child_process');
 const uuid = require("uuid");
 
-function PythonProcess(pythonFilePath = './PythonScripts/',
-                       scriptOutputHandler = (generatedOutput) => { console.log(generatedOutput); },
-                       pythonFileName = '__main__.py',
-                       communicationFileName = 'communicationFile.txt') {
+function PythonProcess({ pythonFilePath = './PythonScripts/',
+                         scriptOutputHandler = (generatedOutput) => { console.log(generatedOutput); },
+                         pythonFileName = '__main__.py' }) {
 
   this.pythonProcess = childProcess.spawn('python',
     [pythonFileName, process.env["DBUsername"], process.env["DBPassword"], process.env["DBClusterName"], process.env["DBName"]],
     {cwd: pythonFilePath});
   this.pythonProcess.stdout.on('data', (data) => {
-    data = JSON.parse("" + data);
-    scriptOutputHandler(data);
+    try {
+      data = JSON.parse("" + data);
+      scriptOutputHandler(data);
+    } catch (err) {
+      console.log("" + data);
+    }
   });
   this.pythonProcess.stderr.on('data', (data) => {
-    console.log('Error during execution of Py script :\n' + data);
+    console.log('Py Err : ' + data);
   });
   this.pythonProcess.on('exit', (code, signal) => {
     console.log('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
   });
 
-  this.communicationFilePath = pythonFilePath + communicationFileName;
   this.pythonProcess.stdin.setDefaultEncoding('utf-8');
-  fs.writeFile(this.communicationFilePath, '', () => {
-  });
-
   this.sendInputToScript = (message) => {
     if (typeof message == "object") {
       message = JSON.stringify(message)
-      fs.appendFile(this.communicationFilePath, message + "\n", () => {
-      });
+      this.pythonProcess.stdin.write(message + "\n");
+    } else if (typeof message == "string") {
+      this.pythonProcess.stdin.write(message + "\n");
     }
   }
   this.sendRawPacketToScript = ({command, action = null, requestId = uuid.v4(), origin = "js", body = {}}) => {

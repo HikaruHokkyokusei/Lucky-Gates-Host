@@ -18,16 +18,17 @@ def exit_function():
 
 def build_io_threads():
     return_list = []
-    c_f_r = IOTools.ContinuousFileReader("./communicationFile.txt")
+    c_i_r = IOTools.ContinuousInputReader()
     c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler)
     c_o_w = IOTools.ContinuousOutputWriter()
-    c_f_r_th = threading.Thread(target=c_f_r.run)
+    c_i_r_th = threading.Thread(target=c_i_r.run)
+    c_i_r_th.daemon = True
     c_i_h_th = threading.Thread(target=c_i_h.run)
     c_o_w_th = threading.Thread(target=c_o_w.run)
-    return_list.append({"Object": c_f_r, "Thread": c_f_r_th})
+    return_list.append({"Object": c_i_r, "Thread": c_i_r_th})
     return_list.append({"Object": c_i_h, "Thread": c_i_h_th})
     return_list.append({"Object": c_o_w, "Thread": c_o_w_th})
-    c_f_r_th.start()
+    c_i_r_th.start()
     c_i_h_th.start()
     c_o_w_th.start()
     return return_list
