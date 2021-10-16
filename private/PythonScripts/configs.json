@@ -5,10 +5,11 @@
     "minPlayers": 3,
     "maxPlayers": 15,
     "players": [],
-    "currentStage": 0,
+    "currentStage": -1,
+    "gameStartTime": 0,
     "stageStartTime": 0,
     "stageEndTime": 0,
-    "hasStageEnded": true,
+    "gameEndTime": 0,
     "requiredDoorSelectionStage": 0,
     "currentChoiceMakingPlayer": 0,
     "gameEndReason": ""
@@ -33,17 +34,16 @@
       1,
       1,
       0,
-      0,
+      -1,
       -1,
       -2,
       -4
     ],
     "openableDoorList": [
-      6,
       3,
+      2,
       1,
       1,
-      0,
       0,
       -1,
       -2

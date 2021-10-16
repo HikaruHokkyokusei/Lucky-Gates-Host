@@ -5,6 +5,7 @@ const http = require('http');
 const {Server} = require('socket.io');
 const angularJson = require('./angular.json');
 const serverSupplement = require("./server-supplement");
+const {pythonFunctions} = require("./server-supplement");
 
 let portNumber = process.env["PORT"];
 if (portNumber == null) {
@@ -84,15 +85,35 @@ io.on('connection', (socket) => {
     socket.emit("setOutput", reply);
   });
 
-  socket.on('createNewGame', () => {
-    serverSupplement.pythonFunctions["createNewGame"]();
+  socket.on('createNewGame', (options) => {
+    if (options != null && options["gameCoinAddress"] != null && options["coinChainName"] != null) {
+      serverSupplement.pythonFunctions["createNewGame"](options["gameCoinAddress"], options["coinChainName"]);
+    } else {
+      serverSupplement.pythonFunctions["createNewGame"]();
+    }
   });
 
-  socket.on('addPlayerToGame', () => {
-    serverSupplement.pythonFunctions["addPlayerToGame"]();
+  socket.on('addPlayerToGame', (options) => {
+    if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
+      serverSupplement.pythonFunctions["addPlayerToGame"](options["gameId"], options["playerAddress"]);
+    }
+  });
+
+  socket.on('acceptPlayerInput', (options) => {
+    if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
+      // Mimicking XOR
+      if ((options["doorNumber"] == null) !== (options["wantToSwitch"] == null)) {
+        if (options["doorNumber"] != null) {
+          serverSupplement.pythonFunctions["savePlayerDoorSelection"](options["gameId"], options["playerAddress"], options["doorNumber"]);
+        } else {
+          serverSupplement.pythonFunctions["savePlayerSwitchSelection"](options["gameId"], options["playerAddress"], options["wantToSwitch"]);
+        }
+      }
+    }
   });
 
   socket.on('buyTicketsForPlayer', () => {
+    // TODO : Add options here...
     serverSupplement.pythonFunctions["buyTicketsForPlayer"]();
   });
 

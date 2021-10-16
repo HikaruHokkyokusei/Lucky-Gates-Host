@@ -21,9 +21,10 @@ class Game:
             "maxPlayers",
             "players",
             "currentStage",
+            "gameStartTime",
             "stageStartTime",
             "stageEndTime",
-            "hasStageEnded",
+            "gameEndTime",
             "requiredDoorSelectionStage",
             "currentChoiceMakingPlayer",
             "gameEndReason"
@@ -52,6 +53,8 @@ class Game:
         for key in self.game_key_list:
             self.gameState[key] = build_options[key] if key in build_options \
                 else copy.deepcopy(default_game_values[key])
+        if self.gameState["gameStartTime"] == 0:
+            self.gameState["gameStartTime"] = time.time()
         self.gameState["buildSuccess"] = True
         self.shouldRunGame = True
 
@@ -230,12 +233,6 @@ class Game:
         self.gameState["stageEndTime"] = self.get_stage_start_time() + (self.stageDurations[
                                                                             str(self.gameState["currentStage"])] * 1000)
 
-    def get_has_stage_ended(self):
-        return self.gameState["hasStageEnded"]
-
-    def set_has_stage_ended_to(self, has_stage_ended: bool):
-        self.gameState["hasStageEnded"] = has_stage_ended
-
     def send_reward_to_winner(self):
         # TODO : Complete this function by send request to js
         pass
@@ -248,8 +245,15 @@ class Game:
         if not self.gameState["buildSuccess"]:
             return
 
-        if self.get_stage_start_time() == 0:
-            self.set_current_stage_to(self.gameState["currentStage"])
+        if self.is_current_state_equal_to(-1):
+            time.sleep(2.5)
+            self.set_current_stage_to(0)
+            reply_body = {
+                "currentStage": 0,
+                "stageStartTime": self.get_stage_start_time(),
+                "stageEndTime": self.get_stage_end_time(),
+            }
+            self.send_information_to_players(reply_body, action="stageUpdated")
 
         # Game Stage Number Convention Specified In Comments
         # 0) Player Gathering Stage
@@ -258,7 +262,7 @@ class Game:
                 if self.get_player_count() >= self.gameState["maxPlayers"]:
                     break
                 else:
-                    time.sleep(secs=self.step_duration)
+                    time.sleep(self.step_duration)
             if self.get_player_count() < self.gameState["minPlayers"]:
                 self.remove_all_players("Not Enough Players", False)
                 self.set_current_stage_to(6)
@@ -307,7 +311,7 @@ class Game:
                 while time.time() < self.get_stage_end_time():
                     if current_player["hasMadeChoice"]:
                         break
-                    time.sleep(secs=self.step_duration)
+                    time.sleep(self.step_duration)
 
                 if current_player["hasMadeChoice"]:
                     current_player["hasMadeChoice"] = False
@@ -336,7 +340,7 @@ class Game:
                     if current_player["hasMadeChoice"]:
                         current_player["hasMadeChoice"] = False
                         break
-                    time.sleep(secs=self.step_duration)
+                    time.sleep(self.step_duration)
 
                 if current_player["wantToSwitchDoor"]:
                     self.set_current_stage_to(4)
@@ -367,7 +371,7 @@ class Game:
                 while time.time() < self.get_stage_end_time():
                     if current_player["hasMadeChoice"]:
                         break
-                    time.sleep(secs=self.step_duration)
+                    time.sleep(self.step_duration)
 
                 if current_player["hasMadeChoice"]:
                     current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
@@ -402,7 +406,7 @@ class Game:
             }, "winnerSelected")
             self.send_reward_to_winner()
             while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
-                time.sleep(secs=self.step_duration)
+                time.sleep(self.step_duration)
 
             self.set_current_stage_to(6)
 
@@ -410,6 +414,7 @@ class Game:
         if self.is_current_state_equal_to(6, True):
             # TODO : Check logic here... Possibly, there can ve error here, or in previous stage.
             if self.has_reward_been_sent():
+                self.gameState["gameEndTime"] = time.time()
                 self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
             elif len(self.gameState["players"]) > 0:
                 self.handler_parent.save_pending_game_in_database(self.get_game_id(), self.gameState)

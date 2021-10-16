@@ -1,7 +1,10 @@
 let socket;
 
 window.onload = () => {
-  socket = io.connect(window.location.origin);
+  socket = io.connect(window.location.origin, {
+    'reconnectionDelay': 2500,
+    "reconnectionAttempts": 100
+  });
 
   socket.on("hideForum", () => {
     let rightDiv = document.getElementById("right");
@@ -45,12 +48,13 @@ window.onload = () => {
 };
 
 function formSendFunction() {
+  console.log("Sending Data To Server...");
   let emitEventInput, commandInput, optionsTextArea;
   emitEventInput = document.getElementById("emitEvent");
   commandInput = document.getElementById("command");
   optionsTextArea = document.getElementById("options");
 
-  let options = (optionsTextArea.innerHTML === "") ? "{}" : optionsTextArea.innerHTML;
+  let options = (optionsTextArea.value === "") ? "{}" : optionsTextArea.value;
   options = JSON.parse(options);
 
   if (emitEventInput.value === "" || emitEventInput.value === "adminAction") {

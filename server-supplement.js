@@ -1,6 +1,7 @@
 "use strict";
 
 const toolSet = require("./private/ToolSet");
+const {type} = require("os");
 
 const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
@@ -65,8 +66,40 @@ function createNewGame(gameCoinAddress, coinChainName) {
   pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
 }
 
-function addPlayerToGame() {
-  // TODO : Complete this...
+function addPlayerToGame(gameId, playerAddress) {
+  if (gameId != null && playerAddress != null) {
+    // TODO : Below Stuff: -
+    // Check if gameId is valid...
+    // Validate player address...
+    // Link player with socketId...
+    let body = {
+      "gameId": gameId,
+      "playerAddress": playerAddress
+    };
+    pythonProcess.sendRawPacketToScript({command: "game", action: "addPlayerToGame", body: body});
+  }
+}
+
+function savePlayerDoorSelection(gameId, playerAddress, doorNumber) {
+  if (gameId != null && playerAddress != null && doorNumber != null) {
+    let body = {
+      "gameId": gameId,
+      "playerAddress": playerAddress,
+      "doorNumber": doorNumber
+    };
+    pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerDoorSelection", body: body});
+  }
+}
+
+function savePlayerSwitchSelection(gameId, playerAddress, wantToSwitch) {
+  if (gameId != null && playerAddress != null && wantToSwitch != null) {
+    let body = {
+      "gameId": gameId,
+      "playerAddress": playerAddress,
+      "wantToSwitch": wantToSwitch
+    };
+    pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerSwitchSelection", body: body});
+  }
 }
 
 function buyTicketsForPlayer() {
@@ -77,6 +110,8 @@ let pythonFunctions = {
   "sendRawPacketToScript": pythonProcess.sendRawPacketToScript,
   "createNewGame": createNewGame,
   "addPlayerToGame": addPlayerToGame,
+  "savePlayerDoorSelection": savePlayerDoorSelection,
+  "savePlayerSwitchSelection": savePlayerSwitchSelection,
   "buyTicketsForPlayer": buyTicketsForPlayer,
   "stopScript": pythonProcess.stopScript,
 };

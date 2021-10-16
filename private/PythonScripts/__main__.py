@@ -172,6 +172,7 @@ class GameHandler:
                         default_player_values=self.configs["defaultPlayerValues"],
                         build_options=build_options, stage_durations=self.configs["stageDurations"])
         th = threading.Thread(target=new_game.run)
+        th.start()
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
         return new_game.get_game_id(), new_game.gameState
 
