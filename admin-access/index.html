@@ -12,7 +12,7 @@
   <script type="text/javascript" src="./admin-access/index.js"></script>
 </head>
 <body>
-<div class="wrapper">
+<div class="wrapper" id="wrapper">
   <div class="child" id="left"></div>
   <script>
     let editor = ace.edit("left");
@@ -38,6 +38,10 @@
       <input class="formElement" type="text" id="emitEvent" placeholder="Event to Emit">
       <br>
       <input class="formElement" type="text" id="command" placeholder="Command">
+      <br>
+      <input class="formElement" type="text" id="gameId" placeholder="Game Id">
+      <br>
+      <input class="formElement" type="text" id="playerAddress" placeholder="Player Address">
       <br>
       <textarea class="formElement" id="options" placeholder="Options"></textarea>
       <br>

@@ -1,6 +1,8 @@
 let socket;
 
 window.onload = () => {
+  document.getElementById("wrapper").style.visibility = "visible";
+
   socket = io.connect(window.location.origin, {
     'reconnectionDelay': 2500,
     "reconnectionAttempts": 100
@@ -49,21 +51,35 @@ window.onload = () => {
 
 function formSendFunction() {
   console.log("Sending Data To Server...");
-  let emitEventInput, commandInput, optionsTextArea;
+  let emitEventInput, commandInput;
   emitEventInput = document.getElementById("emitEvent");
   commandInput = document.getElementById("command");
-  optionsTextArea = document.getElementById("options");
-
-  let options = (optionsTextArea.value === "") ? "{}" : optionsTextArea.value;
-  options = JSON.parse(options);
 
   if (emitEventInput.value === "" || emitEventInput.value === "adminAction") {
 
     socket.emit("adminAction", {
       "command": commandInput.value.toLowerCase(),
-      "options": options
+      "options": getBodyForPacket()
     });
   } else {
-    socket.emit(emitEventInput.value, options);
+    socket.emit(emitEventInput.value, getBodyForPacket());
   }
+}
+
+function getBodyForPacket() {
+  let optionsTextArea = document.getElementById("options");
+  let gameIdInput = document.getElementById("gameId");
+  let playerAddressInput = document.getElementById("playerAddress");
+
+  let body = JSON.parse((optionsTextArea.value === "") ? "{}" : optionsTextArea.value);
+
+  if (gameIdInput.value !== "") {
+    body["gameId"] = gameIdInput.value;
+  }
+
+  if (playerAddressInput.value !== "") {
+    body["playerAddress"] = playerAddressInput.value;
+  }
+
+  return body;
 }

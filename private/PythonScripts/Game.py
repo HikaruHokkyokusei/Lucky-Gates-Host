@@ -218,6 +218,11 @@ class Game:
         else:
             return False, "Cannot make choice in current stage"
 
+    def set_current_stage_to(self, stage: int):
+        self.gameState["currentStage"] = stage
+        self.gameState["stageStartTime"] = time.time()
+        self.gameState["stageEndTime"] = self.get_stage_start_time() + self.stageDurations[str(stage)]
+
     def is_current_state_equal_to(self, stage: int, ignore_run_check: bool = False) -> bool:
         return self.gameState["currentStage"] == stage and (ignore_run_check or self.shouldRunGame)
 
@@ -226,12 +231,6 @@ class Game:
 
     def get_stage_end_time(self):
         return self.gameState["stageEndTime"]
-
-    def set_current_stage_to(self, stage: int):
-        self.gameState["currentStage"] = stage
-        self.gameState["stageStartTime"] = time.time()
-        self.gameState["stageEndTime"] = self.get_stage_start_time() + (self.stageDurations[
-                                                                            str(self.gameState["currentStage"])] * 1000)
 
     def send_reward_to_winner(self):
         # TODO : Complete this function by send request to js
