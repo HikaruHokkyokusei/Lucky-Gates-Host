@@ -54,7 +54,11 @@ class GameHandler:
         sys.stdout.flush()
 
     def game_completed(self, game_id):
-        self.activeGames.pop(game_id, None)
+        pop_element = self.activeGames.pop(game_id, None)
+        if pop_element is not None:
+            self.send_output({
+                "gameId": game_id
+            }, "informPlayers", "gameDeleted")
 
     def get_game(self, game_id: str) -> Game | None:
         if game_id in self.activeGames:
@@ -117,6 +121,23 @@ class GameHandler:
                     reply_body["error"] = message
                 else:
                     reply_body["result"] = "Success"
+            except self.GameException as e:
+                reply_body["error"] = str(e)
+        elif action == "beginGameEarly":
+            reply_command = "earlyGameBeginning"
+            reply_body["result"] = "Failure"
+            reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
+
+            try:
+                if reply_body["gameId"] is None:
+                    raise self.GameException("gameId field missing from the body")
+                game = self.get_game(reply_body["gameId"])
+                success, message = game.begin_game_early()
+                if not success:
+                    reply_body["error"] = message
+                else:
+                    reply_body["result"] = "Success"
+                    reply_body["message"] = message
             except self.GameException as e:
                 reply_body["error"] = str(e)
         elif action == "savePlayerDoorSelection":

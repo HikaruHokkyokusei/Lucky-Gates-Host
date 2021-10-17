@@ -5,7 +5,6 @@ const http = require('http');
 const {Server} = require('socket.io');
 const angularJson = require('./angular.json');
 const serverSupplement = require("./server-supplement");
-const {pythonFunctions} = require("./server-supplement");
 
 let portNumber = process.env["PORT"];
 if (portNumber == null) {
@@ -96,6 +95,12 @@ io.on('connection', (socket) => {
   socket.on('addPlayerToGame', (options) => {
     if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
       serverSupplement.pythonFunctions["addPlayerToGame"](options["gameId"], options["playerAddress"]);
+    }
+  });
+
+  socket.on('beginGameEarly', (options) => {
+    if (options != null && options["gameId"] != null) {
+      serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"]);
     }
   });
 

@@ -1,7 +1,6 @@
 "use strict";
 
 const toolSet = require("./private/ToolSet");
-const {type} = require("os");
 
 const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
@@ -80,6 +79,16 @@ function addPlayerToGame(gameId, playerAddress) {
   }
 }
 
+function beginGameEarly(gameId) {
+  if (gameId != null) {
+    let body = {
+      gameId: gameId
+    };
+
+    pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
+  }
+}
+
 function savePlayerDoorSelection(gameId, playerAddress, doorNumber) {
   if (gameId != null && playerAddress != null && doorNumber != null) {
     let body = {
@@ -110,6 +119,7 @@ let pythonFunctions = {
   "sendRawPacketToScript": pythonProcess.sendRawPacketToScript,
   "createNewGame": createNewGame,
   "addPlayerToGame": addPlayerToGame,
+  "beginGameEarly": beginGameEarly,
   "savePlayerDoorSelection": savePlayerDoorSelection,
   "savePlayerSwitchSelection": savePlayerSwitchSelection,
   "buyTicketsForPlayer": buyTicketsForPlayer,

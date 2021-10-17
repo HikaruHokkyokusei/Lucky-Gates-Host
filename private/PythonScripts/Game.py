@@ -13,6 +13,7 @@ class Game:
         self.default_player_values = copy.deepcopy(default_player_values)
         self.stageDurations = copy.deepcopy(stage_durations)
         self.step_duration = self.general_values["stageStepDuration"]
+        self.shouldBeginEarly = False
 
         self.game_key_list = [
             "gameCoinAddress",
@@ -94,6 +95,16 @@ class Game:
                 new_player[key] = copy.deepcopy(self.default_player_values[key])
         self.gameState["players"].append(new_player)
         return True, "Player Added Successfully"
+
+    def begin_game_early(self):
+        if self.is_current_state_equal_to(0):
+            if len(self.gameState["players"]) >= self.gameState["minPlayers"]:
+                self.shouldBeginEarly = True
+                return True, "Game Will Begin in 10 Secs"
+            else:
+                return False, "Min Players Have Not Gathered"
+        else:
+            return False, "Invalid Game State"
 
     def pay_for_player(self, player_index: int):
         # TODO : Complete this...
@@ -260,8 +271,12 @@ class Game:
             while time.time() < self.get_stage_end_time():
                 if self.get_player_count() >= self.gameState["maxPlayers"]:
                     break
+                elif self.shouldBeginEarly:
+                    time.sleep(12.5)
+                    break
                 else:
                     time.sleep(self.step_duration)
+
             if self.get_player_count() < self.gameState["minPlayers"]:
                 self.remove_all_players("Not Enough Players", False)
                 self.set_current_stage_to(6)
