@@ -1,8 +1,9 @@
 import json
-import pymongo
 import sys
 import time
 import uuid
+
+import pymongo
 
 InputBuffer = []
 OutputBuffer = []
@@ -103,7 +104,6 @@ class DBHandler:
     def __init__(self, username, password, cluster_name, database_name):
         cluster_name = cluster_name.replace(" ", "").lower()
         connect_url = f"mongodb+srv://{username}:{password}@{cluster_name}.zm0r5.mongodb.net/test?retryWrites=true"
-        # OutputBuffer.append({"message": connect_url})
         self.cluster = pymongo.MongoClient(connect_url)
         self.database = self.cluster[database_name]
 
@@ -118,6 +118,12 @@ class DBHandler:
         self.database[collection_name].delete_many({common_key: {"$regex": ".*"}})
         return found_documents
 
+    def upsert_document(self, collection_name, match_document, new_document):
+        self.database[collection_name].update_one(match_document, {"$set": new_document}, upsert=True)
+
+    def insert_new_document(self, collection_name, new_document):
+        self.database[collection_name].insert_one(new_document)
+
     def get_pending_game_list(self):
         popped_doc_list = self.pop_all_documents("PendingGames", "gameId")
         return_list = []
@@ -125,8 +131,41 @@ class DBHandler:
             return_list.append(document["gameState"])
         return return_list
 
-    def upsert_document(self, collection_name, match_document, new_document):
-        self.database[collection_name].update_one(match_document, {"$set": new_document}, upsert=True)
+    def is_game_coin_registered(self, game_coin_address, coin_chain_name):
+        reg_coin_list = self.database["_Root"].find_one({"id": "Coin Registry"})["registeredCoins"]
+        chain_coin_list = reg_coin_list.get(coin_chain_name, None)
+        if chain_coin_list is not None:
+            return game_coin_address in chain_coin_list
+        else:
+            return False
 
-    def insert_new_document(self, collection_name, new_document):
-        self.database[collection_name].insert_one(new_document)
+    def does_user_has_tickets(self, game_coin_address, coin_chain_name, player_address):
+        player_document = self.database["PlayerTickets"].find_one({
+            "playerAddress": player_address
+        })
+
+        if player_document is not None:
+            ticket_count = player_document.get("tickets", {}).get(coin_chain_name, {}).get(game_coin_address, None)
+            if ticket_count is not None and ticket_count >= 1:
+                return True
+
+        return False
+
+    def change_player_tickets_by(self, game_coin_address, coin_chain_name, player_address, signed_amount):
+        player_tickets_collection = self.database["PlayerTickets"]
+        player_document = {"playerAddress": player_address}
+
+        try:
+            found_player_doc = player_tickets_collection.find_one(player_document)
+            ticket_count = found_player_doc["tickets"][coin_chain_name][game_coin_address]
+
+            new_ticket_count = ticket_count + signed_amount
+            if 0 <= new_ticket_count:
+                player_tickets_collection.update_one(player_document, {
+                    "$set": {
+                        "tickets." + coin_chain_name + "." + game_coin_address: new_ticket_count
+                    }
+                })
+                return True
+        finally:
+            return False

@@ -1,3 +1,4 @@
+import copy
 import json
 import sys
 import threading
@@ -9,6 +10,7 @@ from Game import Game
 shouldContinue = True
 Game_Handler = None
 DBHandler = None
+configs = None
 
 
 def exit_function():
@@ -39,9 +41,7 @@ class GameHandler:
         pass
 
     def __init__(self):
-        configs_file = open("./configs.json", "r")
-        self.configs = json.load(configs_file)
-        configs_file.close()
+        self.configs = copy.deepcopy(configs)
         self.activeGames = {}
 
     def stop(self):
@@ -61,10 +61,21 @@ class GameHandler:
             }, "informPlayers", "gameDeleted")
 
     def get_game(self, game_id: str) -> Game | None:
-        if game_id in self.activeGames:
-            return self.activeGames[game_id]["Game"]
+        return self.activeGames.get(game_id, {}).get("Game", None)
+
+    @staticmethod
+    def pay_for_player(game_coin_address, coin_chain_name, player_address, ticket_count: int):
+        if ticket_count >= 1:
+            return DBHandler.change_player_tickets_by(game_coin_address, coin_chain_name, player_address, -ticket_count)
         else:
-            return None
+            return False
+
+    @staticmethod
+    def refund_for_player(game_coin_address, coin_chain_name, player_address, ticket_count: int):
+        if ticket_count >= 1:
+            return DBHandler.change_player_tickets_by(game_coin_address, coin_chain_name, player_address, ticket_count)
+        else:
+            return False
 
     @staticmethod
     def save_pending_game_in_database(game_id, game_state):
@@ -86,10 +97,7 @@ class GameHandler:
         else:
             IOTools.append_packet_buffer(body, command, action)
 
-    def handle_game_packet(self, packet):
-        action = packet["Header"].get("action")
-        packet_body = packet.get("Body")
-
+    def handle_action(self, packet_body, action):
         reply_body = {"error": None}
 
         if action == "createNewGame":
@@ -99,7 +107,10 @@ class GameHandler:
             c_c_n = packet_body.get("coinChainName") if packet_body is not None else None
             try:
                 if g_c_a is not None and c_c_n is not None:
-                    game_id, game_state = self.create_new_game(g_c_a, c_c_n)
+                    if DBHandler.is_game_coin_registered(g_c_a, c_c_n):
+                        game_id, game_state = self.create_new_game(g_c_a, c_c_n)
+                    else:
+                        raise self.GameException("Coin with given address and chain is not Registered")
                 else:
                     game_id, game_state = self.create_new_game()
 
@@ -132,6 +143,9 @@ class GameHandler:
                 if reply_body["gameId"] is None:
                     raise self.GameException("gameId field missing from the body")
                 game = self.get_game(reply_body["gameId"])
+                if game is None:
+                    raise self.GameException("No such game exists")
+
                 success, message = game.begin_game_early()
                 if not success:
                     reply_body["error"] = message
@@ -148,15 +162,19 @@ class GameHandler:
 
             if reply_body["gameId"] is not None and reply_body["playerAddress"] is not None:
                 game = self.get_game(reply_body["gameId"])
-                door_number = packet_body.get("door_number")
-                if door_number is not None:
-                    success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
-                    if success:
-                        reply_body["result"] = "Success"
-                    else:
-                        reply_body["error"] = message
+                if game is None:
+                    reply_body["error"] = "No such game exists"
                 else:
-                    reply_body["error"] = "No Door Number Specified"
+                    door_number = packet_body.get("door_number")
+
+                    if door_number is not None:
+                        success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
+                        if success:
+                            reply_body["result"] = "Success"
+                        else:
+                            reply_body["error"] = message
+                    else:
+                        reply_body["error"] = "No Door Number Specified"
             else:
                 reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
         elif action == "savePlayerSwitchSelection":
@@ -167,19 +185,37 @@ class GameHandler:
 
             if reply_body["gameId"] is not None and reply_body["playerAddress"] is not None:
                 game = self.get_game(reply_body["gameId"])
-                want_to_switch = packet_body.get("wantToSwitch")
-                if want_to_switch is not None:
-                    success, message = game.set_switch_selection_for_player(reply_body["playerAddress"], want_to_switch)
-                    if success:
-                        reply_body["result"] = "Success"
-                    else:
-                        reply_body["error"] = message
+
+                if game is None:
+                    reply_body["error"] = "No such game exists"
                 else:
-                    reply_body["error"] = "Switch Choice Not Specified"
+                    want_to_switch = packet_body.get("wantToSwitch")
+                    if want_to_switch is not None:
+                        success, message = game.set_switch_selection_for_player(reply_body["playerAddress"],
+                                                                                want_to_switch)
+                        if success:
+                            reply_body["result"] = "Success"
+                        else:
+                            reply_body["error"] = message
+                    else:
+                        reply_body["error"] = "Switch Choice Not Specified"
             else:
                 reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
         else:
-            return
+            reply_command = "error"
+            reply_body["error"] = "Action Not Specified for a Game Packet"
+
+        return reply_command, reply_body
+
+    def handle_game_packet(self, packet):
+        action = packet["Header"].get("action")
+        packet_body = packet.get("Body")
+
+        try:
+            reply_command, reply_body = self.handle_action(packet_body, action)
+        except Exception:
+            reply_command = "error"
+            reply_body = {"error": "Error during execution of action"}
 
         self.send_output(reply_body, reply_command, request_id=packet["Header"].get("requestId"),
                          origin=packet["Header"].get("origin"))
@@ -218,16 +254,23 @@ class GameHandler:
                     pass
 
     def add_player_to_game(self, game_id, player_address):
-        # TODO : Add check for number of tickets for the player
         game = self.get_game(game_id)
-        if game_id is not None:
-            return game.add_player_to_game({"playerAddress": player_address})
+        if game is not None:
+            if DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
+                                               game.gameState["coinChainName"], player_address):
+                return game.add_player_to_game({"playerAddress": player_address})
+            else:
+                raise self.GameException("Player Has 0 Tickets. Cannot Join This Game")
         else:
             raise self.GameException("No such game exists")
 
 
 if __name__ == '__main__':
     if len(sys.argv) >= 5:
+        configs_file = open("./configs.json", "r")
+        configs = json.load(configs_file)
+        configs_file.close()
+
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
         io_elements = build_io_threads()

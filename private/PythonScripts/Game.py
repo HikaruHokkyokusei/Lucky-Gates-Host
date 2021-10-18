@@ -73,9 +73,8 @@ class Game:
         return len(self.gameState["players"])
 
     def add_player_to_game(self, options):
-        # TODO : Complete this...
-        # Set authentication to verify player identity
-        # Must check if the player has tickets for the current game
+        # TODO : Reminder
+        # Set authentication to verify player identity on JS Side
 
         if not self.is_current_state_equal_to(0):
             return False, "Game Is Not Accepting Players Presently"
@@ -107,10 +106,9 @@ class Game:
             return False, "Invalid Game State"
 
     def pay_for_player(self, player_index: int):
-        # TODO : Complete this...
-        # Return True if payment is successful, otherwise return False
-        # We already check for tickets during add, but this is an additional measure
-        pass
+        player = self.gameState["players"][player_index]
+        return self.handler_parent.pay_for_player(self.gameState["gameCoinAddress"], self.gameState["coinChainName"],
+                                                  player["playerAddress"], 1)
 
     def reset_player_doors(self, player_index):
         if 0 <= player_index < len(self.gameState["players"]):
@@ -151,8 +149,9 @@ class Game:
             }, "playerRemovedFromGame")
 
             if should_refund:
-                # TODO : Complete this...
-                pass
+                self.handler_parent.refund_for_player(self.gameState["gameCoinAddress"],
+                                                      self.gameState["coinChainName"],
+                                                      removed_player["playerAddress"], 1)
 
     def remove_all_players(self, remove_reason, should_refund):
         while len(self.gameState["players"]) > 0:
@@ -248,7 +247,8 @@ class Game:
         pass
 
     def has_reward_been_sent(self):
-        # TODO : Complete this function and ask js if it has sent the transfer Transaction...
+        # TODO : Complete this function...
+        # Make function in JS that will set a flag in game indicating reward had been sent
         pass
 
     def run(self):
@@ -426,7 +426,7 @@ class Game:
 
         # --> 6) Database Clear Stage
         if self.is_current_state_equal_to(6, True):
-            # TODO : Check logic here... Possibly, there can ve error here, or in previous stage.
+            # TODO : Check logic here... Possibly, there can be error here, or in previous stage.
             if self.has_reward_been_sent():
                 self.gameState["gameEndTime"] = time.time()
                 self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
