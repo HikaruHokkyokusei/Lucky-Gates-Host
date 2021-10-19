@@ -5,6 +5,7 @@
     "minPlayers": 3,
     "maxPlayers": 15,
     "players": [],
+    "removedPlayers": [],
     "currentStage": -1,
     "gameStartTime": 0,
     "stageStartTime": 0,

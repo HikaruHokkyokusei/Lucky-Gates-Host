@@ -5,6 +5,9 @@ import time
 import uuid
 
 
+save_all_games = False
+
+
 class Game:
     def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
                  build_options, stage_durations):
@@ -21,6 +24,7 @@ class Game:
             "minPlayers",
             "maxPlayers",
             "players",
+            "removedPlayers",
             "currentStage",
             "gameStartTime",
             "stageStartTime",
@@ -143,6 +147,7 @@ class Game:
         if 0 <= player_index < len(self.gameState["players"]):
             removed_player = self.gameState["players"].pop(player_index)
             removed_player["reasonForRemovalFromGame"] = remove_reason
+            self.gameState["removedPlayers"].append(removed_player)
             self.send_information_to_players({
                 "playerAddress": removed_player["playerAddress"],
                 "reasonForRemoval": remove_reason
@@ -251,190 +256,208 @@ class Game:
         # Make function in JS that will set a flag in game indicating reward had been sent
         pass
 
+    def game_ended(self, end_reason):
+        self.gameState["gameEndReason"] = end_reason
+        self.handler_parent.game_completed(self.get_game_id(), end_reason)
+
     def run(self):
+        end_reason = "Error During Game Execution"
         if not self.gameState["buildSuccess"]:
             return
 
-        if self.is_current_state_equal_to(-1):
-            time.sleep(2.5)
-            self.set_current_stage_to(0)
-            reply_body = {
-                "currentStage": 0,
-                "stageStartTime": self.get_stage_start_time(),
-                "stageEndTime": self.get_stage_end_time(),
-            }
-            self.send_information_to_players(reply_body, action="stageUpdated")
-
-        # Game Stage Number Convention Specified In Comments
-        # 0) Player Gathering Stage
-        if self.is_current_state_equal_to(0):
-            while time.time() < self.get_stage_end_time():
-                if self.get_player_count() >= self.gameState["maxPlayers"]:
-                    break
-                elif self.shouldBeginEarly:
-                    time.sleep(12.5)
-                    break
-                else:
-                    time.sleep(self.step_duration)
-
-            if self.get_player_count() < self.gameState["minPlayers"]:
-                self.remove_all_players("Not Enough Players", False)
-                self.set_current_stage_to(6)
-            else:
-                self.set_current_stage_to(1)
-
-        # --> 1) Payment Stage
-        if self.is_current_state_equal_to(1):
-            i = 0
-            while i < len(self.gameState["players"]):
-                if self.pay_for_player(i):
-                    i += 1
-                else:
-                    self.remove_player_from_game(i, "Ticket Payment Unsuccessful", False)
-            if len(self.gameState["players"]) < self.gameState["minPlayers"]:
-                self.remove_all_players("Not Enough Player Completed Payment", True)
-                self.set_current_stage_to(6)
-            else:
-                self.set_current_stage_to(2)
-
-        # Stages 2 to 4
-        while self.shouldRunGame and 2 <= self.gameState["currentStage"] <= 4:
-            # Pre-Check-1
-            if self.gameState["currentChoiceMakingPlayer"] >= len(self.gameState["players"]):
-                self.remove_players_with_least_points()
-                self.gameState["currentChoiceMakingPlayer"] = 0
-            # Pre-Check-2
-            if len(self.gameState["players"]) <= 1:
-                self.set_current_stage_to(5)
-                break
-
-            current_player = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
-
-            # --> 2) Door Selection Stage
-            if self.is_current_state_equal_to(2):
-                self.reset_player_doors(self.gameState["currentChoiceMakingPlayer"])
-
-                self.send_information_to_players({
-                    "playerAddress": current_player["playerAddress"],
-                    "currentStage": 2,
+        try:
+            if self.is_current_state_equal_to(-1):
+                time.sleep(2.5)
+                self.set_current_stage_to(0)
+                reply_body = {
+                    "currentStage": 0,
                     "stageStartTime": self.get_stage_start_time(),
                     "stageEndTime": self.get_stage_end_time(),
-                    "inputMessage": "Choose Door"
-                }, "getPlayerInput")
+                }
+                self.send_information_to_players(reply_body, action="stageUpdated")
 
+            # Game Stage Number Convention Specified In Comments
+            # 0) Player Gathering Stage
+            if self.is_current_state_equal_to(0):
                 while time.time() < self.get_stage_end_time():
-                    if current_player["hasMadeChoice"]:
+                    if self.get_player_count() >= self.gameState["maxPlayers"]:
                         break
-                    time.sleep(self.step_duration)
+                    elif self.shouldBeginEarly:
+                        time.sleep(12.5)
+                        break
+                    else:
+                        time.sleep(self.step_duration)
 
-                if current_player["hasMadeChoice"]:
-                    current_player["hasMadeChoice"] = False
-                    self.set_current_stage_to(3)
+                if self.get_player_count() < self.gameState["minPlayers"]:
+                    self.remove_all_players("Not Enough Players", False)
+                    end_reason = "Not Enough Players"
+                    self.set_current_stage_to(6)
                 else:
-                    current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
-                    self.gameState["currentChoiceMakingPlayer"] += 1
-                    self.send_information_to_players({
-                        "playerAddress": current_player["playerAddress"],
-                        "penaltyPoints": self.general_values["nonSelectionPenalty"],
-                        "totalPoints": current_player["totalPoints"]
-                    }, "nonSelectionPenalty")
+                    self.set_current_stage_to(1)
+
+            # --> 1) Payment Stage
+            if self.is_current_state_equal_to(1):
+                i = 0
+                while i < len(self.gameState["players"]):
+                    if self.pay_for_player(i):
+
+                        i += 1
+                    else:
+                        self.remove_player_from_game(i, "Ticket Payment Unsuccessful", False)
+                if len(self.gameState["players"]) < self.gameState["minPlayers"]:
+                    self.remove_all_players("Not Enough Player Completed Payment", True)
+                    end_reason = "Not Enough Players Completed Payment"
+                    self.set_current_stage_to(6)
+                else:
                     self.set_current_stage_to(2)
 
-            # --> 3) Door Switch Choice Stage
-            if self.is_current_state_equal_to(3):
-                self.send_information_to_players({
-                    "playerAddress": current_player["playerAddress"],
-                    "currentStage": 3,
-                    "stageStartTime": self.get_stage_start_time(),
-                    "stageEndTime": self.get_stage_end_time(),
-                    "inputMessage": "Want to Switch Door"
-                }, "getPlayerInput")
+            # Stages 2 to 4
+            while self.shouldRunGame and 2 <= self.gameState["currentStage"] <= 4:
+                # Pre-Check-1
+                if self.gameState["currentChoiceMakingPlayer"] >= len(self.gameState["players"]):
+                    self.remove_players_with_least_points()
+                    self.gameState["currentChoiceMakingPlayer"] = 0
+                # Pre-Check-2
+                if len(self.gameState["players"]) <= 1:
+                    self.set_current_stage_to(5)
+                    break
 
-                while time.time() < self.get_stage_end_time():
+                current_player = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
+
+                # --> 2) Door Selection Stage
+                if self.is_current_state_equal_to(2):
+                    self.reset_player_doors(self.gameState["currentChoiceMakingPlayer"])
+
+                    self.send_information_to_players({
+                        "playerAddress": current_player["playerAddress"],
+                        "currentStage": 2,
+                        "stageStartTime": self.get_stage_start_time(),
+                        "stageEndTime": self.get_stage_end_time(),
+                        "inputMessage": "Choose Door"
+                    }, "getPlayerInput")
+
+                    while time.time() < self.get_stage_end_time():
+                        if current_player["hasMadeChoice"]:
+                            break
+                        time.sleep(self.step_duration)
+
                     if current_player["hasMadeChoice"]:
                         current_player["hasMadeChoice"] = False
-                        break
-                    time.sleep(self.step_duration)
+                        self.set_current_stage_to(3)
+                    else:
+                        current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
+                        self.gameState["currentChoiceMakingPlayer"] += 1
+                        self.send_information_to_players({
+                            "playerAddress": current_player["playerAddress"],
+                            "penaltyPoints": self.general_values["nonSelectionPenalty"],
+                            "totalPoints": current_player["totalPoints"]
+                        }, "nonSelectionPenalty")
+                        self.set_current_stage_to(2)
 
-                if current_player["wantToSwitchDoor"]:
-                    self.set_current_stage_to(4)
-                else:
-                    current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
-                    self.gameState["currentChoiceMakingPlayer"] += 1
-                    self.set_current_stage_to(2)
+                # --> 3) Door Switch Choice Stage
+                if self.is_current_state_equal_to(3):
+                    self.send_information_to_players({
+                        "playerAddress": current_player["playerAddress"],
+                        "currentStage": 3,
+                        "stageStartTime": self.get_stage_start_time(),
+                        "stageEndTime": self.get_stage_end_time(),
+                        "inputMessage": "Want to Switch Door"
+                    }, "getPlayerInput")
 
-            # --> 4) Door Selection After Switch Stage
-            if self.is_current_state_equal_to(4):
-                self.open_doors_for_player(current_player)
+                    while time.time() < self.get_stage_end_time():
+                        if current_player["hasMadeChoice"]:
+                            current_player["hasMadeChoice"] = False
+                            break
+                        time.sleep(self.step_duration)
 
-                doors_opened = copy.deepcopy(current_player["doorsOpenedByGame"])
-                respective_points = []
-                for index in doors_opened:
-                    respective_points.append(current_player["doorPattern"][index])
+                    if current_player["wantToSwitchDoor"]:
+                        self.set_current_stage_to(4)
+                    else:
+                        current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
+                        self.gameState["currentChoiceMakingPlayer"] += 1
+                        self.set_current_stage_to(2)
 
-                self.send_information_to_players({
-                    "playerAddress": current_player["playerAddress"],
-                    "currentStage": 2,
-                    "stageStartTime": self.get_stage_start_time(),
-                    "stageEndTime": self.get_stage_end_time(),
-                    "doorsOpenedByGame": doors_opened,
-                    "respectivePoints": respective_points,
-                    "inputMessage": "Choose New Door"
-                }, "openDoorsAndGetPlayerInput")
+                # --> 4) Door Selection After Switch Stage
+                if self.is_current_state_equal_to(4):
+                    self.open_doors_for_player(current_player)
 
-                while time.time() < self.get_stage_end_time():
+                    doors_opened = copy.deepcopy(current_player["doorsOpenedByGame"])
+                    respective_points = []
+                    for index in doors_opened:
+                        respective_points.append(current_player["doorPattern"][index])
+
+                    self.send_information_to_players({
+                        "playerAddress": current_player["playerAddress"],
+                        "currentStage": 2,
+                        "stageStartTime": self.get_stage_start_time(),
+                        "stageEndTime": self.get_stage_end_time(),
+                        "doorsOpenedByGame": doors_opened,
+                        "respectivePoints": respective_points,
+                        "inputMessage": "Choose New Door"
+                    }, "openDoorsAndGetPlayerInput")
+
+                    while time.time() < self.get_stage_end_time():
+                        if current_player["hasMadeChoice"]:
+                            break
+                        time.sleep(self.step_duration)
+
                     if current_player["hasMadeChoice"]:
-                        break
+                        current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
+                        current_player["hasMadeChoice"] = False
+                        self.send_information_to_players({
+                            "playerAddress": current_player["playerAddress"],
+                            "openedDoors": [current_player["selectedDoor"]],
+                            "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
+                            "totalPoints": current_player["totalPoints"]
+                        }, "openFinalDoor")
+                        self.set_current_stage_to(3)
+                    else:
+                        current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
+                        self.send_information_to_players({
+                            "playerAddress": current_player["playerAddress"],
+                            "penaltyPoints": self.general_values["nonSelectionPenalty"],
+                            "totalPoints": current_player["totalPoints"]
+                        }, "nonSelectionPenalty")
+                        self.set_current_stage_to(2)
+
+                    self.gameState["currentChoiceMakingPlayer"] += 1
+
+            # --> 5) Game End and Reward Distribution Stage
+            if self.is_current_state_equal_to(5):
+                winner_player = self.gameState["players"][0]
+                self.send_information_to_players({
+                    "playerAddress": winner_player["playerAddress"],
+                    "totalPoints": winner_player["totalPoints"],
+                    "rewardAmount": 0,  # TODO : Change this...
+                    "rewardCoinAddress": self.gameState["gameCoinAddress"],
+                    "rewardCoinChainName": self.gameState["coinChainName"]
+                }, "winnerSelected")
+                self.send_reward_to_winner()
+                while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
                     time.sleep(self.step_duration)
 
-                if current_player["hasMadeChoice"]:
-                    current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
-                    current_player["hasMadeChoice"] = False
-                    self.send_information_to_players({
-                        "playerAddress": current_player["playerAddress"],
-                        "openedDoors": [current_player["selectedDoor"]],
-                        "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
-                        "totalPoints": current_player["totalPoints"]
-                    }, "openFinalDoor")
-                    self.set_current_stage_to(3)
-                else:
-                    current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
-                    self.send_information_to_players({
-                        "playerAddress": current_player["playerAddress"],
-                        "penaltyPoints": self.general_values["nonSelectionPenalty"],
-                        "totalPoints": current_player["totalPoints"]
-                    }, "nonSelectionPenalty")
-                    self.set_current_stage_to(2)
+                self.set_current_stage_to(6)
 
-                self.gameState["currentChoiceMakingPlayer"] += 1
+            # --> 6) Database Clear Stage
+            if self.is_current_state_equal_to(6, True):
+                # TODO : Check logic here... Possibly, there can be error here, or in previous stage.
+                if self.has_reward_been_sent():
+                    self.gameState["gameEndTime"] = time.time()
+                    self.remove_player_from_game(0, "Reward Sent and Game Ended")
+                    self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
+                    end_reason = "Successfully Completed"
+                elif len(self.gameState["players"]) >= 1:
+                    if len(self.gameState["players"]) == 1:
+                        self.set_current_stage_to(5)
+                    self.handler_parent.save_pending_game_in_database(self.get_game_id(), self.gameState)
+                elif save_all_games:
+                    self.gameState["gameEndTime"] = time.time()
+                    self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
 
-        # --> 5) Game End and Reward Distribution Stage
-        if self.is_current_state_equal_to(5):
-            winner_player = self.gameState["players"][0]
-            self.send_information_to_players({
-                "playerAddress": winner_player["playerAddress"],
-                "totalPoints": winner_player["totalPoints"],
-                "rewardAmount": 0,  # TODO : Change this...
-                "rewardCoinAddress": self.gameState["gameCoinAddress"],
-                "rewardCoinChainName": self.gameState["coinChainName"]
-            }, "winnerSelected")
-            self.send_reward_to_winner()
-            while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
-                time.sleep(self.step_duration)
-
-            self.set_current_stage_to(6)
-
-        # --> 6) Database Clear Stage
-        if self.is_current_state_equal_to(6, True):
-            # TODO : Check logic here... Possibly, there can be error here, or in previous stage.
-            if self.has_reward_been_sent():
-                self.gameState["gameEndTime"] = time.time()
-                self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)
-            elif len(self.gameState["players"]) > 0:
-                self.handler_parent.save_pending_game_in_database(self.get_game_id(), self.gameState)
-
-            self.set_current_stage_to(7)
+                self.set_current_stage_to(7)
+        except Exception as e:
+            end_reason += f". {str(e)}"
 
         # --> 7) Waiting to be Deleted
         if self.shouldRunGame:
-            self.handler_parent.game_completed(self.get_game_id())
+            self.game_ended(end_reason)

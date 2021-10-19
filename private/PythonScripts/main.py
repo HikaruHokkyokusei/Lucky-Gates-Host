@@ -53,11 +53,12 @@ class GameHandler:
         print(f"{json.dumps(exit_message)}")
         sys.stdout.flush()
 
-    def game_completed(self, game_id):
+    def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
         if pop_element is not None:
             self.send_output({
-                "gameId": game_id
+                "gameId": game_id,
+                "gameEndReason": game_end_reason
             }, "informPlayers", "gameDeleted")
 
     def get_game(self, game_id: str) -> Game | None:
@@ -165,7 +166,7 @@ class GameHandler:
                 if game is None:
                     reply_body["error"] = "No such game exists"
                 else:
-                    door_number = packet_body.get("door_number")
+                    door_number = packet_body.get("doorNumber")
 
                     if door_number is not None:
                         success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
@@ -213,7 +214,8 @@ class GameHandler:
 
         try:
             reply_command, reply_body = self.handle_action(packet_body, action)
-        except Exception:
+        except Exception as e:
+            print(str(e), sys.stderr)
             reply_command = "error"
             reply_body = {"error": "Error during execution of action"}
 

@@ -6,7 +6,7 @@ const splitter = new RegExp("[\r\n]+");
 
 function PythonProcess({ pythonFilePath = './PythonScripts/',
                          scriptOutputHandler = (generatedOutput) => { console.log(generatedOutput); },
-                         pythonFileName = '__main__.py' }) {
+                         pythonFileName = 'main.py' }) {
 
   this.pythonProcess = childProcess.spawn('python',
     [pythonFileName, process.env["DBUsername"], process.env["DBPassword"], process.env["DBClusterName"], process.env["DBName"]],

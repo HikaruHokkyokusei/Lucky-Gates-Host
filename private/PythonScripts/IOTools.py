@@ -167,5 +167,6 @@ class DBHandler:
                     }
                 })
                 return True
-        finally:
-            return False
+        except Exception as e:
+            print(str(e), sys.stderr)
+        return False
