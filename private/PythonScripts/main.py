@@ -1,5 +1,6 @@
 import copy
 import json
+import logging
 import sys
 import threading
 import time
@@ -7,10 +8,18 @@ import time
 import IOTools
 from Game import Game
 
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    handlers=[logging.FileHandler('log.log', 'w+', 'utf-8'), logging.StreamHandler()],
+                    level=logging.INFO)
+
+
+mainLogger = logging.getLogger(__name__)
 shouldContinue = True
 Game_Handler = None
 DBHandler = None
 configs = None
+shouldLogIO = True
 
 
 def exit_function():
@@ -20,9 +29,9 @@ def exit_function():
 
 def build_io_threads():
     return_list = []
-    c_i_r = IOTools.ContinuousInputReader()
+    c_i_r = IOTools.ContinuousInputReader(should_log=shouldLogIO)
     c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler)
-    c_o_w = IOTools.ContinuousOutputWriter()
+    c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
     c_i_r_th = threading.Thread(target=c_i_r.run)
     c_i_r_th.daemon = True
     c_i_h_th = threading.Thread(target=c_i_h.run)
@@ -34,6 +43,24 @@ def build_io_threads():
     c_i_h_th.start()
     c_o_w_th.start()
     return return_list
+
+
+class LogWriter(object):
+    def __init__(self, writer):
+        self._writer = writer
+        self._msg = ''
+
+    def write(self, message):
+        self._msg = self._msg + message
+        while '\n' in self._msg:
+            pos = self._msg.find('\n')
+            self._writer(self._msg[:pos])
+            self._msg = self._msg[pos + 1:]
+
+    def flush(self):
+        if self._msg != '':
+            self._writer(self._msg)
+            self._msg = ''
 
 
 class GameHandler:
@@ -117,8 +144,8 @@ class GameHandler:
 
                 reply_body["gameId"] = game_id
                 reply_body["gameState"] = game_state
-            except self.GameException as e:
-                reply_body["error"] = str(e)
+            except self.GameException as err:
+                reply_body["error"] = str(err)
         elif action == "addPlayerToGame":
             reply_command = "playerAddition"
             reply_body["result"] = "Failure"
@@ -133,8 +160,8 @@ class GameHandler:
                     reply_body["error"] = message
                 else:
                     reply_body["result"] = "Success"
-            except self.GameException as e:
-                reply_body["error"] = str(e)
+            except self.GameException as err:
+                reply_body["error"] = str(err)
         elif action == "beginGameEarly":
             reply_command = "earlyGameBeginning"
             reply_body["result"] = "Failure"
@@ -153,8 +180,8 @@ class GameHandler:
                 else:
                     reply_body["result"] = "Success"
                     reply_body["message"] = message
-            except self.GameException as e:
-                reply_body["error"] = str(e)
+            except self.GameException as err:
+                reply_body["error"] = str(err)
         elif action == "savePlayerDoorSelection":
             reply_command = "doorSelection"
             reply_body["result"] = "Failure"
@@ -214,8 +241,8 @@ class GameHandler:
 
         try:
             reply_command, reply_body = self.handle_action(packet_body, action)
-        except Exception as e:
-            print(str(e), sys.stderr)
+        except Exception as err:
+            mainLogger.error(err)
             reply_command = "error"
             reply_body = {"error": "Error during execution of action"}
 
@@ -269,6 +296,8 @@ class GameHandler:
 
 if __name__ == '__main__':
     if len(sys.argv) >= 5:
+        sys.stderr = LogWriter(mainLogger.warning)
+
         configs_file = open("./configs.json", "r")
         configs = json.load(configs_file)
         configs_file.close()
@@ -280,8 +309,8 @@ if __name__ == '__main__':
         try:
             while shouldContinue:
                 time.sleep(2.5)
-        except KeyboardInterrupt:
-            pass
+        except KeyboardInterrupt as ki_err:
+            mainLogger.error(str(ki_err))
 
         for io_elem in io_elements:
             io_elem["Object"].stop()

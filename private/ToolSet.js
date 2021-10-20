@@ -30,9 +30,6 @@ class PythonProcess {
         }
       }
     });
-    this.pythonProcess.stderr.on('data', (data) => {
-      console.log('Py Err : ' + data);
-    });
     this.pythonProcess.on('exit', (code, signal) => {
       console.log('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
     });

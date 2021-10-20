@@ -1,10 +1,12 @@
 import json
+import logging
 import sys
 import time
 import uuid
 
 import pymongo
 
+ioLogger = logging.getLogger(__name__)
 InputBuffer = []
 OutputBuffer = []
 sleepTime = 0.2
@@ -26,8 +28,9 @@ def append_packet_buffer(body: dict, command: str, action: str,
 
 
 class ContinuousOutputWriter:
-    def __init__(self):
+    def __init__(self, should_log):
         self.should_write = True
+        self.should_log = should_log
 
     def stop(self):
         self.should_write = False
@@ -35,14 +38,18 @@ class ContinuousOutputWriter:
     def run(self):
         while self.should_write:
             while len(OutputBuffer) > 0:
-                print(f"{json.dumps(OutputBuffer.pop(0))}")
+                message = json.dumps(OutputBuffer.pop(0))
+                if self.should_log:
+                    ioLogger.info(f"Out : {message}")
+                print(f"{message}")
                 sys.stdout.flush()
             time.sleep(sleepTime)
 
 
 class ContinuousInputReader:
-    def __init__(self):
+    def __init__(self, should_log):
         self.should_read = True
+        self.should_log = should_log
 
     def stop(self):
         self.should_read = False
@@ -50,14 +57,13 @@ class ContinuousInputReader:
     def run(self):
         while self.should_read:
             inp = input()
+            if self.should_log:
+                ioLogger.info(f"In : {inp}")
             try:
                 inp = json.loads(inp)
                 InputBuffer.append(inp)
-                # print(str(inp))
-            except json.decoder.JSONDecodeError:
-                # TODO : Handle this exception...
-                # print(inp)  # Non-Json Input...
-                pass
+            except json.decoder.JSONDecodeError as err:
+                ioLogger.error(f"Error : {err}")
             time.sleep(sleepTime)
 
 
@@ -87,8 +93,7 @@ class ContinuousInputHandler:
             # TODO : Update DB for number of ticket for the specified user
             pass
         else:
-            # TODO : Probably log using a logger...
-            pass
+            ioLogger.error(f"Invalid input command : {command}")
 
     def run(self):
         while self.should_handle:

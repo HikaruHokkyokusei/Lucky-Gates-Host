@@ -1,10 +1,12 @@
 import copy
 import json
+import logging
 import random
 import time
 import uuid
 
 
+gameLogger = logging.getLogger(__name__)
 save_all_games = False
 
 
