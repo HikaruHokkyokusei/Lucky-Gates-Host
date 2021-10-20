@@ -52,7 +52,9 @@ function scriptOutputHandler(packet) {
 }
 
 let pythonProcess;
-pythonProcess = new toolSet.PythonProcess({ pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler });
+pythonProcess = new toolSet.PythonProcess({
+  pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
+});
 
 pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
 
