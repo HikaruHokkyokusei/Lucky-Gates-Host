@@ -4,7 +4,14 @@ const toolSet = require("./private/ToolSet");
 
 const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
+
 let adminSocketId = null;
+let activeSocketConnections = 0;
+
+const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // PlayerAddress is Key and SocketId is the value
+const connectedSockets = {};
+
+
 const setAdmin = (socketId, credentials) => {
   if (socketId == null || credentials == null) {
     adminSocketId = null;
@@ -23,11 +30,9 @@ const isAdmin = (socketId) => {
   return socketId === adminSocketId;
 };
 
-let activeSocketConnections = 0;
-let connectedSockets = {};
-const updateConnectionList = (socket) => {
+const updateConnectionList = (socket, signCode) => {
   activeSocketConnections++;
-  connectedSockets[socket.id] = socket;
+  connectedSockets[socket.id] = {signCode, socket};
 }
 const connectionCount = () => {
   return activeSocketConnections;
@@ -35,12 +40,29 @@ const connectionCount = () => {
 const deleteConnection = (socket) => {
   activeSocketConnections--;
   delete connectedSockets[socket.id];
+  playerAddressToSocketIdMap.unsetWithValue(socket.id);
   if (isAdmin(socket.id)) {
     setAdmin(null);
   }
 }
 
-function scriptOutputHandler(packet) {
+const bindAddress = (socketId, signedMessage, playerAddress) => {
+  if (connectedSockets[socketId] != null) {
+    // TODO : Use web3 to decode the signedMessage using connectedSockets[socketId]["signCode"]
+    //  and compare the result with playerAddress
+    playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
+    return true;
+  } else {
+    return false;
+  }
+};
+const isSocketBoundToAddress = (socketId) => {
+  return playerAddressToSocketIdMap.getKeyFromValue(socketId) != null;
+}
+
+
+let pythonProcess;
+const scriptOutputHandler = (packet) => {
   if (adminSocketId != null) {
     connectedSockets[adminSocketId].emit('setOutput', packet);
   }
@@ -49,25 +71,22 @@ function scriptOutputHandler(packet) {
   }
 
   // TODO : Complete this function...
-}
-
-let pythonProcess;
+};
 pythonProcess = new toolSet.PythonProcess({
   pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
 });
 
 pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
 
-function createNewGame(gameCoinAddress, coinChainName) {
+const createNewGame = (gameCoinAddress, coinChainName) => {
   let body = {};
   if (gameCoinAddress != null && coinChainName != null) {
     body["gameCoinAddress"] = gameCoinAddress;
     body["coinChainName"] = coinChainName;
   }
   pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
-}
-
-function addPlayerToGame(gameId, playerAddress) {
+};
+const addPlayerToGame = (gameId, playerAddress) => {
   if (gameId != null && playerAddress != null) {
     // TODO : Below Stuff: -
     // Check if gameId is valid...
@@ -79,9 +98,8 @@ function addPlayerToGame(gameId, playerAddress) {
     };
     pythonProcess.sendRawPacketToScript({command: "game", action: "addPlayerToGame", body: body});
   }
-}
-
-function beginGameEarly(gameId) {
+};
+const beginGameEarly = (gameId) => {
   if (gameId != null) {
     let body = {
       gameId: gameId
@@ -89,9 +107,8 @@ function beginGameEarly(gameId) {
 
     pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
   }
-}
-
-function savePlayerDoorSelection(gameId, playerAddress, doorNumber) {
+};
+const savePlayerDoorSelection = (gameId, playerAddress, doorNumber) => {
   if (gameId != null && playerAddress != null && doorNumber != null) {
     let body = {
       "gameId": gameId,
@@ -100,9 +117,8 @@ function savePlayerDoorSelection(gameId, playerAddress, doorNumber) {
     };
     pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerDoorSelection", body: body});
   }
-}
-
-function savePlayerSwitchSelection(gameId, playerAddress, wantToSwitch) {
+};
+const savePlayerSwitchSelection = (gameId, playerAddress, wantToSwitch) => {
   if (gameId != null && playerAddress != null && wantToSwitch != null) {
     let body = {
       "gameId": gameId,
@@ -111,11 +127,11 @@ function savePlayerSwitchSelection(gameId, playerAddress, wantToSwitch) {
     };
     pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerSwitchSelection", body: body});
   }
-}
-
-function buyTicketsForPlayer() {
+};
+const buyTicketsForPlayer = () => {
   // TODO : Complete this...
-}
+};
+
 
 let pythonFunctions = {
   "sendRawPacketToScript": pythonProcess.sendRawPacketToScript,
@@ -133,6 +149,8 @@ Object.freeze(pythonFunctions);
 module.exports = {
   setAdmin: setAdmin,
   isAdmin: isAdmin,
+  bindAddress: bindAddress,
+  isSocketBoundToAddress: isSocketBoundToAddress,
   updateConnectionList: updateConnectionList,
   connectionCount: connectionCount,
   deleteConnection: deleteConnection,
