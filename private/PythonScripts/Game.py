@@ -68,9 +68,9 @@ class Game:
     def stop(self):
         self.shouldRunGame = False
 
-    def send_information_to_players(self, reply_body, action):
+    def send_information_to_players(self, reply_body, action, command: str = "informPlayers"):
         reply_body["gameId"] = self.get_game_id()
-        self.handler_parent.send_output(body=reply_body, command="informPlayers", action=action)
+        self.handler_parent.send_output(body=reply_body, command=command, action=action)
 
     def get_game_id(self):
         return self.gameState["gameId"]
@@ -153,7 +153,7 @@ class Game:
             self.send_information_to_players({
                 "playerAddress": removed_player["playerAddress"],
                 "reasonForRemoval": remove_reason
-            }, "playerRemovedFromGame")
+            }, None, "playerRemovalFromGame")
 
             if should_refund:
                 self.handler_parent.refund_for_player(self.gameState["gameCoinAddress"],
@@ -412,7 +412,6 @@ class Game:
                             "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
                             "totalPoints": current_player["totalPoints"]
                         }, "openFinalDoor")
-                        self.set_current_stage_to(3)
                     else:
                         current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
                         self.send_information_to_players({
@@ -420,7 +419,7 @@ class Game:
                             "penaltyPoints": self.general_values["nonSelectionPenalty"],
                             "totalPoints": current_player["totalPoints"]
                         }, "nonSelectionPenalty")
-                        self.set_current_stage_to(2)
+                    self.set_current_stage_to(2)
 
                     self.gameState["currentChoiceMakingPlayer"] += 1
 
@@ -458,6 +457,7 @@ class Game:
 
                 self.set_current_stage_to(7)
         except Exception as e:
+            gameLogger.exception(e)
             end_reason += f". {str(e)}"
 
         # --> 7) Waiting to be Deleted

@@ -9,6 +9,8 @@ let adminSocketId = null;
 let activeSocketConnections = 0;
 
 const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // PlayerAddress is Key and SocketId is the value
+const playerAddressToGameIdMap = {};
+const gameIdToPlayerCollectionMap = {};
 const connectedSockets = {};
 
 
@@ -32,11 +34,13 @@ const isAdmin = (socketId) => {
 
 const updateConnectionList = (socket, signCode) => {
   activeSocketConnections++;
-  connectedSockets[socket.id] = {signCode, socket};
-}
+  connectedSockets[socket.id] = {
+    "signCode": signCode,
+    "socket": socket};
+};
 const connectionCount = () => {
   return activeSocketConnections;
-}
+};
 const deleteConnection = (socket) => {
   activeSocketConnections--;
   delete connectedSockets[socket.id];
@@ -44,12 +48,13 @@ const deleteConnection = (socket) => {
   if (isAdmin(socket.id)) {
     setAdmin(null);
   }
-}
+};
 
 const bindAddress = (socketId, signedMessage, playerAddress) => {
   if (connectedSockets[socketId] != null) {
     // TODO : Use web3 to decode the signedMessage using connectedSockets[socketId]["signCode"]
-    //  and compare the result with playerAddress
+    //  and compare the result with playerAddress.
+    //  Also check that playerAddress is a valid value.
     playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
     return true;
   } else {
@@ -64,13 +69,36 @@ const isSocketBoundToAddress = (socketId) => {
 let pythonProcess;
 const scriptOutputHandler = (packet) => {
   if (adminSocketId != null) {
-    connectedSockets[adminSocketId].emit('setOutput', packet);
+    connectedSockets[adminSocketId]["socket"].emit('setOutput', packet);
   }
-  if (packet["message"] === "Python Script Exited") {
+  if (packet["Header"] != null && packet["Body"] != null) {
+    switch (packet["Header"]["command"]) {
+      case "gameCreation":
+        gameIdToPlayerCollectionMap[packet["Body"]["gameId"]] = {};
+        break;
+
+      case "playerAddition":
+        let gameId = packet["Body"]["gameId"];
+        let playerAddress = packet["Body"]["playerAddress"];
+        playerAddressToGameIdMap[playerAddress] = gameId;
+        gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
+        break;
+
+      case "informPlayers":
+        // TODO : Complete this...
+        break;
+
+      case "playerRemovalFromGame":
+        // TODO : Complete this...
+        break;
+
+      case "gameDeletion":
+        // TODO : Complete this...
+        break;
+    }
+  } else if (packet["message"] === "Python Script Exited") {
     console.log("Python Script Exited");
   }
-
-  // TODO : Complete this function...
 };
 pythonProcess = new toolSet.PythonProcess({
   pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
@@ -86,12 +114,19 @@ const createNewGame = (gameCoinAddress, coinChainName) => {
   }
   pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
 };
-const addPlayerToGame = (gameId, playerAddress) => {
-  if (gameId != null && playerAddress != null) {
-    // TODO : Below Stuff: -
-    // Check if gameId is valid...
-    // Validate player address...
-    // Link player with socketId...
+const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null}) => {
+  if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null) {
+    if (playerAddress == null) {
+      if (socketId == null) {
+        return
+      }
+
+      playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
+
+      if (playerAddress == null) {
+        return;
+      }
+    }
     let body = {
       "gameId": gameId,
       "playerAddress": playerAddress
@@ -99,17 +134,33 @@ const addPlayerToGame = (gameId, playerAddress) => {
     pythonProcess.sendRawPacketToScript({command: "game", action: "addPlayerToGame", body: body});
   }
 };
-const beginGameEarly = (gameId) => {
-  if (gameId != null) {
+const beginGameEarly = (gameId, inclusionCheck, socketId) => {
+  if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null) {
+    if (inclusionCheck) {
+      if ((socketId == null) || (!gameIdToPlayerCollectionMap[gameId][playerAddressToSocketIdMap.setKeyAndValue(socketId)])) {
+        return
+      }
+    }
+
     let body = {
       gameId: gameId
     };
-
     pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
   }
 };
-const savePlayerDoorSelection = (gameId, playerAddress, doorNumber) => {
-  if (gameId != null && playerAddress != null && doorNumber != null) {
+const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId = null, doorNumber = null}) => {
+  if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null && doorNumber != null) {
+    if (playerAddress == null) {
+      if (socketId == null) {
+        return
+      }
+
+      playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
+
+      if (playerAddress == null) {
+        return;
+      }
+    }
     let body = {
       "gameId": gameId,
       "playerAddress": playerAddress,
@@ -118,8 +169,19 @@ const savePlayerDoorSelection = (gameId, playerAddress, doorNumber) => {
     pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerDoorSelection", body: body});
   }
 };
-const savePlayerSwitchSelection = (gameId, playerAddress, wantToSwitch) => {
-  if (gameId != null && playerAddress != null && wantToSwitch != null) {
+const savePlayerSwitchSelection = ({gameId = null, playerAddress = null, socketId = null, wantToSwitch = null}) => {
+  if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null && wantToSwitch != null) {
+    if (playerAddress == null) {
+      if (socketId == null) {
+        return
+      }
+
+      playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
+
+      if (playerAddress == null) {
+        return;
+      }
+    }
     let body = {
       "gameId": gameId,
       "playerAddress": playerAddress,

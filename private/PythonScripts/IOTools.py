@@ -14,6 +14,8 @@ sleepTime = 0.2
 
 def append_packet_buffer(body: dict, command: str, action: str,
                          request_id: str = str(uuid.uuid4()), origin: str = "py"):
+    if body is None:
+        body = {}
     packet = {
         "Header": {
             "command": command,

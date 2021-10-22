@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
       switch (commands["command"]) {
         case "transloadPacket":
           serverSupplement.pythonFunctions["sendRawPacketToScript"](commands["options"]);
-          reply = "Success"
+          reply = "Transloaded"
           break;
       }
     } else {
@@ -94,41 +94,78 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createNewGame', (options) => {
-    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
+    if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameCoinAddress"] != null && options["coinChainName"] != null) {
         serverSupplement.pythonFunctions["createNewGame"](options["gameCoinAddress"], options["coinChainName"]);
       } else {
         serverSupplement.pythonFunctions["createNewGame"]();
       }
+    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+      if (options != null && options["gameCoinAddress"] != null && options["coinChainName"] != null) {
+        serverSupplement.pythonFunctions["createNewGame"](options["gameCoinAddress"], options["coinChainName"]);
+      } else {
+        serverSupplement.pythonFunctions["createNewGame"]();
+      }
+
+      // TODO : Add player to the create game using the bound address
     }
   });
 
   socket.on('addPlayerToGame', (options) => {
-    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
+    if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
-        serverSupplement.pythonFunctions["addPlayerToGame"](options["gameId"], options["playerAddress"]);
+        serverSupplement.pythonFunctions["addPlayerToGame"]({gameId: options["gameId"], playerAddress: options["playerAddress"]});
+      }
+    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+      if (options != null && options["gameId"] != null) {
+        serverSupplement.pythonFunctions["addPlayerToGame"]({gameId: options["gameId"], socketId: socket.id});
       }
     }
   });
 
   socket.on('beginGameEarly', (options) => {
-    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
+    if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null) {
-        serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"]);
+        serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"], false, null);
+      }
+    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+      if (options != null && options["gameId"] != null) {
+        serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"], true, socket.id);
       }
     }
   });
 
   socket.on('acceptPlayerInput', (options) => {
-    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
+    if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
-        // Mimicking XOR
-        if ((options["doorNumber"] == null) !== (options["wantToSwitch"] == null)) {
-          if (options["doorNumber"] != null) {
-            serverSupplement.pythonFunctions["savePlayerDoorSelection"](options["gameId"], options["playerAddress"], options["doorNumber"]);
-          } else {
-            serverSupplement.pythonFunctions["savePlayerSwitchSelection"](options["gameId"], options["playerAddress"], options["wantToSwitch"]);
-          }
+        if (options["doorNumber"] != null) {
+          serverSupplement.pythonFunctions["savePlayerDoorSelection"]({
+            gameId: options["gameId"],
+            playerAddress: options["playerAddress"],
+            doorNumber: options["doorNumber"]
+          });
+        } else if (options["wantToSwitch"] != null) {
+          serverSupplement.pythonFunctions["savePlayerSwitchSelection"]({
+            gameId: options["gameId"],
+            playerAddress: options["playerAddress"],
+            wantToSwitch: options["wantToSwitch"]
+          });
+        }
+      }
+    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+      if (options != null && options["gameId"] != null) {
+        if (options["doorNumber"] != null) {
+          serverSupplement.pythonFunctions["savePlayerDoorSelection"]({
+            gameId: options["gameId"],
+            socketId: socket.id,
+            doorNumber: options["doorNumber"]
+          });
+        } else if (options["wantToSwitch"] != null) {
+          serverSupplement.pythonFunctions["savePlayerSwitchSelection"]({
+            gameId: options["gameId"],
+            socketId: socket.id,
+            wantToSwitch: options["wantToSwitch"]
+          });
         }
       }
     }

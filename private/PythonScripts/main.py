@@ -83,10 +83,10 @@ class GameHandler:
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
         if pop_element is not None:
-            self.send_output({
+            self.send_output(body={
                 "gameId": game_id,
                 "gameEndReason": game_end_reason
-            }, "informPlayers", "gameDeleted")
+            }, command="gameDeletion")
 
     def get_game(self, game_id: str) -> Game | None:
         return self.activeGames.get(game_id, {}).get("Game", None)
@@ -127,6 +127,7 @@ class GameHandler:
 
     def handle_action(self, packet_body, action):
         reply_body = {"error": None}
+        reply_action = None
 
         if action == "createNewGame":
             reply_command = "gameCreation"
@@ -163,7 +164,8 @@ class GameHandler:
             except self.GameException as err:
                 reply_body["error"] = str(err)
         elif action == "beginGameEarly":
-            reply_command = "earlyGameBeginning"
+            reply_command = "informPlayers"
+            reply_action = "earlyGameBeginning"
             reply_body["result"] = "Failure"
             reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
 
@@ -183,7 +185,8 @@ class GameHandler:
             except self.GameException as err:
                 reply_body["error"] = str(err)
         elif action == "savePlayerDoorSelection":
-            reply_command = "doorSelection"
+            reply_command = "informPlayers"
+            reply_action = "doorSelection"
             reply_body["result"] = "Failure"
             reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
             reply_body["playerAddress"] = packet_body.get("playerAddress") if packet_body is not None else None
@@ -206,7 +209,8 @@ class GameHandler:
             else:
                 reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
         elif action == "savePlayerSwitchSelection":
-            reply_command = "switchSelection"
+            reply_command = "informPlayers"
+            reply_action = "switchSelection"
             reply_body["result"] = "Failure"
             reply_body["gameId"] = packet_body.get("gameId") if packet_body is not None else None
             reply_body["playerAddress"] = packet_body.get("playerAddress") if packet_body is not None else None
@@ -233,21 +237,22 @@ class GameHandler:
             reply_command = "error"
             reply_body["error"] = "Action Not Specified for a Game Packet"
 
-        return reply_command, reply_body
+        return reply_command, reply_action, reply_body
 
     def handle_game_packet(self, packet):
         action = packet["Header"].get("action")
         packet_body = packet.get("Body")
 
         try:
-            reply_command, reply_body = self.handle_action(packet_body, action)
+            reply_command, reply_action, reply_body = self.handle_action(packet_body, action)
         except Exception as err:
             mainLogger.error(err)
             reply_command = "error"
+            reply_action = None
             reply_body = {"error": "Error during execution of action"}
 
-        self.send_output(reply_body, reply_command, request_id=packet["Header"].get("requestId"),
-                         origin=packet["Header"].get("origin"))
+        self.send_output(reply_body, reply_command, reply_action,
+                         packet["Header"].get("requestId"), packet["Header"].get("origin"))
 
     def create_game_with_options(self, build_options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
