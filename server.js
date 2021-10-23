@@ -60,9 +60,9 @@ process.on("SIGINT", () => {
 });
 
 io.on('connection', (socket) => {
-  console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + serverSupplement.connectionCount());
   let signCode = uuid.v4();
   serverSupplement.updateConnectionList(socket, signCode);
+  console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + serverSupplement.connectionCount());
   socket.emit('signCode', signCode);
 
   socket.on('bindAddress', (options) => {

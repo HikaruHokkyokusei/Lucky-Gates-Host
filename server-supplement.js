@@ -72,14 +72,15 @@ const scriptOutputHandler = (packet) => {
     connectedSockets[adminSocketId]["socket"].emit('setOutput', packet);
   }
   if (packet["Header"] != null && packet["Body"] != null) {
+    let gameId = packet["Body"]["gameId"]; // In normal situations, should not be null.
+    let playerAddress = packet["Body"]["playerAddress"]; // Can be null.
+
     switch (packet["Header"]["command"]) {
       case "gameCreation":
-        gameIdToPlayerCollectionMap[packet["Body"]["gameId"]] = {};
+        gameIdToPlayerCollectionMap[gameId] = {};
         break;
 
       case "playerAddition":
-        let gameId = packet["Body"]["gameId"];
-        let playerAddress = packet["Body"]["playerAddress"];
         playerAddressToGameIdMap[playerAddress] = gameId;
         gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
         break;
@@ -89,7 +90,9 @@ const scriptOutputHandler = (packet) => {
         break;
 
       case "playerRemovalFromGame":
-        // TODO : Complete this...
+        delete playerAddressToGameIdMap[playerAddress];
+        delete gameIdToPlayerCollectionMap[gameId][playerAddress];
+        // TODO : Send msg to players...
         break;
 
       case "gameDeletion":
