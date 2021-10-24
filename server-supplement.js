@@ -1,9 +1,12 @@
 "use strict";
 
 const toolSet = require("./private/ToolSet");
+const Web3 = require("web3");
+const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
 
 const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
+const tools = new toolSet.Miscellaneous();
 
 let adminSocketId = null;
 let activeSocketConnections = 0;
@@ -51,14 +54,14 @@ const deleteConnection = (socket) => {
 };
 
 const bindAddress = (socketId, signedMessage, playerAddress) => {
-  if (connectedSockets[socketId] != null) {
-    // TODO : Use web3 to decode the signedMessage using connectedSockets[socketId]["signCode"]
-    //  and compare the result with playerAddress.
-    //  Also check that playerAddress is a valid value.
-    playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
-    return true;
-  } else {
-    return false;
+  if (connectedSockets[socketId] != null && Web3.utils.isAddress(playerAddress)) {
+    playerAddress = Web3.utils.toChecksumAddress(playerAddress);
+
+    try {
+      if (tools.equalsIgnoreCase(playerAddress, web3.eth.accounts.recover(connectedSockets[socketId]["signCode"], signedMessage))) {
+        playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
+      }
+    } catch { }
   }
 };
 const isSocketBoundToAddress = (socketId) => {

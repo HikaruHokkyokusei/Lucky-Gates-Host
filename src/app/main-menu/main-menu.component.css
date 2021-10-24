@@ -1,0 +1,22 @@
+.MM-Wrapper {
+  min-height: 125px;
+  min-width: 250px;
+
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.MM-Element-Button {
+  width: 100%;
+
+  padding: 5% 0.05%;
+  box-sizing: border-box;
+
+  flex: 1 0 0;  /* Flex Grow | Flex Shrink | Flex Basis */
+
+  display: flex;
+  flex-direction: column;
+}

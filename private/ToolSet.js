@@ -104,7 +104,14 @@ class TwoWayMap {
   }
 }
 
+class Miscellaneous {
+  equalsIgnoreCase = (stringA, stringB) => {
+    return stringA.localeCompare(stringB, undefined, { sensitivity: 'variant' }) === 0;
+  }
+}
+
 module.exports = {
   PythonProcess: PythonProcess,
-  TwoWayMap: TwoWayMap
+  TwoWayMap: TwoWayMap,
+  Miscellaneous: Miscellaneous
 };
