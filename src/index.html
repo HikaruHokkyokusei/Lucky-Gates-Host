@@ -6,10 +6,22 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="assets/lucky-gates.png">
+  <script type="text/javascript" src="node_modules/web3/dist/web3.min.js"></script>
+  <script>
+    let web3 = null;
+    if (window.ethereum != null) {
+      web3 = new Web3(window.ethereum);
+    }
+    window["web3"] = web3;
+  </script>
 </head>
 <body>
 <app-root>
-  <p style="text-align:center; display: block;"><img style="text-align: center; vertical-align: middle" src="assets/Loading.svg" alt="...LOADING..."></p>
+  <div style="min-height: 100vh; display: flex; flex-direction: row; align-items: center;">
+    <div style="flex-basis: 0; flex-grow: 1; display: block; text-align: center;">
+      <img src="assets/Loading.svg" alt="...LOADING...">
+    </div>
+  </div>
 </app-root>
 </body>
 </html>

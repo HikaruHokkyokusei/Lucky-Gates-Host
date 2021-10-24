@@ -1,0 +1,13 @@
+button {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+
+  text-align: center;
+  font-weight: bold;
+  color: #eff3f6;
+  background-color: #000000;
+
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 7px 4px #807c69;
+}
