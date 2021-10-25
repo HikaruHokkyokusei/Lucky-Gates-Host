@@ -1,7 +1,7 @@
 <div class="container">
 
   <!-- Change this to router-outlet later -->
-  <app-main-menu *ngIf="canLoadMainMenu(); else elseBlock"></app-main-menu>
+  <app-main-menu *ngIf="shouldRemoveLoadingScreen(); else elseBlock"></app-main-menu>
 
   <ng-template #elseBlock>
     <div class="LoadingImageDiv">

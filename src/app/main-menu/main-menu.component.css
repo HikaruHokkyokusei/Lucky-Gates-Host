@@ -3,21 +3,20 @@
   min-width: 250px;
 
   height: 100%;
-  width: 80%;
-  flex: 1 0 0;
+  width: 100%;
 
   box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
 
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
 }
 
 .MM-Element-Button {
-  width: 100%;
-  flex: 1 0 0;  /* Flex Grow | Flex Shrink | Flex Basis */
+  width: 95%;
+  height: 10%;
 
   display: flex;
   flex-direction: column;

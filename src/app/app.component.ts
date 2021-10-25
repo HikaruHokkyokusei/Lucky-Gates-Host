@@ -28,7 +28,7 @@ export class AppComponent {
     }
   }
 
-  canLoadMainMenu = () => {
-    return this.socketIOService.signCode !== "" && this.web3Service.web3BuildSuccess;
+  shouldRemoveLoadingScreen = () => {
+    return this.socketIOService.signCode !== "" && this.web3Service.web3BuildSuccess && this.web3Service.didSignMessage;
   }
 }

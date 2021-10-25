@@ -3,6 +3,7 @@ import {AppComponent} from "../app.component";
 export class Web3Service {
 
   web3BuildSuccess: boolean = false;
+  didSignMessage: boolean = false;
   appComponent: AppComponent;
   web3 = window.web3;
   userAccount: string = "";
@@ -42,12 +43,12 @@ export class Web3Service {
   requestSignatureFromUser = async (messageToSign: string) => {
     if (this.web3BuildSuccess) {
       try {
-        return await this.web3.eth.personal.sign(messageToSign, this.userAccount, "Unnecessary Dummy Parameter");
-      } catch (err) {
-        return null;
-      }
-    } else {
-      return null;
+        let signedMessage = await this.web3.eth.personal.sign(messageToSign, this.userAccount, "Unnecessary Dummy Parameter");
+        this.didSignMessage = true;
+        return signedMessage;
+      } catch (err) { }
     }
+
+    this.didSignMessage = false;
   }
 }
