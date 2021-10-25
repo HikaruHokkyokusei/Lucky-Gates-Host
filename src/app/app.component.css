@@ -1,13 +1,30 @@
 .container {
+  width: 100%;
+  flex: 1 0 0;
+
   margin: 0;
   padding: 0;
-  width: 100%;
+  box-sizing: border-box;
 
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Times New Roman', serif;
+}
+
+app-main-menu {
+  width: 100%;
+  height: 100%;
 
   display: flex;
-  flex-direction: row;
-  box-sizing: border-box;
   justify-content: center;
   align-items: center;
+}
+
+.LoadingImageDiv {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: fit-content;
+  width: fit-content;
 }

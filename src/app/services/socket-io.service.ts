@@ -1,12 +1,19 @@
 import {io} from 'socket.io-client';
+import {AppComponent} from "../app.component";
 
 export class SocketIOService {
   socket;
+  signCode: string = "";
 
-  constructor(connectUrl: string) {
-    this.socket = io(connectUrl, {
+  constructor(private appComponent: AppComponent) {
+    this.socket = io(window.location.origin, {
       'reconnectionDelay': 2500,
       "reconnectionAttempts": 100
+    });
+
+    this.setActionForEvent("signCode", (signCode) => {
+      this.signCode = signCode;
+      setTimeout(this.appComponent.bindPlayerAddress, 500);
     });
   }
 

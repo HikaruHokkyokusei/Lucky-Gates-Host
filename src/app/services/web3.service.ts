@@ -1,4 +1,4 @@
-import {AppComponent} from "./app.component";
+import {AppComponent} from "../app.component";
 
 export class Web3Service {
 
@@ -18,8 +18,10 @@ export class Web3Service {
 
       window.ethereum.request({method: 'eth_requestAccounts'}).then((accList: string[]) => {
         this.setUserAccount(accList);
-        this.web3BuildSuccess = true;
-        console.log("Successfully Connected to Web3 Service");
+        if (this.userAccount !== "") {
+          this.web3BuildSuccess = true;
+          console.log("Successfully Connected to Web3 Service");
+        }
       }).catch((err: any) => {
         console.log("Web3 Access Denied : " + ((typeof err == 'object') ? JSON.stringify(err) : err));
       });
@@ -28,10 +30,13 @@ export class Web3Service {
     }
   }
 
-  setUserAccount = (accList: string[]) => {
-    this.userAccount = this.web3.utils.toChecksumAddress(accList[0]);
-    this.appComponent.bindPlayerAddress();
-    console.log("User Account Changed to : " + this.userAccount);
+  private setUserAccount = (accList: string[]) => {
+    if (accList != null && accList.length > 0) {
+      this.userAccount = this.web3.utils.toChecksumAddress(accList[0]);
+      this.web3BuildSuccess = true;
+      this.appComponent.bindPlayerAddress();
+      console.log("User Account Changed to : " + this.userAccount);
+    }
   };
 
   requestSignatureFromUser = async (messageToSign: string) => {
