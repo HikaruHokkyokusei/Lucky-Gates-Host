@@ -70,6 +70,7 @@ class Game:
 
     def send_information_to_players(self, reply_body, action, command: str = "informPlayers"):
         reply_body["gameId"] = self.get_game_id()
+        reply_body["gameState"] = copy.deepcopy(self.gameState)
         self.handler_parent.send_output(body=reply_body, command=command, action=action)
 
     def get_game_id(self):

@@ -60,7 +60,8 @@ process.on("SIGINT", () => {
 });
 
 io.on('connection', (socket) => {
-  let signCode = uuid.v4();
+  let signCode = "Please sign this message with unique code : " +  uuid.v4() + ", to verify ownership of the address. " +
+    "This will NOT cost you gas fees OR anything else.";
   serverSupplement.updateConnectionList(socket, signCode);
   console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + serverSupplement.connectionCount());
   socket.emit('signCode', signCode);

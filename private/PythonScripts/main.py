@@ -156,7 +156,8 @@ class GameHandler:
             try:
                 if reply_body["gameId"] is None or reply_body["playerAddress"] is None:
                     raise self.GameException("Either of gameId or playerAddress field missing from the body")
-                success, message = self.add_player_to_game(packet_body["gameId"], packet_body["playerAddress"])
+                [success, message], game_state = self.add_player_to_game(packet_body["gameId"],
+                                                                         packet_body["playerAddress"])
                 if not success:
                     reply_body["error"] = message
                 else:
@@ -180,6 +181,7 @@ class GameHandler:
                 if not success:
                     reply_body["error"] = message
                 else:
+                    reply_body["gameState"] = copy.deepcopy(game.gameState)
                     reply_body["result"] = "Success"
                     reply_body["message"] = message
             except self.GameException as err:
@@ -292,7 +294,7 @@ class GameHandler:
         if game is not None:
             if DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
                                                game.gameState["coinChainName"], player_address):
-                return game.add_player_to_game({"playerAddress": player_address})
+                return game.add_player_to_game({"playerAddress": player_address}), copy.deepcopy(game.gameState)
             else:
                 raise self.GameException("Player Has 0 Tickets. Cannot Join This Game")
         else:

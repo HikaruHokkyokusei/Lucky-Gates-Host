@@ -14,7 +14,8 @@ let activeSocketConnections = 0;
 const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // PlayerAddress is Key and SocketId is the value
 const playerAddressToGameIdMap = {};
 const gameIdToPlayerCollectionMap = {};
-const connectedSockets = {};
+const connectedClients = {};
+let pythonProcess;
 
 
 const setAdmin = (socketId, credentials) => {
@@ -37,7 +38,7 @@ const isAdmin = (socketId) => {
 
 const updateConnectionList = (socket, signCode) => {
   activeSocketConnections++;
-  connectedSockets[socket.id] = {
+  connectedClients[socket.id] = {
     "signCode": signCode,
     "socket": socket};
 };
@@ -46,7 +47,7 @@ const connectionCount = () => {
 };
 const deleteConnection = (socket) => {
   activeSocketConnections--;
-  delete connectedSockets[socket.id];
+  delete connectedClients[socket.id];
   playerAddressToSocketIdMap.unsetWithValue(socket.id);
   if (isAdmin(socket.id)) {
     setAdmin(null);
@@ -54,11 +55,11 @@ const deleteConnection = (socket) => {
 };
 
 const bindAddress = (socketId, signedMessage, playerAddress) => {
-  if (connectedSockets[socketId] != null && Web3.utils.isAddress(playerAddress)) {
+  if (connectedClients[socketId] != null && Web3.utils.isAddress(playerAddress)) {
     playerAddress = Web3.utils.toChecksumAddress(playerAddress);
 
     try {
-      if (tools.equalsIgnoreCase(playerAddress, web3.eth.accounts.recover(connectedSockets[socketId]["signCode"], signedMessage))) {
+      if (tools.equalsIgnoreCase(playerAddress, web3.eth.accounts.recover(connectedClients[socketId]["signCode"], signedMessage))) {
         playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
       }
     } catch { }
@@ -69,11 +70,21 @@ const isSocketBoundToAddress = (socketId) => {
 }
 
 
-let pythonProcess;
-const scriptOutputHandler = (packet) => {
-  if (adminSocketId != null) {
-    connectedSockets[adminSocketId]["socket"].emit('setOutput', packet);
+const deleteDoorPatternIfAny = (inObject) => {
+  for (let key in inObject) {
+    if (key === "doorPattern") {
+      delete inObject[key];
+    } else if (typeof inObject[key] == "object") {
+      deleteDoorPatternIfAny(inObject[key]);
+    }
   }
+};
+const scriptOutputHandler = async (packet) => {
+  if (adminSocketId != null) {
+    connectedClients[adminSocketId]["socket"].emit('setOutput', packet);
+  }
+  await deleteDoorPatternIfAny(packet);
+
   if (packet["Header"] != null && packet["Body"] != null) {
     let gameId = packet["Body"]["gameId"]; // In normal situations, should not be null.
     let playerAddress = packet["Body"]["playerAddress"]; // Can be null.
@@ -84,8 +95,13 @@ const scriptOutputHandler = (packet) => {
         break;
 
       case "playerAddition":
-        playerAddressToGameIdMap[playerAddress] = gameId;
-        gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
+        if (packet["Body"]["error"] == null && playerAddressToGameIdMap[playerAddress] == null) {
+          playerAddressToGameIdMap[playerAddress] = gameId;
+          gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
+
+          let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
+          connectedClients[playerSocketId]["socket"].join(gameId);
+        }
         break;
 
       case "informPlayers":
@@ -93,6 +109,9 @@ const scriptOutputHandler = (packet) => {
         break;
 
       case "playerRemovalFromGame":
+        let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
+        connectedClients[playerSocketId]["socket"].leave(gameId);
+
         delete playerAddressToGameIdMap[playerAddress];
         delete gameIdToPlayerCollectionMap[gameId][playerAddress];
         // TODO : Send msg to players...
@@ -114,8 +133,8 @@ pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
 
 const createNewGame = (gameCoinAddress, coinChainName) => {
   let body = {};
-  if (gameCoinAddress != null && coinChainName != null) {
-    body["gameCoinAddress"] = gameCoinAddress;
+  if (gameCoinAddress != null && coinChainName != null && Web3.utils.isAddress(gameCoinAddress)) {
+    body["gameCoinAddress"] = Web3.utils.toChecksumAddress(gameCoinAddress);
     body["coinChainName"] = coinChainName;
   }
   pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
@@ -129,7 +148,7 @@ const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null})
 
       playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
 
-      if (playerAddress == null) {
+      if (playerAddress == null || playerAddressToGameIdMap[playerAddress] != null) {
         return;
       }
     }
@@ -167,6 +186,11 @@ const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId 
         return;
       }
     }
+
+    if (!gameIdToPlayerCollectionMap[gameId][playerAddress]) {
+      return;
+    }
+
     let body = {
       "gameId": gameId,
       "playerAddress": playerAddress,
@@ -188,6 +212,11 @@ const savePlayerSwitchSelection = ({gameId = null, playerAddress = null, socketI
         return;
       }
     }
+
+    if (!gameIdToPlayerCollectionMap[gameId][playerAddress]) {
+      return;
+    }
+
     let body = {
       "gameId": gameId,
       "playerAddress": playerAddress,
