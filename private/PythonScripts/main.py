@@ -134,16 +134,22 @@ class GameHandler:
 
             g_c_a = packet_body.get("gameCoinAddress") if packet_body is not None else None
             c_c_n = packet_body.get("coinChainName") if packet_body is not None else None
+            game_creator = packet_body.get("gameCreator") if packet_body is not None else None
+
             try:
-                if g_c_a is not None and c_c_n is not None:
-                    if DBHandler.is_game_coin_registered(g_c_a, c_c_n):
-                        game_id, game_state = self.create_new_game(g_c_a, c_c_n)
+                if game_creator is not None:
+                    if g_c_a is not None and c_c_n is not None:
+                        if DBHandler.is_game_coin_registered(g_c_a, c_c_n):
+                            game_id, game_state = self.create_new_game(g_c_a, c_c_n, game_creator)
+                        else:
+                            raise self.GameException("Coin with given address and chain is not Registered")
                     else:
-                        raise self.GameException("Coin with given address and chain is not Registered")
+                        game_id, game_state = self.create_new_game(game_creator=game_creator)
                 else:
-                    game_id, game_state = self.create_new_game()
+                    raise self.GameException("Game Creator Not Specified")
 
                 reply_body["gameId"] = game_id
+                reply_body["gameCreator"] = game_state["gameCreator"]
                 reply_body["gameState"] = game_state
             except self.GameException as err:
                 reply_body["error"] = str(err)
@@ -156,11 +162,12 @@ class GameHandler:
             try:
                 if reply_body["gameId"] is None or reply_body["playerAddress"] is None:
                     raise self.GameException("Either of gameId or playerAddress field missing from the body")
-                [success, message], game_state = self.add_player_to_game(packet_body["gameId"],
-                                                                         packet_body["playerAddress"])
+                success, message, game_state = self.add_player_to_game(packet_body["gameId"],
+                                                                       packet_body["playerAddress"])
                 if not success:
                     reply_body["error"] = message
                 else:
+                    reply_body["gameState"] = game_state
                     reply_body["result"] = "Success"
             except self.GameException as err:
                 reply_body["error"] = str(err)
@@ -269,14 +276,16 @@ class GameHandler:
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
         return new_game.get_game_id(), new_game.gameState
 
-    def create_new_game(self, game_coin_address=None, coin_chain_name=None):
-        if game_coin_address is None:
-            return self.create_game_with_options({})
-        else:
-            return self.create_game_with_options({
-                "gameCoinAddress": game_coin_address,
-                "coinChainName": coin_chain_name
-            })
+    def create_new_game(self, game_coin_address=None, coin_chain_name=None, game_creator=None):
+        build_options = {}
+        if game_coin_address is not None:
+            build_options["gameCoinAddress"] = game_coin_address
+        if coin_chain_name is not None:
+            build_options["coinChainName"] = coin_chain_name
+        if game_creator is not None:
+            build_options["gameCreator"] = game_creator
+
+        return self.create_game_with_options(build_options=build_options)
 
     def rebuild_pending_games(self):
         game_states_list = None
@@ -294,7 +303,8 @@ class GameHandler:
         if game is not None:
             if DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
                                                game.gameState["coinChainName"], player_address):
-                return game.add_player_to_game({"playerAddress": player_address}), copy.deepcopy(game.gameState)
+                success, message = game.add_player_to_game({"playerAddress": player_address})
+                return success, message, copy.deepcopy(game.gameState)
             else:
                 raise self.GameException("Player Has 0 Tickets. Cannot Join This Game")
         else:

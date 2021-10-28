@@ -33,10 +33,13 @@ export class Web3Service {
 
   private setUserAccount = (accList: string[]) => {
     if (accList != null && accList.length > 0) {
-      this.userAccount = this.web3.utils.toChecksumAddress(accList[0]);
-      this.web3BuildSuccess = true;
-      this.appComponent.bindPlayerAddress();
-      console.log("User Account Changed to : " + this.userAccount);
+      let userAccount: string = this.web3.utils.toChecksumAddress(accList[0]);
+      if (this.userAccount !== userAccount) {
+        this.userAccount = userAccount;
+        this.web3BuildSuccess = true;
+        this.appComponent.bindPlayerAddress();
+        console.log("User Account Changed to : " + this.userAccount);
+      }
     }
   };
 
@@ -46,9 +49,11 @@ export class Web3Service {
         let signedMessage = await this.web3.eth.personal.sign(messageToSign, this.userAccount, "Unnecessary Dummy Parameter");
         this.didSignMessage = true;
         return signedMessage;
-      } catch (err) { }
+      } catch (err) {
+        this.didSignMessage = false;
+      }
+    } else {
+      this.didSignMessage = false;
     }
-
-    this.didSignMessage = false;
   }
 }

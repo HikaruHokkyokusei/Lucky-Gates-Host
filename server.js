@@ -59,6 +59,16 @@ process.on("SIGINT", () => {
   }
 });
 
+const ioEmitter = (roomId, emitEvent, data) => {
+  if (data == null) {
+    io.to(roomId).emit(emitEvent);
+  } else {
+    io.to(roomId).emit(emitEvent, data);
+  }
+};
+
+serverSupplement.setEmitter(ioEmitter);
+
 io.on('connection', (socket) => {
   let signCode = "Please sign this message with unique code : " +  uuid.v4() + ", to verify ownership of the address. " +
     "This will NOT cost you gas fees OR anything else.";
@@ -97,15 +107,15 @@ io.on('connection', (socket) => {
   socket.on('createNewGame', (options) => {
     if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameCoinAddress"] != null && options["coinChainName"] != null) {
-        serverSupplement.pythonFunctions["createNewGame"](options["gameCoinAddress"], options["coinChainName"]);
+        serverSupplement.pythonFunctions["createNewGame"](socket.id, options["gameCoinAddress"], options["coinChainName"]);
       } else {
-        serverSupplement.pythonFunctions["createNewGame"]();
+        serverSupplement.pythonFunctions["createNewGame"](socket.id);
       }
     } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
       if (options != null && options["gameCoinAddress"] != null && options["coinChainName"] != null) {
-        serverSupplement.pythonFunctions["createNewGame"](options["gameCoinAddress"], options["coinChainName"]);
+        serverSupplement.pythonFunctions["createNewGame"](socket.id, options["gameCoinAddress"], options["coinChainName"]);
       } else {
-        serverSupplement.pythonFunctions["createNewGame"]();
+        serverSupplement.pythonFunctions["createNewGame"](socket.id);
       }
 
       // TODO : Add player to the create game using the bound address
@@ -125,12 +135,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('beginGameEarly', (options) => {
-    if (serverSupplement.isAdmin(socket.id)) {
-      if (options != null && options["gameId"] != null) {
+    if (options != null && options["gameId"] != null) {
+      if (serverSupplement.isAdmin(socket.id)) {
         serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"], false, null);
-      }
-    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
-      if (options != null && options["gameId"] != null) {
+      } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
         serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"], true, socket.id);
       }
     }

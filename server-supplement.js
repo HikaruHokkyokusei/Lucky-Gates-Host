@@ -17,6 +17,10 @@ const gameIdToPlayerCollectionMap = {};
 const connectedClients = {};
 let pythonProcess;
 
+let emitter;
+const setEmitter = (ioEmitter) => {
+  emitter = ioEmitter;
+};
 
 const setAdmin = (socketId, credentials) => {
   if (socketId == null || credentials == null) {
@@ -86,12 +90,19 @@ const scriptOutputHandler = async (packet) => {
   await deleteDoorPatternIfAny(packet);
 
   if (packet["Header"] != null && packet["Body"] != null) {
-    let gameId = packet["Body"]["gameId"]; // In normal situations, should not be null.
+    let gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
     let playerAddress = packet["Body"]["playerAddress"]; // Can be null.
+    let isGameCreatorAdmin = packet["Body"]["gameState"]["gameCreator"] === "admin";
+    let shouldForwardToPlayers = true;
 
     switch (packet["Header"]["command"]) {
       case "gameCreation":
         gameIdToPlayerCollectionMap[gameId] = {};
+        let socketForEmit = connectedClients[playerAddressToSocketIdMap.getValueFromKey(packet["Body"]["gameCreator"])]["socket"];
+        if (socketForEmit !== null) {
+          socketForEmit.emit('synchronizeGamePacket', packet);
+        }
+        shouldForwardToPlayers = false;
         break;
 
       case "playerAddition":
@@ -100,7 +111,9 @@ const scriptOutputHandler = async (packet) => {
           gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
 
           let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
-          connectedClients[playerSocketId]["socket"].join(gameId);
+          if (connectedClients[playerSocketId] != null) {
+            connectedClients[playerSocketId]["socket"].join(gameId);
+          }
         }
         break;
 
@@ -110,7 +123,9 @@ const scriptOutputHandler = async (packet) => {
 
       case "playerRemovalFromGame":
         let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
-        connectedClients[playerSocketId]["socket"].leave(gameId);
+        if (connectedClients[playerSocketId] != null) {
+          connectedClients[playerSocketId]["socket"].leave(gameId);
+        }
 
         delete playerAddressToGameIdMap[playerAddress];
         delete gameIdToPlayerCollectionMap[gameId][playerAddress];
@@ -119,7 +134,16 @@ const scriptOutputHandler = async (packet) => {
 
       case "gameDeletion":
         // TODO : Complete this...
+        shouldForwardToPlayers = false;
         break;
+
+      default:
+        shouldForwardToPlayers = false;
+        break;
+    }
+
+    if (!isGameCreatorAdmin && shouldForwardToPlayers) {
+      emitter(gameId, 'synchronizeGamePacket', packet);
     }
   } else if (packet["message"] === "Python Script Exited") {
     console.log("Python Script Exited");
@@ -131,8 +155,16 @@ pythonProcess = new toolSet.PythonProcess({
 
 pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
 
-const createNewGame = (gameCoinAddress, coinChainName) => {
-  let body = {};
+const createNewGame = (creatorSocketId, gameCoinAddress, coinChainName) => {
+  let gameCreator = playerAddressToSocketIdMap.getKeyFromValue(creatorSocketId);
+  if (creatorSocketId === adminSocketId) {
+    gameCreator = "admin";
+  } else if (gameCreator == null) {
+    return;
+  }
+  let body = {
+    "gameCreator": gameCreator
+  };
   if (gameCoinAddress != null && coinChainName != null && Web3.utils.isAddress(gameCoinAddress)) {
     body["gameCoinAddress"] = Web3.utils.toChecksumAddress(gameCoinAddress);
     body["coinChainName"] = coinChainName;
@@ -244,6 +276,7 @@ let pythonFunctions = {
 Object.freeze(pythonFunctions);
 
 module.exports = {
+  setEmitter: setEmitter,
   setAdmin: setAdmin,
   isAdmin: isAdmin,
   bindAddress: bindAddress,

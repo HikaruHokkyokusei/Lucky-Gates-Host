@@ -23,6 +23,7 @@ class Game:
         self.game_key_list = [
             "gameCoinAddress",
             "coinChainName",
+            "gameCreator",
             "minPlayers",
             "maxPlayers",
             "players",
