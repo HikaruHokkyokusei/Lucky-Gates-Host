@@ -70,7 +70,7 @@ const ioEmitter = (roomId, emitEvent, data) => {
 serverSupplement.setEmitter(ioEmitter);
 
 io.on('connection', (socket) => {
-  let signCode = "Please sign this message with unique code : " +  uuid.v4() + ", to verify ownership of the address. " +
+  let signCode = "Please sign this message with unique code : " + uuid.v4() + ", to verify ownership of the address. " +
     "This will NOT cost you gas fees OR anything else.";
   serverSupplement.updateConnectionList(socket, signCode);
   console.log('Socket connection made. Id : ' + socket.id + ", IP : " + ", Active Connections : " + serverSupplement.connectionCount());
@@ -125,7 +125,10 @@ io.on('connection', (socket) => {
   socket.on('addPlayerToGame', (options) => {
     if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
-        serverSupplement.pythonFunctions["addPlayerToGame"]({gameId: options["gameId"], playerAddress: options["playerAddress"]});
+        serverSupplement.pythonFunctions["addPlayerToGame"]({
+          gameId: options["gameId"],
+          playerAddress: options["playerAddress"]
+        });
       }
     } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
       if (options != null && options["gameId"] != null) {
