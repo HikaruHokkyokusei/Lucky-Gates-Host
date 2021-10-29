@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-main-menu',
+  selector: 'app-main-menu[appComponent]',
   templateUrl: './main-menu.component.html',
   styleUrls: ['./main-menu.component.css']
 })
 export class MainMenuComponent implements OnInit {
 
-  constructor() { }
+  @Input() appComponent!: AppComponent;
+
+  constructor() {
+  }
 
   ngOnInit(): void {
   }

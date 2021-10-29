@@ -6,6 +6,7 @@
   justify-content: center;
   align-items: center;
 }
+
 .TextHolder {
   height: 100px;
   width: 250px;
@@ -18,6 +19,7 @@
   font-weight: bold;
   color: #a88000;
 }
+
 .Button {
   min-height: 100px;
   width: 90%;
@@ -29,8 +31,9 @@
 
   display: flex;
   justify-content: center;
-  align-items:center;
+  align-items: center;
 }
+
 .Button::before {
   content: '';
   position: absolute;
@@ -39,14 +42,16 @@
   width: 100%;
   height: 100%;
   z-index: 1;
-  background-color: rgba(0,0,0,1);
+  background-color: rgba(0, 0, 0, 1);
   transition: all 0.35s;
   border-radius: 10px;
 }
+
 .Button:hover::before {
-  opacity: 0 ;
-  transform: scale(0.5,0.5);
+  opacity: 0;
+  transform: scale(0.5, 0.5);
 }
+
 .Button::after {
   content: '';
   position: absolute;
@@ -58,10 +63,11 @@
   opacity: 0;
   transition: all 0.35s;
   border: 2px solid rgba(255, 255, 255, 0.8);
-  transform: scale(1.1,1.1);
+  transform: scale(1.1, 1.1);
   border-radius: 10px;
 }
+
 .Button:hover::after {
   opacity: 1;
-  transform: scale(1,1);
+  transform: scale(1, 1);
 }
