@@ -13,23 +13,34 @@
   align-items: center;
 }
 
+/*
+* ng-template and ng-container gets automatically commented out,
+* so no need to set properties for these 2 elements.
+* All hail Angular !!!
+*/
+
 app-main-menu {
-  min-height: 600px;
-  width: 40%;
-  height: 60%;
+  width: max(400px, 40%);
+  height: max(400px, 80%);
 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+app-player-menu {
+  width: max(600px, 65%);
+  height: max(500px, 80%);
+}
+
 .LoadingImageDiv {
+  height: fit-content;
+  width: fit-content;
+
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
-  height: fit-content;
-  width: fit-content;
 }

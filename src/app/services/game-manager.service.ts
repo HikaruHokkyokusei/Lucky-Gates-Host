@@ -1,13 +1,14 @@
 import {AppComponent} from "../app.component";
 
-interface TransferData {
+export interface TransferData {
   gameCoinAddress?: string,
   coinChainName?: string,
   gameId?: string,
   doorNumber?: number,
   wantToSwitch?: boolean
 }
-interface Player {
+
+export interface Player {
   playerAddress?: string
   reasonForRemovalFromGame?: string,
   doorsOpenedByGame?: number[],
@@ -16,12 +17,14 @@ interface Player {
   wantToSwitchDoor?: boolean,
   totalPoints?: number
 }
-interface GameState {
+
+export interface GameState {
   gameId?: string,
   gameCoinAddress?: string,
   coinChainName?: string,
+  gameCreator?: string,
   minPlayers?: number,
-  maxPlayers?:number,
+  maxPlayers?: number,
   players?: Player[],
   removedPlayers?: Player[],
   currentStage?: number,
@@ -39,7 +42,9 @@ export class GameManagerService {
   localGameCoinAddress: string = "";
   localCoinChainName: string = "";
 
-  gameState: GameState = {};
+  gameState: GameState = {
+    players: []
+  };
 
   constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
     if (localGameCoinAddress != null) {
@@ -52,7 +57,10 @@ export class GameManagerService {
   }
 
   synchroniseGameData = (gameState: GameState) => {
-    for (let key in Object.keys(gameState)) {
+    let keySet = Object.keys(gameState);
+    let max: number = keySet.length;
+    for (let index: number = 0; index < max; index++) {
+      let key = keySet[index];
       let typeKey = <keyof GameState>key;
       this.updateEntryInGameState(typeKey, gameState[typeKey]);
     }
@@ -63,19 +71,21 @@ export class GameManagerService {
   };
 
   createNewGame = () => {
-    let data: TransferData = {};
-    if (this.localGameCoinAddress !== "") {
-      data["gameCoinAddress"] = this.localGameCoinAddress;
-    }
-    if (this.localCoinChainName !== "") {
-      data["coinChainName"] = this.localCoinChainName;
-    }
+    if (this.gameState["gameId"] == null || this.gameState["gameId"] === "") {
+      let data: TransferData = {};
+      if (this.localGameCoinAddress !== "") {
+        data["gameCoinAddress"] = this.localGameCoinAddress;
+      }
+      if (this.localCoinChainName !== "") {
+        data["coinChainName"] = this.localCoinChainName;
+      }
 
-    this.appComponent.socketIOService.emitEventToServer('createNewGame', data);
+      this.appComponent.socketIOService.emitEventToServer('createNewGame', data);
+    }
   };
 
   addPlayerToGame = (gameId: string) => {
-    if (this.gameState["gameId"] === "") {
+    if (this.gameState["gameId"] == null || this.gameState["gameId"] === "") {
       let data: TransferData = {
         gameId: gameId
       };
@@ -83,6 +93,16 @@ export class GameManagerService {
       this.appComponent.socketIOService.emitEventToServer('addPlayerToGame', data);
     }
   };
+
+  beginGameEarly = () => {
+    if (this.gameState["gameId"] != null && this.gameState["gameId"] !== "") {
+      let data: TransferData = {
+        gameId: this.gameState["gameId"]
+      };
+
+      this.appComponent.socketIOService.emitEventToServer("beginGameEarly", data);
+    }
+  }
 
   sendPlayerDoorSelection = (doorNumber: number) => {
     if (this.gameState["gameId"] !== "") {

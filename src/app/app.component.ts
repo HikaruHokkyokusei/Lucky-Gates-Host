@@ -16,11 +16,25 @@ export class AppComponent {
   gameManagerService: GameManagerService = new GameManagerService(this);
   isBindingPlayerAddress: boolean = false;
 
-  constructor() { }
+  /*
+  * 0 => Main Menu
+  * 1 => Player Menu
+  * 2 => Game Window
+  * */
+  windowNumberToShow: number = 0;
 
-  shouldRemoveLoadingScreen = () => {
-    return this.socketIOService.signCode !== "" && this.web3Service.web3BuildSuccess && this.web3Service.didSignMessage;
+  constructor() {
   }
+
+  shouldShowLoadingScreen = () => {
+    return this.socketIOService.signCode === "" || !this.web3Service.web3BuildSuccess || !this.web3Service.didSignMessage;
+  };
+
+  setWindowNumberToShowTo = (windowNumberToShow: number) => {
+    if (this.windowNumberToShow !== windowNumberToShow) {
+      this.windowNumberToShow = windowNumberToShow;
+    }
+  };
 
   bindPlayerAddress = () => {
     if (this.web3Service.userAccount !== "" && this.socketIOService.signCode !== "" && !this.isBindingPlayerAddress) {
@@ -36,5 +50,5 @@ export class AppComponent {
         this.isBindingPlayerAddress = false;
       });
     }
-  }
+  };
 }
