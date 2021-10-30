@@ -97,17 +97,17 @@ const scriptOutputHandler = async (packet) => {
   await deleteDoorPatternIfAny(packet);
 
   if (packet["Header"] != null && packet["Body"] != null) {
+    let gameCreator, isGameCreatorAdmin = false, shouldForwardToPlayers = true;
     const gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
     const playerAddress = packet["Body"]["playerAddress"]; // Can be null.
-    let gameCreator;
-    if (packet["Body"]["error"] == null && packet["Header"]["command"] !== "gameDeletion") {
-      gameCreator = packet["Body"]["gameState"]["gameCreator"];
-      gameIdToPlayerCollectionMap["gameId"]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
-    }
-    const isGameCreatorAdmin = gameCreator === "admin";
-    let shouldForwardToPlayers = true;
 
     if (packet["Body"]["error"] == null) {
+      if (packet["Header"]["command"] !== "gameDeletion") {
+        gameCreator = packet["Body"]["gameState"]["gameCreator"];
+        isGameCreatorAdmin = gameCreator === "admin";
+        gameIdToPlayerCollectionMap["gameId"]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
+      }
+
       switch (packet["Header"]["command"]) {
         case "gameCreation":
           gameIdToPlayerCollectionMap[gameId] = {};
@@ -120,7 +120,7 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "playerAddition":
-          if (packet["Body"]["error"] == null && playerAddressToGameIdMap[playerAddress] == null) {
+          if (playerAddressToGameIdMap[playerAddress] == null) {
             playerAddressToGameIdMap[playerAddress] = gameId;
             gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
 
