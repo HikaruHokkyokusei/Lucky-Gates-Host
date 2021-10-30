@@ -7,8 +7,12 @@
       {{appComponent.gameManagerService.gameState.gameId}}
     </div>
   </div>
-  <hr>
+  <div class="PM-Divider"></div>
   <div class="PM-Body">
+    <div class="PM-Element Heading">
+      <div class="PM-SubElement Index">Sr. No.</div>
+      <div class="PM-SubElement Address">Player Address</div>
+    </div>
     <div class="PM-Element" *ngFor="let player of appComponent.gameManagerService.gameState.players; let i = index;">
       <div class="PM-SubElement Index">
         {{i + 1}}.

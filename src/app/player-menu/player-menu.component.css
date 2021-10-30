@@ -11,7 +11,7 @@
 }
 
 .PM-Header {
-  height: 15%;
+  height: 13%;
   width: 100%;
 
   border-radius: 10px;
@@ -20,7 +20,7 @@
   color: #7e0202;
   font-weight: bold;
   min-font-size: 20px;
-  font-size: 1.7vw;
+  font-size: max(20px, 1.7vw);
   max-font-size: 35px;
 
   display: flex;
@@ -29,15 +29,21 @@
   align-items: center;
 }
 
+.PM-Divider {
+  height: 4%;
+  width: 100%;
+}
+
 .PM-Body {
-  height: 85%;
+  height: 83%;
   width: 100%;
 
-  background: rgba(0, 0, 0, 0.33);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
 }
 
 .PM-Element {
-  height: 150px;
+  height: 50px;
   width: 100%;
 
   display: flex;
@@ -46,6 +52,15 @@
   box-sizing: border-box;
 
   border-bottom: 1px solid #3d3d3d;
+
+  color: antiquewhite;
+  font-size: max(14px, 1vw);
+  font-weight: bold;
+}
+
+.Heading {
+  border-bottom: 2px solid #ff0000;
+  font-size: max(17px, 1.3vw);
 }
 
 .PM-SubElement {
@@ -55,8 +70,16 @@
 
 .Index {
   flex: 1 0 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Address {
   flex: 15 0 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

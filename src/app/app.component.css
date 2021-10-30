@@ -20,8 +20,8 @@
 */
 
 app-main-menu {
-  width: max(400px, 40%);
-  height: max(400px, 80%);
+  width: max(500px, 40%);
+  height: max(500px, 80%);
 
   display: flex;
   justify-content: center;
@@ -29,8 +29,8 @@ app-main-menu {
 }
 
 app-player-menu {
-  width: max(600px, 65%);
-  height: max(500px, 80%);
+  width: max(775px, 65%);
+  height: max(450px, 85%);
 }
 
 .LoadingImageDiv {

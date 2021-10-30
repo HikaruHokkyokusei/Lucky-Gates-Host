@@ -43,7 +43,8 @@ export class GameManagerService {
   localCoinChainName: string = "";
 
   gameState: GameState = {
-    players: []
+    players: [],
+    removedPlayers: []
   };
 
   constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
@@ -57,6 +58,7 @@ export class GameManagerService {
   }
 
   synchroniseGameData = (gameState: GameState) => {
+    console.log(this.gameState);
     let keySet = Object.keys(gameState);
     let max: number = keySet.length;
     for (let index: number = 0; index < max; index++) {
