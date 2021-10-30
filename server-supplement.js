@@ -76,7 +76,7 @@ const deleteConnection = (socket) => {
 
 
 const playerAddressToGameIdMap = {};  // "playerAddress" => "gameId"
-const gameIdToPlayerCollectionMap = {};  // "gameId" => { "currentStage" => number, "playerAddress" => boolean }
+const gameIdToPlayerCollectionMap = {};  // "gameId" => { "currentStage" => number, "playerAddresses" => { "playerAddress" => boolean } }
 const getAvailableGameList = () => {
   return gameIdToPlayerCollectionMap;
 };
@@ -105,12 +105,17 @@ const scriptOutputHandler = async (packet) => {
       if (packet["Header"]["command"] !== "gameDeletion") {
         gameCreator = packet["Body"]["gameState"]["gameCreator"];
         isGameCreatorAdmin = gameCreator === "admin";
-        gameIdToPlayerCollectionMap["gameId"]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
+        if (gameIdToPlayerCollectionMap[gameId] != null) {
+          gameIdToPlayerCollectionMap[gameId]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
+        }
       }
 
       switch (packet["Header"]["command"]) {
         case "gameCreation":
-          gameIdToPlayerCollectionMap[gameId] = {};
+          gameIdToPlayerCollectionMap[gameId] = {
+            "currentStage": packet["Body"]["gameState"]["currentStage"],
+            "playerAddresses": {}
+          };
           let socketForEmit = connectedClients[playerAddressToSocketIdMap.getValueFromKey(gameCreator)]["socket"];
           if (socketForEmit !== null) {
             // Means the creator is not admin
@@ -122,7 +127,7 @@ const scriptOutputHandler = async (packet) => {
         case "playerAddition":
           if (playerAddressToGameIdMap[playerAddress] == null) {
             playerAddressToGameIdMap[playerAddress] = gameId;
-            gameIdToPlayerCollectionMap[gameId][playerAddress] = true;
+            gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress] = true;
 
             let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
             if (connectedClients[playerSocketId] != null) {
@@ -147,7 +152,7 @@ const scriptOutputHandler = async (packet) => {
           }
 
           delete playerAddressToGameIdMap[playerAddress];
-          delete gameIdToPlayerCollectionMap[gameId][playerAddress];
+          delete gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress];
           break;
 
         case "gameDeletion":
@@ -221,7 +226,8 @@ const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null})
 const beginGameEarly = (gameId, inclusionCheck, socketId) => {
   if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null) {
     if (inclusionCheck) {
-      if ((socketId == null) || (!gameIdToPlayerCollectionMap[gameId][playerAddressToSocketIdMap.setKeyAndValue(socketId)])) {
+      if ((socketId == null) ||
+        (!gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddressToSocketIdMap.setKeyAndValue(socketId)])) {
         return
       }
     }
@@ -246,7 +252,7 @@ const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId 
       }
     }
 
-    if (!gameIdToPlayerCollectionMap[gameId][playerAddress]) {
+    if (!gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress]) {
       return;
     }
 
@@ -272,7 +278,7 @@ const savePlayerSwitchSelection = ({gameId = null, playerAddress = null, socketI
       }
     }
 
-    if (!gameIdToPlayerCollectionMap[gameId][playerAddress]) {
+    if (!gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress]) {
       return;
     }
 
