@@ -1,5 +1,6 @@
 "use strict";
 
+
 const toolSet = require("./private/ToolSet");
 const Web3 = require("web3");
 const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
@@ -8,20 +9,8 @@ const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
 const tools = new toolSet.Miscellaneous();
 
+
 let adminSocketId = null;
-let activeSocketConnections = 0;
-
-const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // PlayerAddress is Key and SocketId is the value
-const playerAddressToGameIdMap = {};
-const gameIdToPlayerCollectionMap = {};
-const connectedClients = {};
-let pythonProcess;
-
-let emitter;
-const setEmitter = (ioEmitter) => {
-  emitter = ioEmitter;
-};
-
 const setAdmin = (socketId, credentials) => {
   if (socketId == null || credentials == null) {
     adminSocketId = null;
@@ -40,6 +29,14 @@ const isAdmin = (socketId) => {
   return socketId === adminSocketId;
 };
 
+let emitter;
+const setEmitter = (ioEmitter) => {
+  emitter = ioEmitter;
+};
+
+
+let activeSocketConnections = 0;
+const connectedClients = {};  // "socketId" => { "signCode" => str, "socket" => object }
 const updateConnectionList = (socket, signCode) => {
   activeSocketConnections++;
   connectedClients[socket.id] = {
@@ -50,15 +47,8 @@ const updateConnectionList = (socket, signCode) => {
 const connectionCount = () => {
   return activeSocketConnections;
 };
-const deleteConnection = (socket) => {
-  activeSocketConnections--;
-  delete connectedClients[socket.id];
-  playerAddressToSocketIdMap.unsetWithValue(socket.id);
-  if (isAdmin(socket.id)) {
-    setAdmin(null);
-  }
-};
 
+const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // "playerAddress" <<==>> "socketId"
 const bindAddress = (socketId, signedMessage, playerAddress) => {
   if (connectedClients[socketId] != null && Web3.utils.isAddress(playerAddress)) {
     playerAddress = Web3.utils.toChecksumAddress(playerAddress);
@@ -75,6 +65,21 @@ const isSocketBoundToAddress = (socketId) => {
   return playerAddressToSocketIdMap.getKeyFromValue(socketId) != null;
 }
 
+const deleteConnection = (socket) => {
+  activeSocketConnections--;
+  delete connectedClients[socket.id];
+  playerAddressToSocketIdMap.unsetWithValue(socket.id);
+  if (isAdmin(socket.id)) {
+    setAdmin(null);
+  }
+};
+
+
+const playerAddressToGameIdMap = {};  // "playerAddress" => "gameId"
+const gameIdToPlayerCollectionMap = {};  // "gameId" => { "currentStage" => number, "playerAddress" => boolean }
+const getAvailableGameList = () => {
+  return gameIdToPlayerCollectionMap;
+};
 
 const deleteDoorPatternIfAny = (inObject) => {
   for (let key in inObject) {
@@ -95,8 +100,9 @@ const scriptOutputHandler = async (packet) => {
     const gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
     const playerAddress = packet["Body"]["playerAddress"]; // Can be null.
     let gameCreator;
-    if (packet["Body"]["error"] == null) {
+    if (packet["Body"]["error"] == null && packet["Header"]["command"] !== "gameDeletion") {
       gameCreator = packet["Body"]["gameState"]["gameCreator"];
+      gameIdToPlayerCollectionMap["gameId"]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
     }
     const isGameCreatorAdmin = gameCreator === "admin";
     let shouldForwardToPlayers = true;
@@ -169,17 +175,18 @@ const scriptOutputHandler = async (packet) => {
     console.log("Python Script Exited");
   }
 };
+
+let pythonProcess;
 pythonProcess = new toolSet.PythonProcess({
   pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
 });
-
 pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
 
 const createNewGame = (creatorSocketId, gameCoinAddress, coinChainName) => {
   let gameCreator = playerAddressToSocketIdMap.getKeyFromValue(creatorSocketId);
   if (creatorSocketId === adminSocketId) {
     gameCreator = "admin";
-  } else if (gameCreator == null) {
+  } else if (gameCreator == null || playerAddressToGameIdMap[gameCreator] != null) {
     return;
   }
   let body = {
@@ -292,9 +299,7 @@ let pythonFunctions = {
   "buyTicketsForPlayer": buyTicketsForPlayer,
   "stopScript": pythonProcess.stopScript,
 };
-
 Object.freeze(pythonFunctions);
-
 module.exports = {
   setEmitter: setEmitter,
   setAdmin: setAdmin,
@@ -304,5 +309,6 @@ module.exports = {
   updateConnectionList: updateConnectionList,
   connectionCount: connectionCount,
   deleteConnection: deleteConnection,
+  getAvailableGameList: getAvailableGameList,
   pythonFunctions: pythonFunctions
 };

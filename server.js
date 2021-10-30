@@ -122,6 +122,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('getAvailableGameList', () => {
+    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
+      socket.emit('availableGameList', serverSupplement.getAvailableGameList());
+    }
+  });
+
   socket.on('addPlayerToGame', (options) => {
     if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
