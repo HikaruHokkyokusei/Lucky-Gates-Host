@@ -1,9 +1,9 @@
 <div class="Menu-Wrapper">
   <div class="Menu-Header">
-    <div class="Title">
+    <div class="Header-Title">
       List of Available Games
     </div>
-   <div class="Refresh">
+   <div class="Header-Button">
      <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()" buttonText="Refresh"></app-button>
    </div>
   </div>
@@ -27,7 +27,7 @@
           {{game.playerCount}}
         </div>
         <div class="Menu-SubElement Join">
-          <app-button buttonText="Join"></app-button>
+          <app-button (onButtonClick)="appComponent.gameManagerService.addPlayerToGame(game.gameId)" buttonText="Join"></app-button>
         </div>
       </div>
     </div>

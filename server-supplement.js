@@ -56,6 +56,9 @@ const bindAddress = (socketId, signedMessage, playerAddress) => {
     try {
       if (tools.equalsIgnoreCase(playerAddress, web3.eth.accounts.recover(connectedClients[socketId]["signCode"], signedMessage))) {
         playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
+        if (playerAddressToGameIdMap[playerAddress] != null) {
+          connectedClients[socketId]["socket"].join(playerAddressToGameIdMap[playerAddress]);
+        }
       }
     } catch {
     }

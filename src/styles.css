@@ -6,6 +6,8 @@ html body {
 }
 
 body {
+  min-height: 450px;
+  min-width: 775px;
   background-color: #3a3a3a;
 }
 
@@ -59,18 +61,32 @@ app-root {
   width: 100%;
 
   border-radius: 10px;
+  box-sizing: border-box;
+  padding: 10px;
 
   background: antiquewhite;
   color: #7e0202;
   font-weight: bold;
   min-font-size: 20px;
-  font-size: max(20px, 1.7vw);
+  font-size: max(20px, 1.5vw);
   max-font-size: 35px;
 
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.Header-Title {
+  flex: 15 0 0;
+  text-align: center;
+}
+
+.Header-Button {
+  height: 45%;
+  flex: 2 0 0;
+
+  text-align: center;
+  font-size: 1vw;
 }
 
 .Menu-Divider {
