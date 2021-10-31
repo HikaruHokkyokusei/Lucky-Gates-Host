@@ -1,0 +1,40 @@
+.Menu-Header {
+  flex-direction: row;
+
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.Title {
+  flex: 15 0 0;
+  text-align: center;
+}
+
+.Refresh {
+  height: 45%;
+  flex: 2 0 0;
+
+  text-align: center;
+  font-size: 1vw;
+}
+
+.Index {
+  flex: 2 0 0;
+}
+
+.GameId {
+  flex: 12 0 0;
+}
+
+.PlayerCount {
+  flex: 1 0 0;
+}
+
+.Join {
+  flex: 3 0 0;
+}
+
+app-button {
+  width: 90%;
+  height: 90%;
+}

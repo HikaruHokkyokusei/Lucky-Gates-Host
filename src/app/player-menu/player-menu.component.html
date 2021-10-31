@@ -1,5 +1,5 @@
-<div class="PM-Wrapper">
-  <div class="PM-Header">
+<div class="Menu-Wrapper">
+  <div class="Menu-Header">
     <div>
       Game:
     </div>
@@ -7,18 +7,20 @@
       {{appComponent.gameManagerService.gameState.gameId}}
     </div>
   </div>
-  <div class="PM-Divider"></div>
-  <div class="PM-Body">
-    <div class="PM-Element Heading">
-      <div class="PM-SubElement Index">Sr. No.</div>
-      <div class="PM-SubElement Address">Player Address</div>
+  <div class="Menu-Divider"></div>
+  <div class="Menu-Body">
+    <div style="border-bottom: 3px solid #ff0000; font-size: max(17px, 1.3vw);" class="Menu-Element">
+      <div class="Menu-SubElement Index">Sr. No.</div>
+      <div class="Menu-SubElement Address">Player Address</div>
     </div>
-    <div class="PM-Element" *ngFor="let player of appComponent.gameManagerService.gameState.players; let i = index;">
-      <div class="PM-SubElement Index">
-        {{i + 1}}.
-      </div>
-      <div class="PM-SubElement Address">
-        {{player.playerAddress}}
+    <div class="Menu-SubBody">
+      <div class="Menu-Element" *ngFor="let player of appComponent.gameManagerService.gameState.players; let i = index;">
+        <div class="Menu-SubElement Index">
+          {{i + 1}}.
+        </div>
+        <div class="Menu-SubElement Address">
+          {{player.playerAddress}}
+        </div>
       </div>
     </div>
   </div>

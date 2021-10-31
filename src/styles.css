@@ -37,3 +37,82 @@ app-root {
   justify-content: center;
   align-content: center;
 }
+
+/*
+* Sub - Component CSS Below
+*/
+
+.Menu-Wrapper {
+  height: 100%;
+  width: 100%;
+
+  box-sizing: border-box;
+  padding: 5px;
+
+  border: 1px solid #b2b9be;
+  border-radius: 10px;
+  box-shadow: 0 0 2px 8px rgba(189, 188, 188, 0.33);
+}
+
+.Menu-Header {
+  height: 13%;
+  width: 100%;
+
+  border-radius: 10px;
+
+  background: antiquewhite;
+  color: #7e0202;
+  font-weight: bold;
+  min-font-size: 20px;
+  font-size: max(20px, 1.7vw);
+  max-font-size: 35px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Menu-Divider {
+  height: 2%;
+  width: 100%;
+}
+
+.Menu-Body {
+  height: 85%;
+  width: 100%;
+
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+
+  color: antiquewhite;
+  font-size: max(14px, 1vw);
+  font-weight: bold;
+}
+
+.Menu-SubBody {
+  height: calc(100% - 50px);
+  width: 100%;
+  overflow-y: auto;
+}
+
+.Menu-Element {
+  height: 50px;
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.Menu-SubElement {
+  height: auto;
+  margin: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

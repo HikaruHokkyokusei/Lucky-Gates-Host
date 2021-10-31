@@ -33,6 +33,11 @@ app-player-menu {
   height: max(450px, 85%);
 }
 
+app-join-menu {
+  width: max(775px, 65%);
+  height: max(450px, 85%);
+}
+
 .LoadingImageDiv {
   height: fit-content;
   width: fit-content;
