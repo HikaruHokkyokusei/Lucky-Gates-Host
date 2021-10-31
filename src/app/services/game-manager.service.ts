@@ -84,9 +84,9 @@ export class GameManagerService {
   };
 
   synchronizeAvailableGameList = (availableGameList: AvailableGameList) => {
-    for (let key in Object.keys(availableGameList)) {
-      let typeKey = <keyof AvailableGameList>key;
-
+    let keySet = Object.keys(availableGameList);
+    for (let i = 0; i < keySet.length; i++) {
+      let typeKey = <keyof AvailableGameList>keySet[i];
       if (availableGameList[typeKey].gameCoinAddress !== this.localGameCoinAddress ||
         availableGameList[typeKey].coinChainName !== this.localCoinChainName ||
         availableGameList[typeKey].currentStage !== 0) {
