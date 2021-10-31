@@ -42,6 +42,7 @@ export interface AvailableGameListJSON {
     gameCoinAddress: string,
     coinChainName: string,
     currentStage: number,
+    gameCreator: string,
     playerAddresses: {
       [playerAddress: string]: string
     }
@@ -106,7 +107,7 @@ export class GameManagerService {
   };
 
   createNewGame = () => {
-    if (this.gameState["gameId"] == null || this.gameState["gameId"] === "") {
+    if (!this.gameState["gameId"]) {
       let data: TransferData = {};
       if (this.localGameCoinAddress !== "") {
         data["gameCoinAddress"] = this.localGameCoinAddress;
@@ -124,7 +125,7 @@ export class GameManagerService {
   };
 
   addPlayerToGame = (gameId: string) => {
-    if (this.gameState["gameId"] == null || this.gameState["gameId"] === "") {
+    if (this.gameState["gameId"]) {
       let data: TransferData = {
         gameId: gameId
       };
@@ -134,17 +135,21 @@ export class GameManagerService {
   };
 
   beginGameEarly = () => {
-    if (this.gameState["gameId"] != null && this.gameState["gameId"] !== "") {
+    if (this.gameState["gameId"]) {
+      if (this.appComponent.web3Service.userAccount !== this.gameState["gameCreator"] || !this.gameState["players"] ||
+        !this.gameState["minPlayers"] || this.gameState["players"].length < this.gameState["minPlayers"]) {
+        return;
+      }
       let data: TransferData = {
         gameId: this.gameState["gameId"]
       };
 
       this.appComponent.socketIOService.emitEventToServer("beginGameEarly", data);
     }
-  }
+  };
 
   sendPlayerDoorSelection = (doorNumber: number) => {
-    if (this.gameState["gameId"] !== "") {
+    if (this.gameState["gameId"]) {
       let data: TransferData = {
         gameId: this.gameState["gameId"],
         doorNumber: doorNumber
@@ -155,7 +160,7 @@ export class GameManagerService {
   };
 
   sendPlayerSwitchSelection = (wantToSwitch: boolean) => {
-    if (this.gameState["gameId"] !== "") {
+    if (this.gameState["gameId"]) {
       let data: TransferData = {
         gameId: this.gameState["gameId"],
         wantToSwitch: wantToSwitch

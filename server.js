@@ -117,8 +117,6 @@ io.on('connection', (socket) => {
       } else {
         serverSupplement.pythonFunctions["createNewGame"](socket.id);
       }
-
-      // TODO : Add player to the create game using the bound address
     }
   });
 

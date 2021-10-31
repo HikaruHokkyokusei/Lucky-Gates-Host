@@ -5,7 +5,7 @@
     "ng": "ng",
     "server": "node server",
     "build": "ng build",
-    "start": "npm run build && npm run server",
+    "start": "npm run -s build && npm run -s server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

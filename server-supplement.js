@@ -85,6 +85,7 @@ const playerAddressToGameIdMap = {};  // playerAddress => gameId
 *   "gameCoinAddress" => string,
 *   "coinChainName" => string,
 *   "currentStage" => number,
+*   "gameCreator" => string,
 *   "playerAddresses" => {
 *     "playerAddress" => boolean
 *   }
@@ -130,6 +131,7 @@ const scriptOutputHandler = async (packet) => {
             "gameCoinAddress": packet["Body"]["gameState"]["gameCoinAddress"],
             "coinChainName": packet["Body"]["gameState"]["coinChainName"],
             "currentStage": packet["Body"]["gameState"]["currentStage"],
+            "gameCreator": gameCreator,
             "playerAddresses": {}
           };
           if (!isGameCreatorAdmin) {
@@ -237,20 +239,18 @@ const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null})
     pythonProcess.sendRawPacketToScript({command: "game", action: "addPlayerToGame", body: body});
   }
 };
-const beginGameEarly = (gameId, inclusionCheck, socketId) => {
-  if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null) {
-    if (inclusionCheck) {
-      if ((socketId == null) ||
-        (!gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddressToSocketIdMap.setKeyAndValue(socketId)])) {
-        return
+const beginGameEarly = (gameId, creatorCheck, socketId) => {
+  if (gameId && gameIdToPlayerCollectionMap[gameId]) {
+    if (creatorCheck && (socketId == null ||
+        gameIdToPlayerCollectionMap[gameId]["gameCreator"] !== playerAddressToSocketIdMap.setKeyAndValue(socketId))) {
+        return;
       }
     }
 
-    let body = {
-      gameId: gameId
-    };
-    pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
-  }
+  let body = {
+    gameId: gameId
+  };
+  pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
 };
 const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId = null, doorNumber = null}) => {
   if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null && doorNumber != null) {
