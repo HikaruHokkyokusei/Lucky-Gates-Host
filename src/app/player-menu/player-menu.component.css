@@ -66,20 +66,16 @@
 .PM-SubElement {
   height: auto;
   margin: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Index {
   flex: 1 0 0;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .Address {
   flex: 15 0 0;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }

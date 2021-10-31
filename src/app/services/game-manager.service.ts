@@ -88,7 +88,8 @@ export class GameManagerService {
       let typeKey = <keyof AvailableGameList>key;
 
       if (availableGameList[typeKey].gameCoinAddress !== this.localGameCoinAddress ||
-        availableGameList[typeKey].coinChainName !== this.localCoinChainName) {
+        availableGameList[typeKey].coinChainName !== this.localCoinChainName ||
+        availableGameList[typeKey].currentStage !== 0) {
         delete availableGameList[typeKey];
       }
     }
@@ -110,7 +111,7 @@ export class GameManagerService {
   };
 
   getAvailableGameList = () => {
-
+    this.appComponent.socketIOService.emitEventToServer("getAvailableGameList", {});
   };
 
   addPlayerToGame = (gameId: string) => {

@@ -1,14 +1,14 @@
 <div class="container">
 
-  <div *ngIf="shouldShowLoadingScreen(); else elseRemoveLoadingScreen" class="LoadingImageDiv">
+  <div *ngIf="shouldShowLoadingScreen(); else showMenu" class="LoadingImageDiv">
     <img src="assets/Loading.svg" alt="...LOADING...">
   </div>
 
-  <ng-template #elseRemoveLoadingScreen>
+  <ng-template #showMenu>
     <ng-container [ngSwitch]="windowNumberToShow">
       <!-- Change this to router-outlet later -->
-      <app-main-menu class="Menu" [appComponent]="this" *ngSwitchCase="0"></app-main-menu>
-      <app-player-menu class="Menu" [appComponent]="this" *ngSwitchCase="1"></app-player-menu>
+      <app-main-menu [appComponent]="this" *ngSwitchCase="0"></app-main-menu>
+      <app-player-menu [appComponent]="this" *ngSwitchCase="1"></app-player-menu>
       <app-game-window [appComponent]="this" *ngSwitchCase="2"></app-game-window>
     </ng-container>
   </ng-template>

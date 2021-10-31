@@ -38,8 +38,9 @@ export class SocketIOService {
     });
 
     this.setActionForEvent("availableGameList", (gameListPacket) => {
+      this.appComponent.setWindowNumberToShowTo(3);
       this.appComponent.gameManagerService.synchronizeAvailableGameList(gameListPacket);
-    })
+    });
   }
 
   setActionForEvent(eventName: string, callback: (...args: any[]) => any) {

@@ -20,6 +20,7 @@ export class AppComponent {
   * 0 => Main Menu
   * 1 => Player Menu
   * 2 => Game Window
+  * 3 => Join Menu
   * */
   windowNumberToShow: number = 0;
 
