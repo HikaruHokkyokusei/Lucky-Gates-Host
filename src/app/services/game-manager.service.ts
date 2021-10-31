@@ -37,7 +37,7 @@ export interface GameState {
   gameEndReason?: string,
 }
 
-export interface AvailableGameList {
+export interface AvailableGameListJSON {
   [gameId: string]: {
     gameCoinAddress: string,
     coinChainName: string,
@@ -46,6 +46,11 @@ export interface AvailableGameList {
       [playerAddress: string]: string
     }
   }
+}
+
+export interface AvailableGame {
+  gameId: string,
+  playerCount: number;
 }
 
 export class GameManagerService {
@@ -57,7 +62,7 @@ export class GameManagerService {
     players: [],
     removedPlayers: []
   };
-  availableGameList: AvailableGameList = {};
+  availableGameList: AvailableGame[] = [];
 
   constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
     if (localGameCoinAddress != null) {
@@ -83,17 +88,21 @@ export class GameManagerService {
     this.gameState[key] = value;
   };
 
-  synchronizeAvailableGameList = (availableGameList: AvailableGameList) => {
+  synchronizeAvailableGameList = (availableGameList: AvailableGameListJSON) => {
+    this.availableGameList = [];
+
     let keySet = Object.keys(availableGameList);
     for (let i = 0; i < keySet.length; i++) {
-      let typeKey = <keyof AvailableGameList>keySet[i];
-      if (availableGameList[typeKey].gameCoinAddress !== this.localGameCoinAddress ||
-        availableGameList[typeKey].coinChainName !== this.localCoinChainName ||
-        availableGameList[typeKey].currentStage !== 0) {
-        delete availableGameList[typeKey];
+      let typeKey = <keyof AvailableGameListJSON>keySet[i];
+      if (availableGameList[typeKey].gameCoinAddress === this.localGameCoinAddress &&
+        availableGameList[typeKey].coinChainName === this.localCoinChainName &&
+        availableGameList[typeKey].currentStage === 0) {
+        this.availableGameList.push({
+          gameId: <string>typeKey,
+          playerCount: Object.keys(availableGameList[typeKey].playerAddresses).length
+        });
       }
     }
-    this.availableGameList = availableGameList;
   };
 
   createNewGame = () => {
