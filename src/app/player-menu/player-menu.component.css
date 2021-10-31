@@ -30,15 +30,15 @@
 }
 
 .PM-Divider {
-  height: 4%;
+  height: 2%;
   width: 100%;
 }
 
 .PM-Body {
-  height: 83%;
+  height: 85%;
   width: 100%;
 
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
 }
 

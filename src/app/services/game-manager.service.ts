@@ -37,15 +37,27 @@ export interface GameState {
   gameEndReason?: string,
 }
 
+export interface AvailableGameList {
+  [gameId: string]: {
+    gameCoinAddress: string,
+    coinChainName: string,
+    currentStage: number,
+    playerAddresses: {
+      [playerAddress: string]: string
+    }
+  }
+}
+
 export class GameManagerService {
 
-  localGameCoinAddress: string = "";
-  localCoinChainName: string = "";
+  localGameCoinAddress: string = "0x64F36701138f0E85cC10c34Ea535FdBADcB54147";  // Default Value
+  localCoinChainName: string = "BSC";  // Default Value
 
   gameState: GameState = {
     players: [],
     removedPlayers: []
   };
+  availableGameList: AvailableGameList = {};
 
   constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
     if (localGameCoinAddress != null) {
@@ -58,7 +70,6 @@ export class GameManagerService {
   }
 
   synchroniseGameData = (gameState: GameState) => {
-    console.log(this.gameState);
     let keySet = Object.keys(gameState);
     let max: number = keySet.length;
     for (let index: number = 0; index < max; index++) {
@@ -70,6 +81,18 @@ export class GameManagerService {
 
   updateEntryInGameState = <GameStateKey extends keyof GameState>(key: GameStateKey, value: GameState[GameStateKey]) => {
     this.gameState[key] = value;
+  };
+
+  synchronizeAvailableGameList = (availableGameList: AvailableGameList) => {
+    for (let key in Object.keys(availableGameList)) {
+      let typeKey = <keyof AvailableGameList>key;
+
+      if (availableGameList[typeKey].gameCoinAddress !== this.localGameCoinAddress ||
+        availableGameList[typeKey].coinChainName !== this.localCoinChainName) {
+        delete availableGameList[typeKey];
+      }
+    }
+    this.availableGameList = availableGameList;
   };
 
   createNewGame = () => {
@@ -84,6 +107,10 @@ export class GameManagerService {
 
       this.appComponent.socketIOService.emitEventToServer('createNewGame', data);
     }
+  };
+
+  getAvailableGameList = () => {
+
   };
 
   addPlayerToGame = (gameId: string) => {

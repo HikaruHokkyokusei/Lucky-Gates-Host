@@ -6,6 +6,7 @@ import {ButtonComponent} from './UIElements/button/button.component';
 import {MainMenuComponent} from './main-menu/main-menu.component';
 import {PlayerMenuComponent} from './player-menu/player-menu.component';
 import {GameWindowComponent} from './game-window/game-window.component';
+import {JoinMenuComponent} from './join-menu/join-menu.component';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import {GameWindowComponent} from './game-window/game-window.component';
     ButtonComponent,
     MainMenuComponent,
     PlayerMenuComponent,
-    GameWindowComponent
+    GameWindowComponent,
+    JoinMenuComponent
   ],
   imports: [
     BrowserModule

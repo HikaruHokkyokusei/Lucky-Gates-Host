@@ -36,7 +36,7 @@ const setEmitter = (ioEmitter) => {
 
 
 let activeSocketConnections = 0;
-const connectedClients = {};  // "socketId" => { "signCode" => str, "socket" => object }
+const connectedClients = {};  // socketId => { "signCode" => str, "socket" => object }
 const updateConnectionList = (socket, signCode) => {
   activeSocketConnections++;
   connectedClients[socket.id] = {
@@ -48,7 +48,7 @@ const connectionCount = () => {
   return activeSocketConnections;
 };
 
-const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // "playerAddress" <<==>> "socketId"
+const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // playerAddress <<==>> socketId
 const bindAddress = (socketId, signedMessage, playerAddress) => {
   if (connectedClients[socketId] != null && Web3.utils.isAddress(playerAddress)) {
     playerAddress = Web3.utils.toChecksumAddress(playerAddress);
@@ -75,8 +75,19 @@ const deleteConnection = (socket) => {
 };
 
 
-const playerAddressToGameIdMap = {};  // "playerAddress" => "gameId"
-const gameIdToPlayerCollectionMap = {};  // "gameId" => { "currentStage" => number, "playerAddresses" => { "playerAddress" => boolean } }
+const playerAddressToGameIdMap = {};  // playerAddress => gameId
+
+/*
+* "gameId" => {
+*   "gameCoinAddress" => string,
+*   "coinChainName" => string,
+*   "currentStage" => number,
+*   "playerAddresses" => {
+*     "playerAddress" => boolean
+*   }
+* }
+* */
+const gameIdToPlayerCollectionMap = {};
 const getAvailableGameList = () => {
   return gameIdToPlayerCollectionMap;
 };
@@ -113,6 +124,8 @@ const scriptOutputHandler = async (packet) => {
       switch (packet["Header"]["command"]) {
         case "gameCreation":
           gameIdToPlayerCollectionMap[gameId] = {
+            "gameCoinAddress": packet["Body"]["gameState"]["gameCoinAddress"],
+            "coinChainName": packet["Body"]["gameState"]["coinChainName"],
             "currentStage": packet["Body"]["gameState"]["currentStage"],
             "playerAddresses": {}
           };
