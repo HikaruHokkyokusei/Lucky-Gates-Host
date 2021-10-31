@@ -9,6 +9,24 @@ body {
   background-color: #3a3a3a;
 }
 
+::-webkit-scrollbar {
+  width: 0.4vw;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0.2vw;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0.2vw;
+  background: #8d6d22;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffad00;
+}
+
 app-root {
   width: 100%;
   height: 100%;

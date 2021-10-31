@@ -129,10 +129,8 @@ const scriptOutputHandler = async (packet) => {
             "currentStage": packet["Body"]["gameState"]["currentStage"],
             "playerAddresses": {}
           };
-          let socketForEmit = connectedClients[playerAddressToSocketIdMap.getValueFromKey(gameCreator)]["socket"];
-          if (socketForEmit !== null) {
-            // Means the creator is not admin
-            socketForEmit.emit('synchronizeGamePacket', packet);
+          if (!isGameCreatorAdmin) {
+            connectedClients[playerAddressToSocketIdMap.getValueFromKey(gameCreator)]["socket"].emit('synchronizeGamePacket', packet);
           }
           shouldForwardToPlayers = false;
           break;
