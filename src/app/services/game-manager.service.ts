@@ -83,10 +83,26 @@ export class GameManagerService {
       let typeKey = <keyof GameState>key;
       this.updateEntryInGameState(typeKey, gameState[typeKey]);
     }
+
+    this.postGameDataSynchronize();
   };
 
   updateEntryInGameState = <GameStateKey extends keyof GameState>(key: GameStateKey, value: GameState[GameStateKey]) => {
     this.gameState[key] = value;
+  };
+
+  postGameDataSynchronize = () => {
+    if (this.gameState["currentStage"] != null && this.gameState["currentStage"] >= -1 && this.gameState["currentStage"] < 6) {
+      if (this.gameState["currentStage"] in [-1, 0, 1]) {
+        if  (this.appComponent.windowNumberToShow !== 1) {
+          this.appComponent.setWindowNumberToShowTo(1);
+        }
+      } else if (this.appComponent.windowNumberToShow !== 2) {
+        this.appComponent.setWindowNumberToShowTo(2);
+      }
+    } else if (this.appComponent.windowNumberToShow === 1 || this.appComponent.windowNumberToShow === 2) {
+      this.appComponent.setWindowNumberToShowTo(0);
+    }
   };
 
   synchronizeAvailableGameList = (availableGameList: AvailableGameListJSON) => {
@@ -125,7 +141,7 @@ export class GameManagerService {
   };
 
   addPlayerToGame = (gameId: string) => {
-    if (this.gameState["gameId"]) {
+    if (!this.gameState["gameId"]) {
       let data: TransferData = {
         gameId: gameId
       };
@@ -167,6 +183,13 @@ export class GameManagerService {
       };
 
       this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+    }
+  };
+
+  resetGameState = () => {
+    this.gameState = {
+      players: [],
+      removedPlayers: []
     }
   };
 }
