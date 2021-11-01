@@ -12,6 +12,8 @@ body {
   justify-content: center;
   align-items: center;
 
+  font-family: Cambria, serif;
+
   /* https://www.colorzilla.com/gradient-editor/ */
   background: #5f6267; /* Old browsers */
   background: -moz-radial-gradient(ellipse at center, #5f6267 0%, #000000 100%); /* FF3.6-15 */
