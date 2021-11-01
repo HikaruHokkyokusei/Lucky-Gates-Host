@@ -3,12 +3,21 @@ html body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+
+  box-sizing: border-box;
 }
 
 body {
-  min-height: 450px;
-  min-width: 775px;
-  background-color: #3a3a3a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* https://www.colorzilla.com/gradient-editor/ */
+  background: #5f6267; /* Old browsers */
+  background: -moz-radial-gradient(ellipse at center, #5f6267 0%, #000000 100%); /* FF3.6-15 */
+  background: -webkit-radial-gradient(ellipse at center, #5f6267 0%, #000000 100%); /* Chrome10-25,Safari5.1-6 */
+  background: radial-gradient(ellipse at center, #5f6267 0%, #000000 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5f6267', endColorstr='#000000', GradientType=1); /* IE6-9 fallback on horizontal gradient */
 }
 
 ::-webkit-scrollbar {
@@ -30,6 +39,9 @@ body {
 }
 
 app-root {
+  min-height: 450px;
+  min-width: 775px;
+
   width: 100%;
   height: 100%;
 
