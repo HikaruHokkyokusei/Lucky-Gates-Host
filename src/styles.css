@@ -63,9 +63,9 @@ app-root {
   box-sizing: border-box;
   padding: 5px;
 
-  border: 1px solid #b2b9be;
-  border-radius: 10px;
-  box-shadow: 0 0 2px 8px rgba(189, 188, 188, 0.33);
+  border: 1px solid #210404;
+  border-radius: 8px;
+  background: rgba(188, 188, 188, 0.40);
 }
 
 .Menu-Header {
@@ -133,7 +133,7 @@ app-root {
 
   box-sizing: border-box;
 
-  border-bottom: 1px solid #3d3d3d;
+  border-bottom: 1px solid rgba(255, 249, 224, 0.66);
 }
 
 .Menu-SubElement {
