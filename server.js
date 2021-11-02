@@ -142,7 +142,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('beginGameEarly', (options) => {
-    if (options != null && options["gameId"] != null) {
+    if (options && options["gameId"]) {
       if (serverSupplement.isAdmin(socket.id)) {
         serverSupplement.pythonFunctions["beginGameEarly"](options["gameId"], false, null);
       } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {

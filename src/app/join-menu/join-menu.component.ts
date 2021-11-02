@@ -10,7 +10,8 @@ export class JoinMenuComponent implements OnInit {
 
   @Input() appComponent!: AppComponent;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }

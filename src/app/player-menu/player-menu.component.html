@@ -11,7 +11,8 @@
         </div>
       </div>
       <div class="Header-Button">
-        <app-button (onButtonClick)="appComponent.gameManagerService.beginGameEarly()" buttonText="Begin Early"></app-button>
+        <app-button (onButtonClick)="appComponent.gameManagerService.beginGameEarly()"
+                    buttonText="Begin Early"></app-button>
       </div>
     </div>
   </div>
@@ -22,7 +23,8 @@
       <div class="Menu-SubElement Address">Player Address</div>
     </div>
     <div class="Menu-SubBody">
-      <div class="Menu-Element" *ngFor="let player of appComponent.gameManagerService.gameState.players; let i = index;">
+      <div class="Menu-Element"
+           *ngFor="let player of appComponent.gameManagerService.gameState.players; let i = index;">
         <div class="Menu-SubElement Index">
           {{i + 1}}.
         </div>

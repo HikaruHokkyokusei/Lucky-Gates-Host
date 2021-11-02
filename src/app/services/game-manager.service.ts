@@ -94,7 +94,7 @@ export class GameManagerService {
   postGameDataSynchronize = () => {
     if (this.gameState["currentStage"] != null && this.gameState["currentStage"] >= -1 && this.gameState["currentStage"] < 6) {
       if (this.gameState["currentStage"] in [-1, 0, 1]) {
-        if  (this.appComponent.windowNumberToShow !== 1) {
+        if (this.appComponent.windowNumberToShow !== 1) {
           this.appComponent.setWindowNumberToShowTo(1);
         }
       } else if (this.appComponent.windowNumberToShow !== 2) {

@@ -9,7 +9,8 @@
         List of Available Games
       </div>
       <div class="Header-Button">
-        <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()" buttonText="Refresh"></app-button>
+        <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()"
+                    buttonText="Refresh"></app-button>
       </div>
     </div>
   </div>
@@ -33,7 +34,8 @@
           {{game.playerCount}}
         </div>
         <div class="Menu-SubElement Join">
-          <app-button (onButtonClick)="appComponent.gameManagerService.addPlayerToGame(game.gameId)" buttonText="Join"></app-button>
+          <app-button (onButtonClick)="appComponent.gameManagerService.addPlayerToGame(game.gameId)"
+                      buttonText="Join"></app-button>
         </div>
       </div>
     </div>

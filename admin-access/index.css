@@ -8,7 +8,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #3a3a3a;
   display: flex;
-  align-items: center;  /* Center Align Vertically */
+  align-items: center; /* Center Align Vertically */
 }
 
 .wrapper {

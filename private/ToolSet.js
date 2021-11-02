@@ -5,9 +5,13 @@ const uuid = require("uuid");
 const splitter = new RegExp("[\r\n]+");
 
 class PythonProcess {
-  constructor({ pythonFilePath = './PythonScripts/',
-                scriptOutputHandler = (generatedOutput) => { console.log(generatedOutput); },
-                pythonFileName = 'main.py' }) {
+  constructor({
+                pythonFilePath = './PythonScripts/',
+                scriptOutputHandler = (generatedOutput) => {
+                  console.log(generatedOutput);
+                },
+                pythonFileName = 'main.py'
+              }) {
     this.pythonProcess = childProcess.spawn('python',
       [pythonFileName, process.env["DBUsername"], process.env["DBPassword"], process.env["DBClusterName"], process.env["DBName"]],
       {cwd: pythonFilePath});
@@ -73,13 +77,19 @@ class TwoWayMap {
     }
     this.keyMap = keyMap;
     this.valueMap = {};
-    for(const key in keyMap) {
+    for (const key in keyMap) {
       this.valueMap[keyMap[key]] = key;
     }
   }
 
-  getValueFromKey(key) { return this.keyMap[key]; }
-  getKeyFromValue(value) { return this.valueMap[value]; }
+  getValueFromKey(key) {
+    return this.keyMap[key];
+  }
+
+  getKeyFromValue(value) {
+    return this.valueMap[value];
+  }
+
   setKeyAndValue(key, value) {
     if ((this.valueMap[value] == null) && (this.keyMap[key] !== value)) {
       this.unsetWithKey(key);
@@ -90,12 +100,14 @@ class TwoWayMap {
       return false
     }
   }
+
   unsetWithKey(key) {
     if (key in this.keyMap) {
       delete this.valueMap[this.keyMap[key]]
       delete this.keyMap[key]
     }
   }
+
   unsetWithValue(value) {
     if (value in this.valueMap) {
       delete this.keyMap[this.valueMap[value]]
@@ -106,7 +118,7 @@ class TwoWayMap {
 
 class Miscellaneous {
   equalsIgnoreCase = (stringA, stringB) => {
-    return stringA.localeCompare(stringB, undefined, { sensitivity: 'variant' }) === 0;
+    return stringA.localeCompare(stringB, undefined, {sensitivity: 'variant'}) === 0;
   }
 }
 

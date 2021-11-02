@@ -242,10 +242,10 @@ const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null})
 const beginGameEarly = (gameId, creatorCheck, socketId) => {
   if (gameId && gameIdToPlayerCollectionMap[gameId]) {
     if (creatorCheck && (socketId == null ||
-        gameIdToPlayerCollectionMap[gameId]["gameCreator"] !== playerAddressToSocketIdMap.setKeyAndValue(socketId))) {
-        return;
-      }
+      gameIdToPlayerCollectionMap[gameId]["gameCreator"] !== playerAddressToSocketIdMap.getKeyFromValue(socketId))) {
+      return;
     }
+  }
 
   let body = {
     gameId: gameId
