@@ -1,14 +1,17 @@
 <div class="Menu-Wrapper">
   <div class="Menu-Header">
-    <div class="Header-Button">
-      <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
+    <div class="Menu-Texture"></div>
+    <div class="Menu-Header-Holder">
+      <div class="Header-Button">
+        <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
+      </div>
+      <div class="Header-Title">
+        List of Available Games
+      </div>
+      <div class="Header-Button">
+        <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()" buttonText="Refresh"></app-button>
+      </div>
     </div>
-    <div class="Header-Title">
-      List of Available Games
-    </div>
-   <div class="Header-Button">
-     <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()" buttonText="Refresh"></app-button>
-   </div>
   </div>
   <div class="Menu-Divider"></div>
   <div class="Menu-Body">

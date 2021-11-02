@@ -1,15 +1,18 @@
 <div class="Menu-Wrapper">
   <div class="Menu-Header">
-    <div class="Header-Title">
-      <div>
-        Game:
+    <div class="Menu-Texture"></div>
+    <div class="Menu-Header-Holder">
+      <div class="Header-Title">
+        <div>
+          Game:
+        </div>
+        <div>
+          {{appComponent.gameManagerService.gameState.gameId}}
+        </div>
       </div>
-      <div>
-        {{appComponent.gameManagerService.gameState.gameId}}
+      <div class="Header-Button">
+        <app-button (onButtonClick)="appComponent.gameManagerService.beginGameEarly()" buttonText="Begin Early"></app-button>
       </div>
-    </div>
-    <div class="Header-Button">
-      <app-button (onButtonClick)="appComponent.gameManagerService.beginGameEarly()" buttonText="Begin Early"></app-button>
     </div>
   </div>
   <div class="Menu-Divider"></div>
