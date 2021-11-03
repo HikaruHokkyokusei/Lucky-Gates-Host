@@ -1,0 +1,15 @@
+<div class="GW-Wrapper">
+
+  <div class="GW-DoorHolder">
+    <div *ngFor="let doorIndex of doorIndices;" [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
+         class="GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
+      <div class="GW-DoorImage">
+        <img src="assets/Portal.gif" alt="Door {{ (doorIndex + 1) }}">
+      </div>
+      <div class="GW-OpenButton">
+        <app-button buttonText="OPEN"></app-button>
+      </div>
+    </div>
+  </div>
+
+</div>
