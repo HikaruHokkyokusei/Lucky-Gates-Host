@@ -36,6 +36,11 @@ app-join-menu {
   height: max(450px, 85%);
 }
 
+app-game-window {
+  width: max(775px, 80%);
+  height: max(450px, 95%);
+}
+
 .LoadingImageDiv {
   height: fit-content;
   width: fit-content;
