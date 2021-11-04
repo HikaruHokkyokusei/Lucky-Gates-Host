@@ -7,6 +7,7 @@ import {MainMenuComponent} from './main-menu/main-menu.component';
 import {PlayerMenuComponent} from './player-menu/player-menu.component';
 import {GameWindowComponent} from './game-window/game-window.component';
 import {JoinMenuComponent} from './join-menu/join-menu.component';
+import { AnimatedImageComponent } from './UIElements/animated-image/animated-image.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import {JoinMenuComponent} from './join-menu/join-menu.component';
     MainMenuComponent,
     PlayerMenuComponent,
     GameWindowComponent,
-    JoinMenuComponent
+    JoinMenuComponent,
+    AnimatedImageComponent
   ],
   imports: [
     BrowserModule

@@ -96,8 +96,6 @@ export class GameManagerService {
       if (this.gameState["currentStage"] < 2) {
         this.appComponent.setWindowNumberToShowTo(1);
       } else {
-        console.log(this.gameState);
-        console.log("Inside Critical Block...");
         this.appComponent.setWindowNumberToShowTo(2);
       }
     } else if (this.appComponent.windowNumberToShow === 1 || this.appComponent.windowNumberToShow === 2) {
