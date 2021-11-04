@@ -1,0 +1,14 @@
+<div class="AI-Container" [id]="containerId">
+
+  <div class="AI-Frame" [ngStyle]="{
+  'aspect-ratio': gifAspectRatio
+  }">
+
+    <img [src]="src" [alt]="alt" [ngStyle]="{
+    'animation': getAnimationString(),
+    'aspect-ratio': getAspectRatio()
+    }">
+
+  </div>
+
+</div>
