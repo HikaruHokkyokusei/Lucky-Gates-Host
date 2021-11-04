@@ -1,13 +1,23 @@
 <div class="AI-Container" [id]="containerId">
 
-  <div class="AI-Frame" [ngStyle]="{
+  <div class="AI-FrameHolder" [ngStyle]="{
   'aspect-ratio': gifAspectRatio
   }">
 
-    <img [src]="src" [alt]="alt" [ngStyle]="{
-    'animation': getAnimationString(),
-    'aspect-ratio': getAspectRatio()
-    }">
+    <div class="AI-FrameWrapper">
+
+      <div class="AI-Frame">
+
+        <img [src]="src" [alt]="alt" [ngStyle]="{
+        'animation': getAnimationString(),
+        'aspect-ratio': getAspectRatio()
+        }">
+
+        <div class="Fader"></div>
+
+      </div>
+
+    </div>
 
   </div>
 
