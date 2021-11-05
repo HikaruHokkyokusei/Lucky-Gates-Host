@@ -50,7 +50,7 @@ export class Web3Service {
         return signedMessage;
       } catch (err) {
         this.didSignMessage = false;
-        this.appComponent.showPopUP("User Denied Signature. Please Reload the page and sign the message.");
+        this.appComponent.showPopUP("User Denied Signature. Reload the page and try again.");
       }
     } else {
       this.didSignMessage = false;

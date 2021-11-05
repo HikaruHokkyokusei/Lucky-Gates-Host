@@ -61,7 +61,8 @@ export class AppComponent implements AfterViewInit{
     }
   };
 
-  showPopUP = (displayContent: string) => {
+  showPopUP = (displayText: string = "") => {
+    this.rootPopUp.setText(displayText);
     this.rootPopUp.setPopUpVisibilityTo(true);
   };
 

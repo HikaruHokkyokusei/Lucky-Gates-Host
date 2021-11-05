@@ -2,12 +2,21 @@
   <div class="PU-Container">
 
     <div (click)="setPopUpVisibilityTo(false)" class="PU-Child PU-Header">
-      <div class="PU-Button-Holder">
+      <div class="PU--HeadButton-Holder">
         <button>X</button>
       </div>
     </div>
     <div class="PU-Child PU-Body">
-      <ng-content></ng-content>
+      <div class="PU-Body-Text">
+        {{text}}
+      </div>
+
+      <div class="PU-Body-Buttons">
+        <app-button *ngFor="let button of buttonList; let i = index;"
+                    (onButtonClick)="callButtonFunction(i)"
+                    [buttonText]="button.buttonText">
+        </app-button>
+      </div>
     </div>
 
   </div>
