@@ -1,16 +1,18 @@
-import {Component} from '@angular/core';
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
+import {PopUpComponent} from "./UIElements/pop-up/pop-up.component";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'Lucky-Gates-Bot';
+export class AppComponent implements AfterViewInit{
+  @ViewChild("RootPopUp") rootPopUp!: PopUpComponent;
 
+  title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
   web3Service: Web3Service = new Web3Service(this);
   gameManagerService: GameManagerService = new GameManagerService(this);
@@ -25,6 +27,12 @@ export class AppComponent {
   windowNumberToShow: number = 0;
 
   constructor() {
+  }
+
+  ngAfterViewInit() {
+    if (!this.web3Service.web3) {
+      this.showPopUP("No Web3 Support Found! Consider Using Metamask.");
+    }
   }
 
   shouldShowLoadingScreen = () => {
@@ -51,5 +59,13 @@ export class AppComponent {
         this.isBindingPlayerAddress = false;
       });
     }
+  };
+
+  showPopUP = (displayContent: string) => {
+    this.rootPopUp.setPopUpVisibilityTo(true);
+  };
+
+  hidePopUp = () => {
+    this.rootPopUp.setPopUpVisibilityTo(false);
   };
 }

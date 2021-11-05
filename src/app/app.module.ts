@@ -8,6 +8,7 @@ import {PlayerMenuComponent} from './player-menu/player-menu.component';
 import {GameWindowComponent} from './game-window/game-window.component';
 import {JoinMenuComponent} from './join-menu/join-menu.component';
 import { AnimatedImageComponent } from './UIElements/animated-image/animated-image.component';
+import { PopUpComponent } from './UIElements/pop-up/pop-up.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { AnimatedImageComponent } from './UIElements/animated-image/animated-ima
     PlayerMenuComponent,
     GameWindowComponent,
     JoinMenuComponent,
-    AnimatedImageComponent
+    AnimatedImageComponent,
+    PopUpComponent
   ],
   imports: [
     BrowserModule

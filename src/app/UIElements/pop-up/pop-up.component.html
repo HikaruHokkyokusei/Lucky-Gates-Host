@@ -1,0 +1,14 @@
+<div class="PU-Overlay" [id]="id">
+  <div class="PU-Container">
+
+    <div (click)="setPopUpVisibilityTo(false)" class="PU-Child PU-Header">
+      <div class="PU-Button-Holder">
+        <button>X</button>
+      </div>
+    </div>
+    <div class="PU-Child PU-Body">
+      <ng-content></ng-content>
+    </div>
+
+  </div>
+</div>

@@ -47,9 +47,11 @@ img {
   max-width: 100%;
 
   z-index: 2;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 1) 85%);
-
   position: absolute;
+}
+
+.State-1 {
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 1) 85%);
 }
 
 @keyframes AnimatePortal {

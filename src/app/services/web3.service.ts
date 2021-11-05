@@ -1,7 +1,6 @@
 import {AppComponent} from "../app.component";
 
 export class Web3Service {
-
   web3BuildSuccess: boolean = false;
   didSignMessage: boolean = false;
   appComponent: AppComponent;
@@ -51,6 +50,7 @@ export class Web3Service {
         return signedMessage;
       } catch (err) {
         this.didSignMessage = false;
+        this.appComponent.showPopUP("User Denied Signature. Please Reload the page and sign the message.");
       }
     } else {
       this.didSignMessage = false;
