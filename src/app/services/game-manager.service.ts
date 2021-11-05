@@ -152,6 +152,8 @@ export class GameManagerService {
     if (this.gameState["gameId"]) {
       if (this.appComponent.web3Service.userAccount !== this.gameState["gameCreator"] || !this.gameState["players"] ||
         !this.gameState["minPlayers"] || this.gameState["players"].length < this.gameState["minPlayers"]) {
+        this.appComponent.showPopUP("Only the game creator can begin the game early when at least " +
+        this.gameState.minPlayers + " players have joined the game.", false, 7500);
         return;
       }
       let data: TransferData = {
@@ -163,24 +165,32 @@ export class GameManagerService {
   };
 
   sendPlayerDoorSelection = (doorNumber: number) => {
-    if (this.gameState["gameId"]) {
-      let data: TransferData = {
-        gameId: this.gameState["gameId"],
-        doorNumber: doorNumber
-      };
+    if (this.gameState["gameId"] && this.gameState["currentChoiceMakingPlayer"] != null &&
+      this.gameState["players"] != null && this.gameState.currentStage != null) {
+      if ((this.gameState.currentStage === 2 || this.gameState.currentStage === 4) &&
+        this.gameState["players"][this.gameState.currentChoiceMakingPlayer].playerAddress === this.appComponent.web3Service.userAccount) {
+        let data: TransferData = {
+          gameId: this.gameState["gameId"],
+          doorNumber: doorNumber
+        };
 
-      this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+        this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+      }
     }
   };
 
   sendPlayerSwitchSelection = (wantToSwitch: boolean) => {
-    if (this.gameState["gameId"]) {
-      let data: TransferData = {
-        gameId: this.gameState["gameId"],
-        wantToSwitch: wantToSwitch
-      };
+    if (this.gameState["gameId"] && this.gameState["currentChoiceMakingPlayer"] != null &&
+      this.gameState["players"] != null && this.gameState.currentStage != null) {
+      if (this.gameState.currentStage === 3 &&
+        this.gameState["players"][this.gameState.currentChoiceMakingPlayer].playerAddress === this.appComponent.web3Service.userAccount) {
+        let data: TransferData = {
+          gameId: this.gameState["gameId"],
+          wantToSwitch: wantToSwitch
+        };
 
-      this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+        this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+      }
     }
   };
 

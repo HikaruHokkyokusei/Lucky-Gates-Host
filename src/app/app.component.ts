@@ -9,7 +9,7 @@ import {PopUpComponent} from "./UIElements/pop-up/pop-up.component";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit{
+export class AppComponent implements AfterViewInit {
   @ViewChild("RootPopUp") rootPopUp!: PopUpComponent;
 
   title: string = 'Lucky-Gates-Bot';
@@ -61,9 +61,9 @@ export class AppComponent implements AfterViewInit{
     }
   };
 
-  showPopUP = (displayText: string = "") => {
+  showPopUP = (displayText: string = "", closeOverride: boolean = false, millisBeforeAutoClose: number = -1) => {
     this.rootPopUp.setText(displayText);
-    this.rootPopUp.setPopUpVisibilityTo(true);
+    this.rootPopUp.setPopUpVisibilityTo(true, closeOverride, millisBeforeAutoClose);
   };
 
   hidePopUp = () => {

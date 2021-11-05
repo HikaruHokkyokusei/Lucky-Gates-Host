@@ -15,6 +15,7 @@ export interface ButtonData {
 export class PopUpComponent implements OnInit, AfterViewInit {
 
   divElement: HTMLElement | null = null;
+  popUpCount: number = 0;
   text: string = "";
   buttonList: ButtonData[] = [];
   id: string = uuid.v4();
@@ -34,14 +35,22 @@ export class PopUpComponent implements OnInit, AfterViewInit {
     }
   };
 
-  setPopUpVisibilityTo = (shouldShow: boolean, autoCloseAfterMillis: number = -1) => {
+  setPopUpVisibilityTo = (shouldShow: boolean, closeOverride: boolean = false, autoCloseAfterMillis: number = -1) => {
     if (shouldShow) {
+      this.popUpCount++;
       if (this.divElement != null && this.divElement.style.display !== 'flex') {
         this.divElement.style.display = 'flex';
       }
       this.autoClose(autoCloseAfterMillis);
-    } else if (this.divElement != null && this.divElement.style.display !== 'none') {
+    } else if (this.popUpCount > 0 || closeOverride) {
+      if (closeOverride) {
+        this.popUpCount = 0;
+      } else {
+        this.popUpCount--;
+      }
+      if (this.popUpCount == 0 && this.divElement != null && this.divElement.style.display !== 'none') {
         this.divElement.style.display = 'none';
+      }
     }
   };
 

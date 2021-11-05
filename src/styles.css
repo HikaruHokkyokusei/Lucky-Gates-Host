@@ -77,21 +77,15 @@ app-root {
   z-index: 1;
 
   border-radius: 10px;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
+  position: relative;
 
   background: antiquewhite;
-  color: #7e0202;
-  font-weight: bold;
-  min-font-size: 20px;
-  font-size: max(20px, 1.5vw);
-  max-font-size: 35px;
 }
 
 .Menu-Texture {
-  grid-column: 1 / span 1;
-  grid-row: 1 / span 1;
+  width: 100%;
+  height: 100%;
+  position: absolute;
   z-index: 2;
 
   background-image: url("assets/Menu-Header-BG.jpg");
@@ -103,8 +97,9 @@ app-root {
 }
 
 .Menu-Header-Holder {
-  grid-column: 1 / span 1;
-  grid-row: 1 / span 1;
+  width: 100%;
+  height: 100%;
+  position: absolute;
   z-index: 3;
 
   box-sizing: border-box;
@@ -118,6 +113,12 @@ app-root {
 .Header-Title {
   flex: 15 0 0;
   text-align: center;
+  text-overflow: ellipsis;
+
+  color: #7e0202;
+  font-weight: bold;
+  font-size: max(17px, 1.45vw);
+  max-font-size: 35px;
 }
 
 .Header-Button {
@@ -125,7 +126,7 @@ app-root {
   flex: 2 0 0;
 
   text-align: center;
-  font-size: 1vw;
+  font-size: max(12px, 1.1vw);
 }
 
 .Menu-Divider {
