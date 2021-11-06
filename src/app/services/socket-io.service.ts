@@ -17,14 +17,14 @@ export class SocketIOService {
       this.appComponent.bindPlayerAddress();
     });
 
-    this.setActionForEvent("synchronizeGamePacket", (gamePacket) => {
+    this.setActionForEvent("synchronizeGamePacket", async (gamePacket) => {
       let header = gamePacket["Header"];
       let body = gamePacket["Body"];
 
       if (body["gameState"] != null) {
         try {
           let gameState: GameState = body["gameState"];
-          this.appComponent.gameManagerService.synchroniseGameData(gameState);
+          await this.appComponent.gameManagerService.synchroniseGameData(gameState);
         } catch (err) {
         }
       }
@@ -34,6 +34,17 @@ export class SocketIOService {
           if (body["error"] == null) {
             this.appComponent.setWindowNumberToShowTo(1);
           }
+          break;
+
+        case "playerRemovalFromGame":
+          if (gamePacket["Body"]["playerAddress"] === this.appComponent.web3Service.userAccount) {
+            this.appComponent.popNewPopUp("You have been removed from the game. Reason : " + gamePacket["Body"]["reasonForRemoval"],
+              5000);
+            this.appComponent.gameManagerService.resetGameState();
+          } else {
+            // TODO : Complete this...
+          }
+          break;
       }
     });
 
@@ -43,7 +54,7 @@ export class SocketIOService {
     });
   }
 
-  setActionForEvent(eventName: string, callback: (...args: any[]) => any) {
+  setActionForEvent(eventName: string, callback: (...args: any) => any) {
     this.socket.on(eventName, callback);
   }
 

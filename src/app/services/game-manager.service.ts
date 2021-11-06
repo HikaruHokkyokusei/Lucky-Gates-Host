@@ -209,5 +209,7 @@ export class GameManagerService {
       players: [],
       removedPlayers: []
     }
+
+    this.appComponent.setWindowNumberToShowTo(0);
   };
 }

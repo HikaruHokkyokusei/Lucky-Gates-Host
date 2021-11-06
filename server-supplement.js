@@ -161,9 +161,9 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "playerRemovalFromGame":
-          // TODO : Send msg to players...
           let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
           if (connectedClients[playerSocketId] != null) {
+            emitter(gameId, 'synchronizeGamePacket', packet);
             connectedClients[playerSocketId]["socket"].leave(gameId);
           }
 
