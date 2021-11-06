@@ -5,13 +5,13 @@ html body {
   padding: 0;
 
   box-sizing: border-box;
-}
 
-body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
 
+body {
   font-family: Cambria, serif;
 
   /* https://www.colorzilla.com/gradient-editor/ */
@@ -88,7 +88,7 @@ app-root {
   position: absolute;
   z-index: 2;
 
-  background-image: url("assets/Menu-Header-BG.jpg");
+  background-image: url("assets/images/Menu-Header-BG.jpg");
   border-radius: inherit;
 
   background-repeat: repeat-x;

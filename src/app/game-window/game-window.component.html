@@ -7,13 +7,14 @@
          [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
          class="GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
       <div class="GW-DoorImage">
-        <app-animated-image src="assets/Portal-Sprite.png" alt="Portal {{doorIndex + 1}}"
+        <app-animated-image src="assets/images/Portal-Sprite.png" alt="Portal {{doorIndex + 1}}"
                             [originalGifHeightPX]="480" [originalGifWidthPX]="480"
                             [frameCount]=24 [duration]=1 durationUnit="s">
         </app-animated-image>
       </div>
       <div class="GW-OpenButton">
-        <app-button buttonText="OPEN"></app-button>
+        <app-button (onButtonClick)="appComponent.gameManagerService.sendPlayerDoorSelection(doorIndex)"
+                    buttonText="OPEN"></app-button>
       </div>
     </div>
   </div>

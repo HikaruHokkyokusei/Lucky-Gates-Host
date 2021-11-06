@@ -1,9 +1,15 @@
 <div *ngIf="windowNumberToShow !== 2" class="Texture"></div>
 
+<div class="MM-Top-Header">
+  <div (click)="toggleAudio()" class="MM-Music-Icon-Holder">
+    <img id="music-icon" src="{{audioIcon}}" alt="Play / Pause">
+  </div>
+</div>
+
 <div class="container">
 
   <div *ngIf="shouldShowLoadingScreen(); else showMenu" class="LoadingImageDiv">
-    <img src="assets/Loading.svg" alt="...LOADING...">
+    <img src="../assets/images/Loading.svg" alt="...LOADING...">
   </div>
 
   <ng-template #showMenu>
@@ -13,6 +19,7 @@
       <app-player-menu [appComponent]="this" *ngSwitchCase="1"></app-player-menu>
       <app-game-window [appComponent]="this" *ngSwitchCase="2"></app-game-window>
       <app-join-menu [appComponent]="this" *ngSwitchCase="3"></app-join-menu>
+      <app-rules-window [appComponent]="this" *ngSwitchCase="4"></app-rules-window>
     </ng-container>
   </ng-template>
 

@@ -10,10 +10,41 @@
   left: 0;
   right: 0;
 
-  background-image: url("src/assets/Body-BG.jpg");
+  background-image: url("../assets/images/Body-BG.jpg");
   background-position: center;
   background-size: cover;
   opacity: 0.33;
+}
+
+.MM-Top-Header {
+  width: 100vw;
+  height: 5vh;
+  z-index: 10;
+
+  position: absolute;
+
+  box-sizing: border-box;
+  padding: 5px;
+
+  top: 0;
+
+  display: flex;
+}
+
+audio {
+  display: none;
+}
+
+.MM-Music-Icon-Holder {
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+#music-icon {
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 #RootPopUp {
