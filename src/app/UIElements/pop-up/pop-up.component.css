@@ -10,9 +10,9 @@
   position: absolute;
 
   z-index: 100;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
 
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -22,7 +22,7 @@
   width: max(600px, 30%);
   z-index: 101;
 
-  background: rgba(90, 90, 90, 0.7);
+  background: rgba(90, 90, 90, 0.8);
   border-radius: 10px;
   box-sizing: border-box;
   padding: 5px;

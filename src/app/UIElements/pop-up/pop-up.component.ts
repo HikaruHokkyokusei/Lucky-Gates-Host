@@ -1,5 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
-import * as uuid from 'uuid';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 export interface ButtonData {
   buttonText: string;
@@ -8,65 +7,49 @@ export interface ButtonData {
 }
 
 @Component({
-  selector: 'app-pop-up',
+  selector: 'app-pop-up[id]',
   templateUrl: './pop-up.component.html',
   styleUrls: ['./pop-up.component.css']
 })
 export class PopUpComponent implements OnInit, AfterViewInit {
 
   divElement: HTMLElement | null = null;
-  popUpCount: number = 0;
-  text: string = "";
-  buttonList: ButtonData[] = [];
-  id: string = uuid.v4();
+  @Input() id!: string;
+  @Input() text: string = "";
+  @Input() autoCloseAfterMillis: number = -1;
+  @Input() buttonList: ButtonData[] = [];
+  @Output() onPopUpClose = new EventEmitter();
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit() {
     this.divElement = document.getElementById(this.id);
+    this.autoCloseAfter(this.autoCloseAfterMillis);
   }
 
-  autoClose = (millisBeforeClose: number) => {
-    if (millisBeforeClose >= 0 && this.divElement?.style.display !== 'none') {
-      setTimeout(() => { this.setPopUpVisibilityTo(false); }, millisBeforeClose);
+  autoCloseAfter = (millisBeforeClose: number) => {
+    if (millisBeforeClose >= 0) {
+      setTimeout(() => {
+        this.closeThePopUp();
+      }, millisBeforeClose);
     }
   };
 
-  setPopUpVisibilityTo = (shouldShow: boolean, closeOverride: boolean = false, autoCloseAfterMillis: number = -1) => {
-    if (shouldShow) {
-      this.popUpCount++;
-      if (this.divElement != null && this.divElement.style.display !== 'flex') {
-        this.divElement.style.display = 'flex';
-      }
-      this.autoClose(autoCloseAfterMillis);
-    } else if (this.popUpCount > 0 || closeOverride) {
-      if (closeOverride) {
-        this.popUpCount = 0;
-      } else {
-        this.popUpCount--;
-      }
-      if (this.popUpCount == 0 && this.divElement != null && this.divElement.style.display !== 'none') {
-        this.divElement.style.display = 'none';
-      }
+  closeThePopUp = () => {
+    if (this.divElement != null && this.divElement.style.display !== 'none') {
+      this.divElement.style.display = 'none';
     }
+    this.onPopUpClose.emit();
   };
 
   callButtonFunction = (buttonIndex: number) => {
     if (buttonIndex < this.buttonList.length) {
       this.buttonList[buttonIndex].onClickFunction();
-      this.autoClose(this.buttonList[buttonIndex].millisBeforeClose);
+      this.autoCloseAfter(this.buttonList[buttonIndex].millisBeforeClose);
     }
   };
-
-  setText = (text: string) => {
-    this.text = text;
-  };
-
-  setButtonList = (buttonList: ButtonData[]) => {
-    this.buttonList = buttonList;
-  }
-
 }

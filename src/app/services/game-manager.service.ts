@@ -152,8 +152,8 @@ export class GameManagerService {
     if (this.gameState["gameId"]) {
       if (this.appComponent.web3Service.userAccount !== this.gameState["gameCreator"] || !this.gameState["players"] ||
         !this.gameState["minPlayers"] || this.gameState["players"].length < this.gameState["minPlayers"]) {
-        this.appComponent.showPopUP("Only the game creator can begin the game early when at least " +
-        this.gameState.minPlayers + " players have joined the game.", false, 7500);
+        this.appComponent.popNewPopUp("Only the game creator can begin the game early when at least " +
+          this.gameState.minPlayers + " players have joined the game.", 5000);
         return;
       }
       let data: TransferData = {
@@ -175,6 +175,8 @@ export class GameManagerService {
         };
 
         this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+      } else {
+        this.appComponent.popNewPopUp("You are not allowed to make the choice right now.", 3000);
       }
     }
   };
@@ -191,6 +193,8 @@ export class GameManagerService {
 
         this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
       }
+    } else {
+      this.appComponent.popNewPopUp("You are not allowed to make the choice right now.", 3000);
     }
   };
 

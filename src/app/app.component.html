@@ -18,4 +18,9 @@
 
 </div>
 
-<app-pop-up id="RootPopUp" #RootPopUp></app-pop-up>
+<app-pop-up *ngFor="let popUpKey of activePopUpKeys" [id]="popUpKey"
+            [text]="activePopUps[popUpKey].text"
+            [buttonList]="activePopUps[popUpKey].buttonList"
+            [autoCloseAfterMillis]="activePopUps[popUpKey].autoCloseAfterMillis"
+            (onPopUpClose)="popUpClosed(popUpKey)">
+</app-pop-up>

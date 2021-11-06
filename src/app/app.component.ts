@@ -1,8 +1,9 @@
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
-import {PopUpComponent} from "./UIElements/pop-up/pop-up.component";
+import {ButtonData} from "./UIElements/pop-up/pop-up.component";
+import * as uuid from 'uuid';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,6 @@ import {PopUpComponent} from "./UIElements/pop-up/pop-up.component";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements AfterViewInit {
-  @ViewChild("RootPopUp") rootPopUp!: PopUpComponent;
 
   title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
@@ -26,12 +26,15 @@ export class AppComponent implements AfterViewInit {
   * */
   windowNumberToShow: number = 0;
 
+  activePopUps: { [id: string]: { text: string, autoCloseAfterMillis: number, buttonList: ButtonData[] } } = {};
+  activePopUpKeys: string[] = Object.keys(this.activePopUps);
+
   constructor() {
   }
 
   ngAfterViewInit() {
     if (!this.web3Service.web3) {
-      this.showPopUP("No Web3 Support Found! Consider Using Metamask.");
+      this.popNewPopUp("No Web3 Support Found! Consider Using Metamask.");
     }
   }
 
@@ -61,12 +64,18 @@ export class AppComponent implements AfterViewInit {
     }
   };
 
-  showPopUP = (displayText: string = "", closeOverride: boolean = false, millisBeforeAutoClose: number = -1) => {
-    this.rootPopUp.setText(displayText);
-    this.rootPopUp.setPopUpVisibilityTo(true, closeOverride, millisBeforeAutoClose);
+  popNewPopUp = (text: string, autoCloseAfterMillis: number = -1, buttonList: ButtonData[] = []) => {
+    let id: string = uuid.v4();
+    this.activePopUps[id] = {
+      text,
+      autoCloseAfterMillis,
+      buttonList
+    };
+    this.activePopUpKeys = Object.keys(this.activePopUps);
   };
 
-  hidePopUp = () => {
-    this.rootPopUp.setPopUpVisibilityTo(false);
+  popUpClosed = (id: string) => {
+    delete this.activePopUps[id];
+    this.activePopUpKeys = Object.keys(this.activePopUps);
   };
 }
