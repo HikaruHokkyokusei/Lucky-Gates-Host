@@ -62,9 +62,12 @@ export class AppComponent implements AfterViewInit {
   playAudio = (shouldRetry: boolean = true) => {
     if (this.audioElement != null && this.audioElement.paused) {
       this.audioElement.volume = 0.1;
-      this.audioElement.play().then().catch((err) => {
-        console.log(err);
+      this.audioElement.play().then().catch(() => {
         if (shouldRetry) {
+          setTimeout(() => {
+            this.playAudio(false);
+          }, 1000);
+        } else if (this.shouldShowLoadingScreen()) {
           setTimeout(() => {
             this.playAudio(false);
           }, 1000);
