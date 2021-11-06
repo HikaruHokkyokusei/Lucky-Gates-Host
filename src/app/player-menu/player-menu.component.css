@@ -5,10 +5,53 @@
   align-items: center;
 }
 
+.PM-HeaderTimer {
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  font-size: max(12px, 1.1vw);
+
+  border: 1px solid coral;
+  border-radius: 7px;
+
+  color: #1c0d03;
+  position: relative;
+}
+
+.PM-Timer-Mask {
+  position: absolute;
+  border-radius: 7px;
+  transition: all 750ms;
+  z-index: 1;
+  background: coral
+}
+
+.PM-Timer-Text {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.TitleElement {
+  flex: 1 0 0;
+}
+
 .Index {
   flex: 1 0 0;
 }
 
 .Address {
-  flex: 15 0 0;
+  flex: 14 0 0;
 }

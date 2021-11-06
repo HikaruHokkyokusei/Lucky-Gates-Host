@@ -2,6 +2,10 @@
 
 <div class="GW-Wrapper">
 
+  <div class="GW-HeadingHolder">
+
+  </div>
+
   <div class="GW-DoorHolder">
     <div *ngFor="let doorIndex of doorIndices;"
          [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"

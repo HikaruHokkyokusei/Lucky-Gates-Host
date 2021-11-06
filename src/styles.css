@@ -72,7 +72,7 @@ app-root {
 }
 
 .Menu-Header {
-  height: 13%;
+  height: 14%;
   width: 100%;
   z-index: 1;
 
@@ -103,7 +103,7 @@ app-root {
   z-index: 3;
 
   box-sizing: border-box;
-  padding: 10px;
+  padding: 4px;
 
   display: flex;
   justify-content: center;
@@ -117,7 +117,7 @@ app-root {
 
   color: #7e0202;
   font-weight: bold;
-  font-size: max(17px, 1.45vw);
+  font-size: max(20px, 1.6vw);
   max-font-size: 35px;
 }
 
@@ -130,7 +130,7 @@ app-root {
 }
 
 .Menu-Divider {
-  height: 2%;
+  height: 1%;
   width: 100%;
 }
 

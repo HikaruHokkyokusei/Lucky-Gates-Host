@@ -1,12 +1,24 @@
 <div class="Menu-Wrapper">
+
   <div class="Menu-Header">
     <div class="Menu-Texture"></div>
     <div class="Menu-Header-Holder">
+      <div class="PM-HeaderTimer">
+        <div [ngStyle]="{
+        'width': remainingPercent + '%',
+        'height': remainingPercent + '%'
+        }" class="PM-Timer-Mask">
+
+        </div>
+        <div class="PM-Timer-Text">
+          Game starts in :<br>{{timerValue}} s
+        </div>
+      </div>
       <div class="Header-Title">
-        <div>
+        <div class="TitleElement">
           Game:
         </div>
-        <div>
+        <div style="font-size: max(14px, 1.3vw);" class="TitleElement">
           {{appComponent.gameManagerService.gameState.gameId}}
         </div>
       </div>
@@ -16,7 +28,9 @@
       </div>
     </div>
   </div>
+
   <div class="Menu-Divider"></div>
+
   <div class="Menu-Body">
     <div style="border-bottom: 3px solid #ff0000; font-size: max(17px, 1.3vw);" class="Menu-Element">
       <div class="Menu-SubElement Index">Sr. No.</div>

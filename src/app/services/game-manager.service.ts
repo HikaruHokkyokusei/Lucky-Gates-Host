@@ -63,6 +63,7 @@ export class GameManagerService {
     players: [],
     removedPlayers: []
   };
+  stageDuration: number = 0;
   availableGameList: AvailableGame[] = [];
 
   constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
@@ -92,6 +93,11 @@ export class GameManagerService {
   };
 
   postGameDataSynchronize = () => {
+    if (this.gameState["currentStage"] != null && this.gameState.stageStartTime != null && this.gameState.stageEndTime != null) {
+      this.stageDuration = Math.ceil((this.gameState.stageEndTime - this.gameState.stageStartTime));
+    } else {
+      this.stageDuration = 0;
+    }
     if (this.gameState["currentStage"] != null && this.gameState["currentStage"] >= -1 && this.gameState["currentStage"] < 6) {
       if (this.gameState["currentStage"] < 2) {
         this.appComponent.setWindowNumberToShowTo(1);
