@@ -168,15 +168,15 @@ class Game:
 
     def remove_players_with_least_points(self):
         if len(self.gameState["players"]) > 1:
-            players_with_min_points = []
+            player_indicess_with_min_points = []
             min_points = self.gameState["players"][0]["totalPoints"]
 
             for i in range(len(self.gameState["players"])):
                 if self.gameState["players"][i]["totalPoints"] == min_points:
-                    players_with_min_points.append(i)
+                    player_indicess_with_min_points.append(i)
                 elif self.gameState["players"][i]["totalPoints"] < min_points:
                     min_points = self.gameState["players"][i]["totalPoints"]
-                    players_with_min_points = [i]
+                    player_indicess_with_min_points = [i]
 
             players_and_points = {}
             for player in self.gameState["players"]:
@@ -186,12 +186,12 @@ class Game:
                 "minPoints": min_points
             }, "displayScoreboard")
 
-            if len(players_with_min_points) < len(self.gameState["players"]):
-                players_with_min_points.sort()
+            if len(player_indicess_with_min_points) < len(self.gameState["players"]):
+                player_indicess_with_min_points.sort()
                 removed_player_count = 0
 
-                for player_index in players_with_min_points:
-                    self.remove_player_from_game(players_with_min_points[player_index] - removed_player_count,
+                for player_index in player_indicess_with_min_points:
+                    self.remove_player_from_game(player_index - removed_player_count,
                                                  f"Removed For Securing Least Total Points : {min_points}", False)
                     removed_player_count += 1
             else:
