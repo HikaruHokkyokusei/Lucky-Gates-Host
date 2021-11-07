@@ -1,7 +1,7 @@
 <div class="Menu-Wrapper">
   <div class="Menu-Header">
     <div class="Menu-Texture"></div>
-    <div class="Menu-Header-Holder">
+    <div class="CenterRowFlex Menu-Header-Holder">
       <div class="Header-Button">
         <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
       </div>
@@ -17,23 +17,23 @@
   <div class="Menu-Divider"></div>
   <div class="Menu-Body">
     <div style="border-bottom: 3px solid #ff0000; font-size: max(17px, 1.3vw);" class="Menu-Element">
-      <div class="Menu-SubElement Index">Sr. No.</div>
-      <div class="Menu-SubElement GameId">Game Id</div>
-      <div class="Menu-SubElement PlayerCount">Players</div>
-      <div class="Menu-SubElement Join">Join</div>
+      <div class="CenterRowFlex Menu-SubElement Index">Sr. No.</div>
+      <div class="CenterRowFlex Menu-SubElement GameId">Game Id</div>
+      <div class="CenterRowFlex Menu-SubElement PlayerCount">Players</div>
+      <div class="CenterRowFlex Menu-SubElement Join">Join</div>
     </div>
     <div class="Menu-SubBody">
       <div class="Menu-Element" *ngFor="let game of appComponent.gameManagerService.availableGameList; let i = index;">
-        <div class="Menu-SubElement Index">
+        <div class="CenterRowFlex Menu-SubElement Index">
           {{i + 1}}.
         </div>
-        <div class="Menu-SubElement GameId">
+        <div class="CenterRowFlex Menu-SubElement GameId">
           {{game.gameId}}
         </div>
-        <div class="Menu-SubElement PlayerCount">
+        <div class="CenterRowFlex Menu-SubElement PlayerCount">
           {{game.playerCount}}
         </div>
-        <div class="Menu-SubElement Join">
+        <div class="CenterRowFlex Menu-SubElement Join">
           <app-button (onButtonClick)="appComponent.gameManagerService.addPlayerToGame(game.gameId)"
                       buttonText="Join"></app-button>
         </div>

@@ -22,12 +22,10 @@
   z-index: 10;
 
   position: absolute;
-
   box-sizing: border-box;
   padding: 5px;
 
   top: 0;
-
   display: flex;
 }
 
@@ -59,7 +57,7 @@ audio {
   position: absolute;
 }
 
-.container {
+.RootContainer {
   width: 100%;
   flex: 1 0 0;
   z-index: 1;
@@ -67,10 +65,6 @@ audio {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /*
@@ -82,10 +76,6 @@ audio {
 app-main-menu {
   width: max(500px, 40%);
   height: max(500px, 80%);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 app-player-menu {

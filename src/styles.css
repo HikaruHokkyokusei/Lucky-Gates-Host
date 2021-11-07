@@ -32,27 +32,35 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 0.2vw;
-  background: #8d6d22;
+    border-radius: 0.2vw;
+    background: #8d6d22;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffad00;
+    background: #ffad00;
+}
+
+.CenterRowFlex {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.CenterColumnFlex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 app-root {
-  min-height: 450px;
-  min-width: 775px;
+    min-height: 450px;
+    min-width: 775px;
 
-  width: 100%;
-  height: 100%;
-  position: absolute;
-
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-  align-content: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
 
 /*
@@ -104,10 +112,6 @@ app-root {
 
   box-sizing: border-box;
   padding: 4px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .Header-Title {
@@ -160,7 +164,6 @@ app-root {
   justify-content: center;
 
   box-sizing: border-box;
-
   border-bottom: 1px solid rgba(255, 249, 224, 0.66);
 }
 
