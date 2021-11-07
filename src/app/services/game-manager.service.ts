@@ -9,7 +9,7 @@ export interface TransferData {
 }
 
 export interface Player {
-  playerAddress?: string
+  playerAddress: string
   reasonForRemovalFromGame?: string,
   doorsOpenedByGame?: number[],
   hasMadeChoice?: boolean,
@@ -63,6 +63,7 @@ export class GameManagerService {
     players: [],
     removedPlayers: []
   };
+  ourIndex: number = -1;
   stageDuration: number = 0;
   availableGameList: AvailableGame[] = [];
 
@@ -107,6 +108,10 @@ export class GameManagerService {
     } else if (this.appComponent.windowNumberToShow === 1 || this.appComponent.windowNumberToShow === 2) {
       this.appComponent.setWindowNumberToShowTo(0);
     }
+  };
+
+  postGameRejoin = () => {
+    // TODO : Complete this... Things to do after rejoining & synchronizing with a game.
   };
 
   synchronizeAvailableGameList = (availableGameList: AvailableGameListJSON) => {
@@ -211,5 +216,43 @@ export class GameManagerService {
     }
 
     this.appComponent.setWindowNumberToShowTo(0);
+  };
+
+  getChoiceMaker = () => {
+    let data = {
+      isMe: false,
+      playerAddress: ""
+    };
+
+    if (this.gameState.currentChoiceMakingPlayer != null && this.gameState.players != null) {
+      data.playerAddress = this.gameState.players[this.gameState.currentChoiceMakingPlayer].playerAddress;
+      data.isMe = data.playerAddress === this.appComponent.web3Service.userAccount;
+    }
+
+    return data;
+  };
+
+  getTotalPlayerPoints = () => {
+    let points = 0;
+
+    if (this.gameState.players != null) {
+      if (this.ourIndex === -1 || this.gameState["players"][this.ourIndex].playerAddress !== this.appComponent.web3Service.userAccount) {
+        for (let i = 0; i < this.gameState.players.length; i++) {
+          if (this.gameState.players[i].playerAddress === this.appComponent.web3Service.userAccount) {
+            this.ourIndex = i;
+            break;
+          } else {
+            this.ourIndex = -1;
+          }
+        }
+      }
+
+      if (this.ourIndex >= 0) {
+        let temp = this.gameState.players[this.ourIndex].totalPoints;
+        points = (temp == null) ? 0 : temp;
+      }
+    }
+
+    return points;
   };
 }

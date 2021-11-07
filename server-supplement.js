@@ -1,6 +1,5 @@
 "use strict";
 
-
 const toolSet = require("./private/ToolSet");
 const Web3 = require("web3");
 const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
@@ -58,6 +57,7 @@ const bindAddress = (socketId, signedMessage, playerAddress) => {
         playerAddressToSocketIdMap.setKeyAndValue(playerAddress, socketId);
         if (playerAddressToGameIdMap[playerAddress] != null) {
           connectedClients[socketId]["socket"].join(playerAddressToGameIdMap[playerAddress]);
+          connectedClients[socketId]["socket"].emit("rejoinGame", lastGameStateMap[playerAddressToGameIdMap[playerAddress]]);
         }
       }
     } catch {
@@ -79,6 +79,7 @@ const deleteConnection = (socket) => {
 
 
 const playerAddressToGameIdMap = {};  // playerAddress => gameId
+const lastGameStateMap = {};  // gameId => gameState
 
 /*
 * "gameId" => {
@@ -123,6 +124,10 @@ const scriptOutputHandler = async (packet) => {
         if (gameIdToPlayerCollectionMap[gameId] != null) {
           gameIdToPlayerCollectionMap[gameId]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
         }
+      }
+
+      if (packet["Body"]["gameState"] != null) {
+        lastGameStateMap[gameId] = packet["Body"]["gameState"];
       }
 
       switch (packet["Header"]["command"]) {
@@ -172,7 +177,8 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "gameDeletion":
-          // TODO : Complete this...
+          delete lastGameStateMap[gameId];
+          delete gameIdToPlayerCollectionMap[gameId];
           shouldForwardToPlayers = false;
           break;
 
@@ -182,10 +188,15 @@ const scriptOutputHandler = async (packet) => {
       }
     } else if (!isGameCreatorAdmin) {
       // TODO : Send 'error' event to client.
+      let socketId = null;
       if (playerAddress) {
-
+        socketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
       } else if (gameCreator) {
+        socketId = playerAddressToSocketIdMap.getValueFromKey(gameCreator);
+      }
 
+      if (connectedClients[socketId] != null) {
+        connectedClients[socketId]["socket"].emit("synchronizeGamePacket", packet);
       }
     }
 
@@ -208,6 +219,7 @@ const createNewGame = (creatorSocketId, gameCoinAddress, coinChainName) => {
   if (creatorSocketId === adminSocketId) {
     gameCreator = "admin";
   } else if (gameCreator == null || playerAddressToGameIdMap[gameCreator] != null) {
+    emitter(creatorSocketId, "error", "Player is already part of another game. Cannot create new game.");
     return;
   }
   let body = {

@@ -17,6 +17,20 @@ export class SocketIOService {
       this.appComponent.bindPlayerAddress();
     });
 
+    this.setActionForEvent("error", (message) => {
+      this.appComponent.popNewPopUp("Error!!! : " + message, 5000);
+    });
+
+    this.setActionForEvent("rejoinGame", (gameState) => {
+      if (gameState != null) {
+        try {
+          this.appComponent.gameManagerService.synchroniseGameData(<GameState>gameState);
+          this.appComponent.gameManagerService.postGameRejoin();
+        } catch (err) {
+        }
+      }
+    });
+
     this.setActionForEvent("synchronizeGamePacket", async (gamePacket) => {
       let header = gamePacket["Header"];
       let body = gamePacket["Body"];
@@ -33,6 +47,8 @@ export class SocketIOService {
         case "gameCreation":
           if (body["error"] == null) {
             this.appComponent.setWindowNumberToShowTo(1);
+          } else {
+            this.appComponent.popNewPopUp("Unable to create new game. Reason : " + gamePacket["Body"]["error"], 5000);
           }
           break;
 
