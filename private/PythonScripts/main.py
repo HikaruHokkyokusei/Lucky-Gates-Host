@@ -211,6 +211,7 @@ class GameHandler:
                         success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
                         if success:
                             reply_body["result"] = "Success"
+                            reply_body["gameState"] = copy.deepcopy(game.gameState)
                         else:
                             reply_body["error"] = message
                     else:
@@ -236,6 +237,7 @@ class GameHandler:
                                                                                 want_to_switch)
                         if success:
                             reply_body["result"] = "Success"
+                            reply_body["gameState"] = copy.deepcopy(game.gameState)
                         else:
                             reply_body["error"] = message
                     else:

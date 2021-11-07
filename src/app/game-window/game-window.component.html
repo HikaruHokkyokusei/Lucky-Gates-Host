@@ -1,16 +1,33 @@
 <div class="BlackBG"></div>
 
-<div class="GW-Wrapper">
+<div class="CenterColumnFlex GW-Wrapper">
 
-  <div class="GW-HeadingHolder">
+  <div class="CenterRowFlex GW-HeadingHolder">
+    <div class="CenterColumnFlex GW-TurnTextHolder">
+      <div class="GW-Timer">
+        <div class="GW-TimerMask">
 
+        </div>
+        <div class="GW-TimerText">
+          Time left : {{timerValue}} s
+        </div>
+      </div>
+      <div class="GW-TurnText">
+
+      </div>
+    </div>
+    <div class="CenterRowFlex GW-TotalPoints">
+      Your points:<br>{{appComponent.gameManagerService.getTotalPlayerPoints()}}
+    </div>
   </div>
+
+  <div class="GW-Divider"></div>
 
   <div class="GW-DoorHolder">
     <div *ngFor="let doorIndex of doorIndices;"
          [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
-         class="GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
-      <div class="GW-DoorImage">
+         class="CenterColumnFlex GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
+      <div class="CenterRowFlex GW-DoorImage">
         <app-animated-image src="assets/images/Portal-Sprite.png" alt="Portal {{doorIndex + 1}}"
                             [originalGifHeightPX]="480" [originalGifWidthPX]="480"
                             [frameCount]=24 [duration]=1 durationUnit="s">
@@ -18,7 +35,7 @@
       </div>
       <div class="GW-OpenButton">
         <app-button (onButtonClick)="appComponent.gameManagerService.sendPlayerDoorSelection(doorIndex)"
-                    buttonText="OPEN"></app-button>
+                    buttonText="OPEN DOOR {{doorIndex + 1}}"></app-button>
       </div>
     </div>
   </div>
