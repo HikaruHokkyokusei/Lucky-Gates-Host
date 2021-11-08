@@ -184,7 +184,12 @@ class GameHandler:
                 if game is None:
                     raise self.GameException("No such game exists")
 
-                success, message = game.begin_game_early()
+                if game.shouldBeginEarly:
+                    success = False
+                    message = "The Game is already begun early"
+                else:
+                    success, message = game.begin_game_early()
+
                 if not success:
                     reply_body["error"] = message
                 else:

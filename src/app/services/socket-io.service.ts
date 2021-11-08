@@ -75,6 +75,10 @@ export class SocketIOService {
               popMessage += " for not making selection withing stipulated time limit.";
               this.appComponent.popNewPopUp(popMessage, 3000);
               break;
+
+            case "earlyGameBeginning":
+              this.appComponent.popNewPopUp("The game will start in 10 - 15 seconds. Please be ready!!", 12000, false);
+              break;
           }
           break;
       }

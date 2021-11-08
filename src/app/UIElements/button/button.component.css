@@ -1,10 +1,6 @@
-.ButtonHolder {
+.BC-ButtonHolder {
   height: 100%;
   width: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .TextHolder {
@@ -15,20 +11,16 @@
   color: #ff5b82;
 }
 
-.Button {
+.BC-Button {
   width: 100%;
   height: 100%;
 
   cursor: pointer;
-  transition: all 0.7s;
+  transition: all 0.8s;
   position: relative;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.Button::before {
+.BC-Button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -37,16 +29,16 @@
   height: 100%;
   z-index: 1;
   background-color: #151515;
-  transition: all 0.35s;
+  transition: all 0.4s;
   border-radius: 10px;
 }
 
-.Button:hover::before {
+.BC-Button:hover::before {
   opacity: 0;
   transform: scale(0.5, 0.5);
 }
 
-.Button::after {
+.BC-Button::after {
   content: '';
   position: absolute;
   top: 0;
@@ -55,13 +47,13 @@
   height: 100%;
   z-index: 1;
   opacity: 0;
-  transition: all 0.35s;
+  transition: all 0.4s;
   border: 2px solid rgba(255, 255, 255, 0.8);
   transform: scale(1.1, 1.1);
   border-radius: 10px;
 }
 
-.Button:hover::after {
+.BC-Button:hover::after {
   opacity: 1;
   transform: scale(1, 1);
 }

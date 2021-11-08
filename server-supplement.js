@@ -153,7 +153,6 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "informPlayers":
-          // TODO : Complete this...
           if (packet["Header"]["action"] === "stageUpdated") {
             addPlayerToGame({gameId: gameId, playerAddress: gameCreator});
             shouldForwardToPlayers = false;
