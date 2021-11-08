@@ -34,10 +34,10 @@ export class SocketIOService {
     this.setActionForEvent("synchronizeGamePacket", async (gamePacket) => {
       let header = gamePacket["Header"];
       let body = gamePacket["Body"];
+      let gameState: GameState | null = body["gameState"];
 
-      if (body["gameState"] != null) {
+      if (gameState != null) {
         try {
-          let gameState: GameState = body["gameState"];
           await this.appComponent.gameManagerService.synchroniseGameData(gameState);
         } catch (err) {
         }
@@ -48,17 +48,33 @@ export class SocketIOService {
           if (body["error"] == null) {
             this.appComponent.setWindowNumberToShowTo(1);
           } else {
-            this.appComponent.popNewPopUp("Unable to create new game. Reason : " + gamePacket["Body"]["error"], 5000);
+            this.appComponent.popNewPopUp("Unable to create new game.  Reason : " + gamePacket["Body"]["error"], 4000);
           }
           break;
 
         case "playerRemovalFromGame":
           if (gamePacket["Body"]["playerAddress"] === this.appComponent.web3Service.userAccount) {
-            this.appComponent.popNewPopUp("You have been removed from the game. Reason : " + gamePacket["Body"]["reasonForRemoval"],
+            this.appComponent.popNewPopUp("You have been removed from the game.   Reason : " + gamePacket["Body"]["reasonForRemoval"],
               5000);
             this.appComponent.gameManagerService.resetGameState();
           } else {
             // TODO : Complete this...
+          }
+          break;
+
+        case "informPlayers":
+          switch (header["action"]) {
+            case "nonSelectionPenalty":
+              let popMessage = "A penalty of " + body["penaltyPoints"] + " points has been applied on ";
+              if (this.isAddressOur(gamePacket["playerAddress"])) {
+                popMessage += "YOU";
+              } else {
+                popMessage += ("player " + body["playerAddress"].substr(0, Math.min(body["playerAddress"].length, 10)) + "...");
+              }
+
+              popMessage += " for not making selection withing stipulated time limit.";
+              this.appComponent.popNewPopUp(popMessage, 3000);
+              break;
           }
           break;
       }
@@ -70,11 +86,19 @@ export class SocketIOService {
     });
   }
 
-  setActionForEvent(eventName: string, callback: (...args: any) => any) {
+  isAddressOur = (playerAddress?: string | null) => {
+    if (playerAddress == null) {
+      return false;
+    } else {
+      return playerAddress === this.appComponent.web3Service.userAccount;
+    }
+  };
+
+  setActionForEvent = (eventName: string, callback: (...args: any) => any) => {
     this.socket.on(eventName, callback);
   }
 
-  emitEventToServer(eventName: string, data: any) {
+  emitEventToServer = (eventName: string, data: any) => {
     this.socket.emit(eventName, data);
   }
 }

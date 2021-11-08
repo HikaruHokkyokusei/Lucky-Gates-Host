@@ -116,26 +116,25 @@ const scriptOutputHandler = async (packet) => {
     let gameCreator, isGameCreatorAdmin = false, shouldForwardToPlayers = true;
     const gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
     const playerAddress = packet["Body"]["playerAddress"]; // Can be null.
+    const playerSocketId = (playerAddress == null) ? null : playerAddressToSocketIdMap.getValueFromKey(playerAddress);
+    const gameState = packet["Body"]["gameState"];
+    if (gameState != null) {
+      lastGameStateMap[gameId] = gameState;
+      gameCreator = gameState["gameCreator"];
+      isGameCreatorAdmin = gameCreator === "admin";
+      if (gameIdToPlayerCollectionMap[gameId] != null) {
+        gameIdToPlayerCollectionMap[gameId]["currentStage"] = gameState["currentStage"];
+      }
+    }
+
 
     if (packet["Body"]["error"] == null) {
-      if (packet["Header"]["command"] !== "gameDeletion") {
-        gameCreator = packet["Body"]["gameState"]["gameCreator"];
-        isGameCreatorAdmin = gameCreator === "admin";
-        if (gameIdToPlayerCollectionMap[gameId] != null) {
-          gameIdToPlayerCollectionMap[gameId]["currentStage"] = packet["Body"]["gameState"]["currentStage"];
-        }
-      }
-
-      if (packet["Body"]["gameState"] != null) {
-        lastGameStateMap[gameId] = packet["Body"]["gameState"];
-      }
-
       switch (packet["Header"]["command"]) {
         case "gameCreation":
           gameIdToPlayerCollectionMap[gameId] = {
-            "gameCoinAddress": packet["Body"]["gameState"]["gameCoinAddress"],
-            "coinChainName": packet["Body"]["gameState"]["coinChainName"],
-            "currentStage": packet["Body"]["gameState"]["currentStage"],
+            "gameCoinAddress": gameState["gameCoinAddress"],
+            "coinChainName": gameState["coinChainName"],
+            "currentStage": gameState["currentStage"],
             "gameCreator": gameCreator,
             "playerAddresses": {}
           };
@@ -146,14 +145,10 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "playerAddition":
-          if (playerAddressToGameIdMap[playerAddress] == null) {
-            playerAddressToGameIdMap[playerAddress] = gameId;
-            gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress] = true;
-
-            let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
-            if (connectedClients[playerSocketId] != null) {
-              connectedClients[playerSocketId]["socket"].join(gameId);
-            }
+          playerAddressToGameIdMap[playerAddress] = gameId;
+          gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress] = true;
+          if (connectedClients[playerSocketId] != null) {
+            connectedClients[playerSocketId]["socket"].join(gameId);
           }
           break;
 
@@ -166,12 +161,10 @@ const scriptOutputHandler = async (packet) => {
           break;
 
         case "playerRemovalFromGame":
-          let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
           if (connectedClients[playerSocketId] != null) {
             emitter(gameId, 'synchronizeGamePacket', packet);
             connectedClients[playerSocketId]["socket"].leave(gameId);
           }
-
           delete playerAddressToGameIdMap[playerAddress];
           delete gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress];
           break;
@@ -181,27 +174,23 @@ const scriptOutputHandler = async (packet) => {
           delete gameIdToPlayerCollectionMap[gameId];
           shouldForwardToPlayers = false;
           break;
+      }
 
-        default:
-          shouldForwardToPlayers = false;
-          break;
+      if (!isGameCreatorAdmin && shouldForwardToPlayers) {
+        emitter(gameId, 'synchronizeGamePacket', packet);
       }
     } else if (!isGameCreatorAdmin) {
       // TODO : Send 'error' event to client.
-      let socketId = null;
+      let emitSocketId = null;
       if (playerAddress) {
-        socketId = playerAddressToSocketIdMap.getValueFromKey(playerAddress);
+        emitSocketId = playerSocketId;
       } else if (gameCreator) {
-        socketId = playerAddressToSocketIdMap.getValueFromKey(gameCreator);
+        emitSocketId = playerAddressToSocketIdMap.getValueFromKey(gameCreator);
       }
 
-      if (connectedClients[socketId] != null) {
-        connectedClients[socketId]["socket"].emit("synchronizeGamePacket", packet);
+      if (connectedClients[emitSocketId] != null) {
+        connectedClients[emitSocketId]["socket"].emit("error", packet["Body"]["error"]);
       }
-    }
-
-    if (!isGameCreatorAdmin && shouldForwardToPlayers) {
-      emitter(gameId, 'synchronizeGamePacket', packet);
     }
   } else if (packet["message"] === "Python Script Exited") {
     console.log("Python Script Exited");
