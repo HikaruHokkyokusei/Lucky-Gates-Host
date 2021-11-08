@@ -334,7 +334,7 @@ if __name__ == '__main__':
             while shouldContinue:
                 time.sleep(2.5)
         except KeyboardInterrupt as ki_err:
-            mainLogger.error(str(ki_err))
+            mainLogger.exception(ki_err)
 
         for io_elem in io_elements:
             io_elem["Object"].stop()

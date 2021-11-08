@@ -155,7 +155,7 @@ class Game:
 
         self.send_information_to_players({
             "playerAddress": current_player["playerAddress"],
-            "doorsOpenedByGame": doors_opened_by_game,
+            "openedDoors": doors_opened_by_game,
             "respectivePoints": respective_points
         }, "doorsOpenedByGame")
 
@@ -359,7 +359,6 @@ class Game:
                         time.sleep(self.step_duration)
 
                     if current_player["hasMadeChoice"]:
-                        current_player["hasMadeChoice"] = False
                         self.open_doors_for_player(current_player)
                         self.set_current_stage_to(3)
                     else:
@@ -371,6 +370,7 @@ class Game:
                             "totalPoints": current_player["totalPoints"]
                         }, "nonSelectionPenalty")
                         self.set_current_stage_to(2)
+                    current_player["hasMadeChoice"] = False
 
                 # --> 3) Door Switch Choice Stage
                 if self.is_current_state_equal_to(3):
@@ -384,7 +384,6 @@ class Game:
 
                     while time.time() < self.get_stage_end_time():
                         if current_player["hasMadeChoice"]:
-                            current_player["hasMadeChoice"] = False
                             break
                         time.sleep(self.step_duration)
 
@@ -392,8 +391,15 @@ class Game:
                         self.set_current_stage_to(4)
                     else:
                         current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
+                        self.send_information_to_players({
+                            "playerAddress": current_player["playerAddress"],
+                            "openedDoors": [current_player["selectedDoor"]],
+                            "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
+                            "totalPoints": current_player["totalPoints"]
+                        }, "openFinalDoor")
                         self.gameState["currentChoiceMakingPlayer"] += 1
                         self.set_current_stage_to(2)
+                    current_player["hasMadeChoice"] = False
 
                 # --> 4) Door Selection After Switch Stage
                 if self.is_current_state_equal_to(4):
@@ -412,7 +418,6 @@ class Game:
 
                     if current_player["hasMadeChoice"]:
                         current_player["totalPoints"] += current_player["doorPattern"][current_player["selectedDoor"]]
-                        current_player["hasMadeChoice"] = False
                         self.send_information_to_players({
                             "playerAddress": current_player["playerAddress"],
                             "openedDoors": [current_player["selectedDoor"]],
@@ -428,6 +433,7 @@ class Game:
                         }, "nonSelectionPenalty")
                     self.set_current_stage_to(2)
 
+                    current_player["hasMadeChoice"] = False
                     self.gameState["currentChoiceMakingPlayer"] += 1
 
             # --> 5) Game End and Reward Distribution Stage
