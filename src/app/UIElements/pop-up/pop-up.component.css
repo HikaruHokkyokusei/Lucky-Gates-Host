@@ -11,10 +11,6 @@
 
   z-index: 100;
   background: rgba(0, 0, 0, 0.8);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .PU-Container {
@@ -26,11 +22,6 @@
   border-radius: 10px;
   box-sizing: border-box;
   padding: 5px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .PU-Child {
@@ -51,22 +42,30 @@
   aspect-ratio: 1 / 1;
 }
 
+.PU-CloseButton {
+  width: 100%;
+  height: 100%;
+  border: none;
+
+  border-radius: 3px;
+  background: rgba(240, 225, 180, 0.7);
+  text-align: center;
+  font-weight: bold;
+
+  transition: all 0.2s;
+}
+
+.PU-CloseButton:hover {
+  background: rgba(233, 200, 105, 0.85);
+  transform: scale(0.9, 0.9);
+}
+
 .PU-Body {
   flex: 95 0 0;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .PU-Body-Text {
   flex: 85 0 0;
-
-  display: flex;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
 
   box-sizing: border-box;
   padding: 8px;
@@ -75,35 +74,13 @@
   color: rgba(224, 248, 248, 0.85);
   font-size: 1.75vw;
   font-weight: bold;
+  text-align: center;
 }
 
 .PU-Body-Buttons {
   width: 100%;
   flex: 15 0 0;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
   box-sizing: border-box;
   padding: 3px;
-}
-
-button {
-  border: none;
-
-  border-radius: 5px;
-  background: rgba(225, 216, 192, 0.65);
-  font-weight: bold;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  transition: all 0.2s;
-}
-
-button:hover {
-  background: rgba(225, 216, 192, 0.85);
-  transform: scale(0.9, 0.9);
 }

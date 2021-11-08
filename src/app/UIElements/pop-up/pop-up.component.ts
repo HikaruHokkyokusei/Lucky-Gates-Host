@@ -15,12 +15,16 @@ export class PopUpComponent implements OnInit, AfterViewInit {
 
   divElement: HTMLElement | null = null;
   @Input() id!: string;
+  @Input() isClosable: boolean = true;
   @Input() text: string = "";
   @Input() autoCloseAfterMillis: number = -1;
   @Input() buttonList: ButtonData[] = [];
   @Output() onPopUpClose = new EventEmitter();
 
   constructor() {
+    if (!this.isClosable && this.autoCloseAfterMillis <= 0) {
+      throw "Cannot have a non Closable Pop Up without auto close.";
+    }
   }
 
   ngOnInit(): void {

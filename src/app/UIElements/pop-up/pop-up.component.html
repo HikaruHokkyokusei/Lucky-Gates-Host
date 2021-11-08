@@ -1,17 +1,17 @@
-<div class="PU-Overlay" [id]="id">
-  <div class="PU-Container">
+<div class="CenterRowFlex PU-Overlay" [id]="id">
+  <div class="CenterColumnFlex PU-Container">
 
-    <div (click)="closeThePopUp()" class="PU-Child PU-Header">
-      <div class="PU--HeadButton-Holder">
-        <button>X</button>
+    <div class="PU-Child PU-Header">
+      <div *ngIf="isClosable" (click)="closeThePopUp()" class="PU-HeadButton-Holder">
+        <button class="CenterRowFlex PU-CloseButton">X</button>
       </div>
     </div>
-    <div class="PU-Child PU-Body">
-      <div class="PU-Body-Text">
+    <div class="CenterColumnFlex PU-Child PU-Body">
+      <div class="CenterRowFlex PU-Body-Text">
         {{text}}
       </div>
 
-      <div class="PU-Body-Buttons">
+      <div class="CenterRowFlex PU-Body-Buttons">
         <app-button *ngFor="let button of buttonList; let i = index;"
                     (onButtonClick)="callButtonFunction(i)"
                     [buttonText]="button.buttonText">

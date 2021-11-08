@@ -33,7 +33,7 @@ export class AppComponent implements AfterViewInit {
   * */
   windowNumberToShow: number = 0;
 
-  activePopUps: { [id: string]: { text: string, autoCloseAfterMillis: number, buttonList: ButtonData[] } } = {};
+  activePopUps: { [id: string]: { text: string, autoCloseAfterMillis: number, isClosable: boolean, buttonList: ButtonData[] } } = {};
   activePopUpKeys: string[] = Object.keys(this.activePopUps);
 
   constructor() {
@@ -133,11 +133,12 @@ export class AppComponent implements AfterViewInit {
     }
   };
 
-  popNewPopUp = (text: string, autoCloseAfterMillis: number = -1, buttonList: ButtonData[] = []) => {
+  popNewPopUp = (text: string, autoCloseAfterMillis: number = -1, isClosable: boolean = true, buttonList: ButtonData[] = []) => {
     let id: string = uuid.v4();
     this.activePopUps[id] = {
       text,
       autoCloseAfterMillis,
+      isClosable,
       buttonList
     };
     this.activePopUpKeys = Object.keys(this.activePopUps);
