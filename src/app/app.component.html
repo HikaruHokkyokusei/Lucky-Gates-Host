@@ -15,11 +15,11 @@
   <ng-template #showMenu>
     <ng-container [ngSwitch]="windowNumberToShow">
       <!-- Change this to router-outlet later -->
-      <app-main-menu class="CenterRowFlex" [appComponent]="this" *ngSwitchCase="0"></app-main-menu>
-      <app-player-menu [appComponent]="this" *ngSwitchCase="1"></app-player-menu>
-      <app-game-window class="CenterRowFlex" [appComponent]="this" *ngSwitchCase="2"></app-game-window>
-      <app-join-menu [appComponent]="this" *ngSwitchCase="3"></app-join-menu>
-      <app-rules-window [appComponent]="this" *ngSwitchCase="4"></app-rules-window>
+      <app-main-menu *ngSwitchCase="0" [appComponent]="this" class="CenterRowFlex"></app-main-menu>
+      <app-player-menu *ngSwitchCase="1" [appComponent]="this"></app-player-menu>
+      <app-game-window *ngSwitchCase="2" [appComponent]="this" class="CenterRowFlex"></app-game-window>
+      <app-join-menu *ngSwitchCase="3" [appComponent]="this"></app-join-menu>
+      <app-rules-window *ngSwitchCase="4" [appComponent]="this"></app-rules-window>
     </ng-container>
   </ng-template>
 

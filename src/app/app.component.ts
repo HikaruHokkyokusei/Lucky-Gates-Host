@@ -4,6 +4,7 @@ import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
 import {PopUpManagerService} from "./services/pop-up-manager.service";
 import {AudioManagerService} from "./services/audio-manager.service";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ export class AppComponent implements AfterViewInit {
   title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
   web3Service: Web3Service = new Web3Service(this);
-  gameManagerService: GameManagerService = new GameManagerService(this);
+  gameManagerService: GameManagerService;
   audioManagerService: AudioManagerService = new AudioManagerService(this);
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
   hasUserInteracted: boolean = false;
@@ -31,7 +32,8 @@ export class AppComponent implements AfterViewInit {
   * */
   windowNumberToShow: number = 0;
 
-  constructor() {
+  constructor(private activatedRoute: ActivatedRoute) {
+    this.gameManagerService = new GameManagerService(activatedRoute, this);
   }
 
   ngAfterViewInit() {

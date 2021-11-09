@@ -1,4 +1,5 @@
 import {AppComponent} from "../app.component";
+import {ActivatedRoute} from "@angular/router";
 
 export interface TransferData {
   gameCoinAddress?: string,
@@ -56,6 +57,7 @@ export interface AvailableGame {
 
 export class GameManagerService {
 
+  hasSetCoinInformation: boolean = false;
   localGameCoinAddress: string = "0x64F36701138f0E85cC10c34Ea535FdBADcB54147";  // Default Value
   localCoinChainName: string = "BSC";  // Default Value
 
@@ -67,15 +69,30 @@ export class GameManagerService {
   stageDuration: number = 0;
   availableGameList: AvailableGame[] = [];
 
-  constructor(private appComponent: AppComponent, localGameCoinAddress?: string, localCoinChainName?: string) {
-    if (localGameCoinAddress != null) {
-      this.localGameCoinAddress = localGameCoinAddress;
-    }
+  constructor(private activatedRoute: ActivatedRoute, private appComponent: AppComponent) {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.setCoinInformation(params["gameCoinAddress"], params["coinChainName"]);
+    });
 
-    if (localCoinChainName != null) {
-      this.localCoinChainName = localCoinChainName;
-    }
+    setTimeout(() => {
+      this.hasSetCoinInformation = true;
+    }, 2500);
   }
+
+  setCoinInformation = (localGameCoinAddress?: string, localCoinChainName?: string) => {
+    if (!this.hasSetCoinInformation) {
+      if (localGameCoinAddress != null || localCoinChainName != null) {
+        if (localGameCoinAddress != null) {
+          this.localGameCoinAddress = localGameCoinAddress;
+        }
+        if (localCoinChainName != null) {
+          this.localCoinChainName = localCoinChainName;
+        }
+        this.hasSetCoinInformation = true;
+        console.log("Coin Info Set To : " + this.localCoinChainName + ", " + this.localGameCoinAddress);
+      }
+    }
+  };
 
   synchroniseGameData = (gameState: GameState) => {
     let keySet = Object.keys(gameState);

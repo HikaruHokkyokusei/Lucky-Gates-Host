@@ -10,6 +10,7 @@ import {JoinMenuComponent} from './join-menu/join-menu.component';
 import {AnimatedImageComponent} from './UIElements/animated-image/animated-image.component';
 import {PopUpComponent} from './UIElements/pop-up/pop-up.component';
 import {RulesWindowComponent} from './rules-window/rules-window.component';
+import {RoutingModule} from "./routing.module";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import {RulesWindowComponent} from './rules-window/rules-window.component';
     RulesWindowComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    RoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
