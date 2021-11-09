@@ -11,6 +11,7 @@ import {AnimatedImageComponent} from './UIElements/animated-image/animated-image
 import {PopUpComponent} from './UIElements/pop-up/pop-up.component';
 import {RulesWindowComponent} from './rules-window/rules-window.component';
 import {RoutingModule} from "./routing.module";
+import {TicketBuyWindowComponent} from './ticket-buy-window/ticket-buy-window.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import {RoutingModule} from "./routing.module";
     JoinMenuComponent,
     AnimatedImageComponent,
     PopUpComponent,
-    RulesWindowComponent
+    RulesWindowComponent,
+    TicketBuyWindowComponent
   ],
   imports: [
     BrowserModule,

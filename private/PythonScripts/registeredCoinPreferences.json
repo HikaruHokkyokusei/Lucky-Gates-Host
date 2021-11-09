@@ -1,0 +1,20 @@
+{
+  "BSC": {
+    "chainId": 56,
+    "paymentManagerContractAddress": "",
+    "registeredCoinAddresses": {
+      "0x64F36701138f0E85cC10c34Ea535FdBADcB54147": {
+        "ticketCost": 0,
+        "isTicketPurchaseActive": true,
+        "minPlayers": 5,
+        "rewardPercent": 70
+      }
+    }
+  },
+  "GOERLI": {
+    "chainId": 5,
+    "paymentManagerContractAddress": "0xB18B039573c42FC8d7E09c9020bea03896fCA730",
+    "registeredCoinAddresses": {
+    }
+  }
+}

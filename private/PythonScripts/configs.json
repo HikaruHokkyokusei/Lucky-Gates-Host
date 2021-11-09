@@ -62,5 +62,287 @@
     "5": 0,
     "6": 0,
     "7": 0
+  },
+  "blockchainData": {
+    "contractABI": [
+      {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "name": "allPaymentData",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isCompleted",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "referenceId",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "coinAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountPaid",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "allPaymentIdsPerUser",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_playerAddress",
+            "type": "address"
+          }
+        ],
+        "name": "getAllReferenceIdForPlayer",
+        "outputs": [
+          {
+            "internalType": "string[]",
+            "name": "",
+            "type": "string[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_playerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "_referenceId",
+            "type": "string"
+          }
+        ],
+        "name": "getPaymentInformation",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "exists",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isCompleted",
+                "type": "bool"
+              },
+              {
+                "internalType": "string",
+                "name": "referenceId",
+                "type": "string"
+              },
+              {
+                "internalType": "address",
+                "name": "coinAddress",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountPaid",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct PaymentManager.PaymentData",
+            "name": "paymentData",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_referenceId",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "_coinAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_paymentAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "initiateNewPayment",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_playerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "_referenceId",
+            "type": "string"
+          }
+        ],
+        "name": "markPaymentAsComplete",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_coinAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_receiveWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "sendRewardToWinner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "setNetworkGasFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ],
+    "ownerPrivateKeyConfigKey": "ownerPrivateKey"
   }
 }

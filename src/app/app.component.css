@@ -81,6 +81,11 @@ app-game-window {
   height: max(450px, 95%);
 }
 
+app-ticket-buy-window {
+  width: max(575px, 42.5%);
+  height: max(500px, 70%);
+}
+
 .LoadingImageDiv {
   height: fit-content;
   width: fit-content;
