@@ -72,7 +72,7 @@
   overflow: auto;
 
   color: rgba(224, 248, 248, 0.85);
-  font-size: 1.75vw;
+  font-size: max(20px, 1.75vw);
   font-weight: bold;
   text-align: center;
 }
@@ -89,5 +89,5 @@
 app-button {
   height: 90%;
   font-weight: bold;
-  font-size: max(15px, 1.3vw);
+  font-size: max(17px, 1.3vw);
 }

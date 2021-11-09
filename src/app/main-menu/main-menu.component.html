@@ -5,7 +5,8 @@
   <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()" class="MM-Element-Button"
               buttonText="Join Game"></app-button>
 
-  <app-button class="MM-Element-Button" buttonText="Buy Tickets"></app-button>
+  <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(5)" class="MM-Element-Button"
+              buttonText="Buy Tickets"></app-button>
 
   <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(4)" class="MM-Element-Button"
               buttonText="Rules"></app-button>

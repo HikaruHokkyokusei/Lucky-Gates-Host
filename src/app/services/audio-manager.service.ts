@@ -1,13 +1,8 @@
-import {Injectable} from '@angular/core';
 import {AppComponent} from "../app.component";
 import {CookieService} from "./cookie.service";
 
-@Injectable({
-  providedIn: 'root'
-})
 export class AudioManagerService {
 
-  appComponent: AppComponent | null = null;
   cookieService: CookieService = new CookieService();
   audioElement: HTMLAudioElement | null = null;
   audioTrackList = [
@@ -20,7 +15,7 @@ export class AudioManagerService {
   audioIcon = "assets/images/MusicPause.png";
   isPlayingAudio = false;
 
-  constructor() {
+  constructor(private appComponent: AppComponent) {
   }
 
   getRandomNumber = (start: number, end: number) => {
@@ -35,6 +30,7 @@ export class AudioManagerService {
 
   playAudio = (shouldRetry: boolean = true) => {
     if (this.audioElement != null && this.audioElement.paused) {
+      this.audioElement.load();
       this.audioElement.volume = 0.1;
       this.audioElement.play().then().catch(() => {
         if (shouldRetry) {
@@ -74,11 +70,13 @@ export class AudioManagerService {
   };
 
   changeAudioTrack = () => {
-    if (this.audioElement != null && this.isPlayingAudio) {
+    if (this.audioElement != null) {
       this.audioElement.src = this.audioTrackList[this.getRandomNumber(
         (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
       )];
-      this.playAudio();
+      if (this.isPlayingAudio) {
+        this.playAudio();
+      }
     }
   };
 

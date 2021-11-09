@@ -16,7 +16,7 @@ export class AppComponent implements AfterViewInit {
   socketIOService: SocketIOService = new SocketIOService(this);
   web3Service: Web3Service = new Web3Service(this);
   gameManagerService: GameManagerService = new GameManagerService(this);
-  audioManagerService: AudioManagerService = new AudioManagerService();
+  audioManagerService: AudioManagerService = new AudioManagerService(this);
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
   hasUserInteracted: boolean = false;
   isBindingPlayerAddress: boolean = false;
@@ -27,6 +27,7 @@ export class AppComponent implements AfterViewInit {
   * 2 => Game Window
   * 3 => Join Menu
   * 4 => Rules Menu
+  * 5 => Ticket Buy Window
   * */
   windowNumberToShow: number = 0;
 
@@ -34,7 +35,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.audioManagerService.appComponent = this;
     this.audioManagerService.audioElement = document.querySelector("audio");
     if (this.audioManagerService.audioElement != null) {
       this.audioManagerService.changeAudioTrack();
