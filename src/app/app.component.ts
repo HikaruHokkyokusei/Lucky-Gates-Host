@@ -20,6 +20,13 @@ export class AppComponent implements AfterViewInit {
   cookieService: CookieService = new CookieService();
   hasUserInteracted: boolean = false;
   audioElement: HTMLAudioElement | null = null;
+  audioTrackList: string[] = [
+    "assets/audio/bensound-endlessMotion.mp3",
+    "assets/audio/bensound-creativeMinds.mp3",
+    "assets/audio/bensound-moose.mp3",
+    "assets/audio/bensound-birthOfAHero.mp3",
+    "assets/audio/bensound-evolution.mp3"
+  ];
   audioIcon: string = "assets/images/MusicPause.png";
   isPlayingAudio: boolean = false;
   isBindingPlayerAddress: boolean = false;
@@ -41,6 +48,12 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.audioElement = document.querySelector("audio");
+    if (this.audioElement != null) {
+      this.changeAudioTrack();
+      this.audioElement.addEventListener("ended", () => {
+        this.changeAudioTrack();
+      });
+    }
     let shouldPlayBG: string | boolean = this.cookieService.getCookie("shouldPlayBG");
     this.pauseAudio(false);
     shouldPlayBG = shouldPlayBG === '' || shouldPlayBG === 'true';
@@ -99,6 +112,21 @@ export class AppComponent implements AfterViewInit {
     this.audioIcon = "assets/images/MusicPause.png";
   };
 
+  changeAudioTrack = () => {
+    if (this.audioElement != null) {
+      this.audioElement.src = this.audioTrackList[this.getRandomNumber(
+        (this.windowNumberToShow === 2) ? 2 : 0, (this.windowNumberToShow === 2) ? this.audioTrackList.length : 2
+      )];
+      this.playAudio();
+    }
+  };
+
+  getRandomNumber = (start: number, end: number) => {
+    let num = Math.floor(Math.random() * (end - start));
+    num += start;
+    return num;
+  }
+
   toggleAudio = () => {
     if (this.isPlayingAudio) {
       this.pauseAudio();
@@ -113,7 +141,11 @@ export class AppComponent implements AfterViewInit {
 
   setWindowNumberToShowTo = (windowNumberToShow: number) => {
     if (this.windowNumberToShow !== windowNumberToShow) {
+      let shouldChangeAudioTrack = this.windowNumberToShow === 2 || windowNumberToShow === 2;
       this.windowNumberToShow = windowNumberToShow;
+      if (shouldChangeAudioTrack) {
+        this.changeAudioTrack();
+      }
     }
   };
 
