@@ -5,7 +5,6 @@ import random
 import time
 import uuid
 
-
 gameLogger = logging.getLogger(__name__)
 save_all_games = False
 
@@ -130,22 +129,14 @@ class Game:
 
     def open_doors_for_player(self, current_player):
         openable_points = copy.deepcopy(self.general_values["openableDoorList"])
-        random.shuffle(openable_points)
-        openable_points = openable_points[:self.general_values["numberOfDoorsToOpen"]]
-        door_list_len = len(current_player["doorPattern"])
+        indices_array = [*range(len(current_player["doorPattern"]))]
+        random.shuffle(indices_array)
 
-        for curr_point in openable_points:
-            for index in range(int(door_list_len / 2)):
-                mirror_index = door_list_len - index - 1
-                if index != current_player["selectedDoor"] and index not in current_player["doorsOpenedByGame"] and \
-                        current_player["doorPattern"][index] == curr_point:
-                    current_player["doorsOpenedByGame"].append(index)
-                    break
-                elif mirror_index != current_player["selectedDoor"] and \
-                        mirror_index not in current_player["doorsOpenedByGame"] and \
-                        current_player["doorPattern"][mirror_index] == curr_point:
-                    current_player["doorsOpenedByGame"].append(mirror_index)
-                    break
+        for index in indices_array:
+            if len(current_player["doorsOpenedByGame"]) >= self.general_values["numberOfDoorsToOpen"]:
+                break
+            if index != current_player["selectedDoor"] and current_player["doorPattern"][index] in openable_points:
+                current_player["doorsOpenedByGame"].append(index)
 
         current_player["doorsOpenedByGame"].sort()
         doors_opened_by_game = current_player["doorsOpenedByGame"]

@@ -77,7 +77,7 @@ export class SocketIOService {
               break;
 
             case "earlyGameBeginning":
-              this.appComponent.popNewPopUp("The game will start in 10 - 15 seconds<br><br>Please be ready!!", 13500, false);
+              this.appComponent.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!", 14500, false);
               break;
 
             case "doorsOpenedByGame":
