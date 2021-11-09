@@ -18,7 +18,7 @@ export class SocketIOService {
     });
 
     this.setActionForEvent("error", (message) => {
-      this.appComponent.popNewPopUp("Error!!!<br><br>" + message, 5000);
+      this.appComponent.popUpManagerService.popNewPopUp("Error!!!<br><br>" + message, 5000);
     });
 
     this.setActionForEvent("rejoinGame", (gameState) => {
@@ -48,13 +48,13 @@ export class SocketIOService {
           if (body["error"] == null) {
             this.appComponent.setWindowNumberToShowTo(1);
           } else {
-            this.appComponent.popNewPopUp("Unable to create new game.<br><br>" + body["error"], 4000);
+            this.appComponent.popUpManagerService.popNewPopUp("Unable to create new game.<br><br>" + body["error"], 4000);
           }
           break;
 
         case "playerRemovalFromGame":
           if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
-            this.appComponent.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
+            this.appComponent.popUpManagerService.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
               5000);
             this.appComponent.gameManagerService.resetGameState();
           } else {
@@ -73,11 +73,11 @@ export class SocketIOService {
               }
 
               popMessage += " for not making selection withing stipulated time limit.";
-              this.appComponent.popNewPopUp(popMessage, 3000);
+              this.appComponent.popUpManagerService.popNewPopUp(popMessage, 3000);
               break;
 
             case "earlyGameBeginning":
-              this.appComponent.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!", 14500, false);
+              this.appComponent.popUpManagerService.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!", 14500, false);
               break;
 
             case "doorsOpenedByGame":

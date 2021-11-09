@@ -163,7 +163,7 @@ export class GameManagerService {
     if (this.gameState["gameId"]) {
       if (this.appComponent.web3Service.userAccount !== this.gameState["gameCreator"] || !this.gameState["players"] ||
         !this.gameState["minPlayers"] || this.gameState["players"].length < this.gameState["minPlayers"]) {
-        this.appComponent.popNewPopUp("Only the game creator can begin the game early when at least " +
+        this.appComponent.popUpManagerService.popNewPopUp("Only the game creator can begin the game early when at least " +
           this.gameState.minPlayers + " players have joined the game.", 5000);
         return;
       }
@@ -204,7 +204,7 @@ export class GameManagerService {
       }
       message += " Would you like to stick with current choice, or switch the door?";
 
-      this.appComponent.popNewPopUp(message, 53500, false, [
+      this.appComponent.popUpManagerService.popNewPopUp(message, 53500, false, [
         {
           buttonText: "Switch",
           onClickFunction: () => {
@@ -235,7 +235,7 @@ export class GameManagerService {
 
         this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
       } else {
-        this.appComponent.popNewPopUp("You are not allowed to make the choice right now.", 3000);
+        this.appComponent.popUpManagerService.popNewPopUp("You are not allowed to make the choice right now.", 3000);
       }
     }
   };
@@ -253,7 +253,7 @@ export class GameManagerService {
         this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
       }
     } else {
-      this.appComponent.popNewPopUp("You are not allowed to make the choice right now.", 3000);
+      this.appComponent.popUpManagerService.popNewPopUp("You are not allowed to make the choice right now.", 3000);
     }
   };
 

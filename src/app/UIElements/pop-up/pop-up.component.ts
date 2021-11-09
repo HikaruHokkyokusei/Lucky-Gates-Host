@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AppComponent} from "../../app.component";
 
 export interface ButtonData {
   buttonText: string;
@@ -14,6 +15,7 @@ export interface ButtonData {
 export class PopUpComponent implements OnInit, AfterViewInit {
 
   divElement: HTMLElement | null = null;
+  @Input() appComponent: AppComponent | null = null;
   @Input() id!: string;
   @Input() isClosable: boolean = true;
   @Input() text: string = "";
@@ -30,6 +32,9 @@ export class PopUpComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.textArray = this.text.split("<br>");
+    if (this.appComponent != null) {
+      this.appComponent.popUpManagerService.setPopUpWindowClass(this.id, this);
+    }
   }
 
   ngAfterViewInit() {

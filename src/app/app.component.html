@@ -1,8 +1,8 @@
 <div *ngIf="windowNumberToShow !== 2" class="Texture"></div>
 
 <div class="MM-Top-Header">
-  <div (click)="toggleAudio()" class="MM-Music-Icon-Holder">
-    <img id="music-icon" src="{{audioIcon}}" alt="Play / Pause">
+  <div (click)="audioManagerService.toggleAudio()" class="MM-Music-Icon-Holder">
+    <img id="music-icon" src="{{audioManagerService.audioIcon}}" alt="Play / Pause">
   </div>
 </div>
 
@@ -25,10 +25,11 @@
 
 </div>
 
-<app-pop-up *ngFor="let popUpKey of activePopUpKeys" [id]="popUpKey"
-            [text]="activePopUps[popUpKey].text"
-            [buttonList]="activePopUps[popUpKey].buttonList"
-            [isClosable]="activePopUps[popUpKey].isClosable"
-            [autoCloseAfterMillis]="activePopUps[popUpKey].autoCloseAfterMillis"
-            (onPopUpClose)="popUpClosed(popUpKey)">
+<app-pop-up *ngFor="let popUpKey of popUpManagerService.activePopUpKeys" [id]="popUpKey"
+            [appComponent]="this"
+            [text]="popUpManagerService.activePopUps[popUpKey].text"
+            [buttonList]="popUpManagerService.activePopUps[popUpKey].buttonList"
+            [isClosable]="popUpManagerService.activePopUps[popUpKey].isClosable"
+            [autoCloseAfterMillis]="popUpManagerService.activePopUps[popUpKey].autoCloseAfterMillis"
+            (onPopUpClose)="popUpManagerService.popUpClosed(popUpKey)">
 </app-pop-up>
