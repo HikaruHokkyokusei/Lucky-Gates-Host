@@ -138,6 +138,9 @@ class GameHandler:
 
             try:
                 if game_creator is not None:
+                    reply_body["gameState"] = {
+                        "gameCreator": game_creator
+                    }
                     if g_c_a is not None and c_c_n is not None:
                         if DBHandler.is_game_coin_registered(g_c_a, c_c_n):
                             game_id, game_state = self.create_new_game(g_c_a, c_c_n, game_creator)
