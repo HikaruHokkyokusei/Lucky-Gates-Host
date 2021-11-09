@@ -7,12 +7,20 @@
       </div>
     </div>
     <div class="CenterColumnFlex PU-Child PU-Body">
-      <div class="CenterRowFlex PU-Body-Text">
-        {{text}}
+      <div class="CenterColumnFlex PU-Body-Text">
+        <div *ngFor="let subText of textArray">
+          <div *ngIf="subText !== ''">
+            {{subText}}
+          </div>
+          <br>
+        </div>
       </div>
 
       <div class="CenterRowFlex PU-Body-Buttons">
         <app-button *ngFor="let button of buttonList; let i = index;"
+                    [ngStyle]="{
+                    'width': (80 / buttonList.length) + '%'
+                    }"
                     (onButtonClick)="callButtonFunction(i)"
                     [buttonText]="button.buttonText">
         </app-button>

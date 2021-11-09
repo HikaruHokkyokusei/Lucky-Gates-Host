@@ -17,6 +17,7 @@ export class PopUpComponent implements OnInit, AfterViewInit {
   @Input() id!: string;
   @Input() isClosable: boolean = true;
   @Input() text: string = "";
+  textArray: string[] = [];
   @Input() autoCloseAfterMillis: number = -1;
   @Input() buttonList: ButtonData[] = [];
   @Output() onPopUpClose = new EventEmitter();
@@ -28,6 +29,7 @@ export class PopUpComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.textArray = this.text.split("<br>");
   }
 
   ngAfterViewInit() {

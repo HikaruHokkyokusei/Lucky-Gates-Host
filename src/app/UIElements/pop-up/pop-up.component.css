@@ -65,7 +65,7 @@
 }
 
 .PU-Body-Text {
-  flex: 85 0 0;
+  flex: 80 0 0;
 
   box-sizing: border-box;
   padding: 8px;
@@ -79,8 +79,15 @@
 
 .PU-Body-Buttons {
   width: 100%;
-  flex: 15 0 0;
+  flex: 20 0 0;
 
   box-sizing: border-box;
   padding: 3px;
+  justify-content: space-around;
+}
+
+app-button {
+  height: 90%;
+  font-weight: bold;
+  font-size: max(15px, 1.3vw);
 }

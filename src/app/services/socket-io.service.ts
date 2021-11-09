@@ -18,7 +18,7 @@ export class SocketIOService {
     });
 
     this.setActionForEvent("error", (message) => {
-      this.appComponent.popNewPopUp("Error!!! : " + message, 5000);
+      this.appComponent.popNewPopUp("Error!!!<br><br>" + message, 5000);
     });
 
     this.setActionForEvent("rejoinGame", (gameState) => {
@@ -48,13 +48,13 @@ export class SocketIOService {
           if (body["error"] == null) {
             this.appComponent.setWindowNumberToShowTo(1);
           } else {
-            this.appComponent.popNewPopUp("Unable to create new game.  Reason : " + gamePacket["Body"]["error"], 4000);
+            this.appComponent.popNewPopUp("Unable to create new game.<br><br>" + body["error"], 4000);
           }
           break;
 
         case "playerRemovalFromGame":
-          if (gamePacket["Body"]["playerAddress"] === this.appComponent.web3Service.userAccount) {
-            this.appComponent.popNewPopUp("You have been removed from the game.   Reason : " + gamePacket["Body"]["reasonForRemoval"],
+          if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
+            this.appComponent.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
               5000);
             this.appComponent.gameManagerService.resetGameState();
           } else {
@@ -66,7 +66,7 @@ export class SocketIOService {
           switch (header["action"]) {
             case "nonSelectionPenalty":
               let popMessage = "A penalty of " + body["penaltyPoints"] + " points has been applied on ";
-              if (this.isAddressOur(gamePacket["playerAddress"])) {
+              if (this.isAddressOur(body["playerAddress"])) {
                 popMessage += "YOU";
               } else {
                 popMessage += ("player " + body["playerAddress"].substr(0, Math.min(body["playerAddress"].length, 10)) + "...");
@@ -77,7 +77,13 @@ export class SocketIOService {
               break;
 
             case "earlyGameBeginning":
-              this.appComponent.popNewPopUp("The game will start in 10 - 15 seconds. Please be ready!!", 12000, false);
+              this.appComponent.popNewPopUp("The game will start in 10 - 15 seconds<br><br>Please be ready!!", 13500, false);
+              break;
+
+            case "doorsOpenedByGame":
+              if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
+                this.appComponent.gameManagerService.doorsOpenedByGame(body["openedDoors"], body["respectivePoints"]);
+              }
               break;
           }
           break;

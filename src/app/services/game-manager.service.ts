@@ -175,6 +175,44 @@ export class GameManagerService {
     }
   };
 
+  doorsOpenedByGame = (doorsOpened: number[], respectivePoints: number[]) => {
+    // TODO : Activate Door Open Animation
+    setTimeout(() => {
+      let len = respectivePoints.length;
+      let message: string = "You choose door ";
+      message += (this.gameState["players"] == null || this.gameState.currentChoiceMakingPlayer == null) ?
+        "-" : this.gameState["players"][this.gameState["currentChoiceMakingPlayer"]].selectedDoor;
+      message += ".<br><br>" + len + " other doors contain ";
+      for (let i = 0; i < len; i++) {
+        if (i < len - 2) {
+          message += respectivePoints[i] + ", ";
+        } else if (i < len - 1) {
+          message += respectivePoints[i] + " and "
+        } else {
+          message += respectivePoints[i] + " points.";
+        }
+      }
+      message += " Would you like to stick with your choice, or switch the door?";
+
+      this.appComponent.popNewPopUp(message, 53500, false, [
+        {
+          buttonText: "Switch",
+          onClickFunction: () => {
+            this.sendPlayerSwitchSelection(true);
+          },
+          millisBeforeClose: 500
+        },
+        {
+          buttonText: "Don't Switch",
+          onClickFunction: () => {
+            this.sendPlayerSwitchSelection(false);
+          },
+          millisBeforeClose: 500
+        }
+      ]);
+    }, 5000);
+  };
+
   sendPlayerDoorSelection = (doorNumber: number) => {
     if (this.gameState["gameId"] && this.gameState["currentChoiceMakingPlayer"] != null &&
       this.gameState["players"] != null && this.gameState.currentStage != null) {
