@@ -6,6 +6,7 @@ export class Web3Service {
   appComponent: AppComponent;
   web3 = window.web3;
   userAccount: string = "";
+  chainId: number = 0;
 
   constructor(appComponent: AppComponent) {
     this.appComponent = appComponent;
@@ -16,6 +17,13 @@ export class Web3Service {
         window.location.reload();
       });
 
+      window.ethereum.request({method: 'eth_chainId'}).then((chainId: any) => {
+        this.chainId = +chainId;
+      }).catch((err: any) => {
+        console.log("Unable to get chainId.\nErr:");
+        console.log(err);
+      });
+
       window.ethereum.request({method: 'eth_requestAccounts'}).then((accList: string[]) => {
         this.setUserAccount(accList);
         if (this.userAccount !== "") {
@@ -23,7 +31,8 @@ export class Web3Service {
           console.log("Successfully Connected to Web3 Service");
         }
       }).catch((err: any) => {
-        console.log("Web3 Access Denied : " + ((typeof err == 'object') ? JSON.stringify(err) : err));
+        console.log("Web3 Access Denied :");
+        console.log(err);
       });
     } else {
       this.web3BuildSuccess = false;

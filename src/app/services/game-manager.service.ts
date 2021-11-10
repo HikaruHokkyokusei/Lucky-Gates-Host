@@ -58,8 +58,8 @@ export interface AvailableGame {
 export class GameManagerService {
 
   hasSetCoinInformation: boolean = false;
-  localGameCoinAddress: string = "0x64F36701138f0E85cC10c34Ea535FdBADcB54147";  // Default Value
-  localCoinChainName: string = "BSC";  // Default Value
+  localGameCoinAddress: string = "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9";  // Default Value
+  localCoinChainName: string = "GOERLI";  // Default Value
 
   gameState: GameState = {
     players: [],

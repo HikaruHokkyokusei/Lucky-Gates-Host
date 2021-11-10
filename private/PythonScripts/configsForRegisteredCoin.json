@@ -15,8 +15,16 @@
   },
   "GOERLI": {
     "chainId": 5,
-    "paymentManagerContractAddress": "0xB18B039573c42FC8d7E09c9020bea03896fCA730",
+    "paymentManagerContractAddress": "0x2EDE957727F9e91dC2c37D35F4e05564F9Ca808D",
     "registeredCoinAddresses": {
+      "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9": {
+        "symbol": "( . Y . )",
+        "decimals": 18,
+        "ticketCost": 50,
+        "isTicketPurchaseActive": true,
+        "minPlayers": 3,
+        "rewardPercent": 80
+      }
     }
   }
 }

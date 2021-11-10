@@ -7,8 +7,8 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class ButtonComponent implements OnInit {
   @Input() buttonText: string = "";
-  @Input() millisBetweenClicks: number = 1000;
-  nextClickTime: number = Date.now();
+    @Input() millisBetweenClicks: number = 2500;
+    nextClickTime: number = Date.now();
   @Output() onButtonClick: EventEmitter<any> = new EventEmitter();
 
   constructor() {

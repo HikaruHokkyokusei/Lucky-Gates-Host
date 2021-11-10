@@ -13,7 +13,7 @@
 
 .MM-Element-Button {
   width: 90%;
-  height: 13.5%;
+  height: 14%;
 
-  font-size: max(20px, 2vw);
+  font-size: max(20px, 1.9vw);
 }
