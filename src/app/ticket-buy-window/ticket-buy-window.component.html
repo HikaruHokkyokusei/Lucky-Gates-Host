@@ -3,12 +3,42 @@
   <div class="Menu-Header">
     <div class="Menu-Texture"></div>
     <div class="CenterRowFlex Menu-Header-Holder">
+      <div class="Header-Button">
+        <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
+      </div>
       <div class="CenterColumnFlex Header-Title">Buy Tickets</div>
     </div>
   </div>
 
   <div class="Menu-Divider"></div>
 
-  <div class="Menu-Body"></div>
+  <div class="CenterColumnFlex Menu-Body">
+    <div class="CenterColumnFlex TW-BodyElement" style="height: 20%">
+      <div>Game Coin Address :</div>
+      <div>{{localGameCoinAddress}}</div>
+    </div>
+    <div class="CenterRowFlex TW-BodyElement">
+      Coin Chain Name : {{localCoinChainName}}
+    </div>
+    <div class="CenterRowFlex TW-BodyElement">
+      Ticket Cost : {{localCoinData.ticketCost + "  "}} {{localCoinData.symbol}} / Ticket
+    </div>
+    <div class="CenterRowFlex TW-BodyElement">
+      <div class="CenterRowFlex TW-AmountText">Amount :</div>
+      <div class="TW-Spacer"></div>
+      <div class="CenterRowFlex TW-ASButtonHolder">
+        <button class="TW-AddSubButton" (click)="onClickSub()">-</button>
+      </div>
+      <div class="TW-Spacer"></div>
+      <div class="CenterRowFlex TW-AmountHolder">{{amountToBuy}}</div>
+      <div class="TW-Spacer"></div>
+      <div class="CenterRowFlex TW-ASButtonHolder">
+        <button class="TW-AddSubButton" (click)="onClickAdd()">+</button>
+      </div>
+    </div>
+    <div class="TW-BodyElement TW-BuyButtonHolder">
+      <app-button buttonText="Buy"></app-button>
+    </div>
+  </div>
 
 </div>
