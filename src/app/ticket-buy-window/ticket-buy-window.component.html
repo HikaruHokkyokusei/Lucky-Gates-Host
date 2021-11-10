@@ -12,19 +12,32 @@
 
   <div class="Menu-Divider"></div>
 
-  <div class="CenterColumnFlex Menu-Body">
+  <div *ngIf="buildSuccess else ErrorBody" class="CenterColumnFlex Menu-Body">
     <div class="CenterColumnFlex TW-BodyElement" style="height: 20%">
       <div>Game Coin Address :</div>
       <div>{{localGameCoinAddress}}</div>
     </div>
     <div class="CenterRowFlex TW-BodyElement">
-      Coin Chain Name : {{localCoinChainName}}
+      Coin Chain Name
+      <div class="TW-Spacer"></div>
+      :
+      <div class="TW-Spacer"></div>
+      {{localCoinChainName}}
     </div>
     <div class="CenterRowFlex TW-BodyElement">
-      Ticket Cost : {{localCoinData.ticketCost + "  "}} {{localCoinData.symbol}} / Ticket
+      Ticket Cost
+      <div class="TW-Spacer"></div>
+      :
+      <div class="TW-Spacer"></div>
+      {{localCoinData.ticketCost + "  "}}
+      <div class="TW-Spacer"></div>
+      {{localCoinData.symbol}} / Ticket
     </div>
     <div class="CenterRowFlex TW-BodyElement">
-      <div class="CenterRowFlex TW-AmountText">Amount :</div>
+      <div class="CenterRowFlex TW-AmountText">Amount
+        <div class="TW-Spacer"></div>
+        :
+      </div>
       <div class="TW-Spacer"></div>
       <div class="CenterRowFlex TW-ASButtonHolder">
         <button class="TW-AddSubButton" (click)="onClickSub()">-</button>
@@ -37,8 +50,12 @@
       </div>
     </div>
     <div class="TW-BodyElement TW-BuyButtonHolder">
-      <app-button buttonText="Buy"></app-button>
+      <app-button (onButtonClick)="onClickBuy()" buttonText="Buy"></app-button>
     </div>
   </div>
+
+  <ng-template #ErrorBody class="CenterColumnFlex Menu-Body">
+    {{errorMessage}}
+  </ng-template>
 
 </div>
