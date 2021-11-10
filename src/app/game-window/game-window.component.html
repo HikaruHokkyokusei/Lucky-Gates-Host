@@ -5,9 +5,9 @@
   <div class="CenterRowFlex GW-HeadingHolder">
     <div class="CenterColumnFlex GW-TurnTextHolder">
       <div class="CenterRowFlex GW-Timer">
-        <div class="GW-TimerMask">
-
-        </div>
+        <div [ngStyle]="{
+        'width': remainingPercent + '%'
+        }" class="GW-TimerMask"></div>
         <div class="CenterRowFlex GW-TimerText">
           Time left : {{timerValue}} s
         </div>
@@ -16,12 +16,13 @@
         {{headerText}}
       </div>
     </div>
+    <div class="GW-HeadingDivider"></div>
     <div class="CenterRowFlex GW-TotalPoints">
       Your points:<br>{{appComponent.gameManagerService.getTotalPlayerPoints()}}
     </div>
   </div>
 
-  <div class="GW-Divider"></div>
+  <div class="GW-WrapperDivider"></div>
 
   <div class="GW-DoorHolder">
     <div *ngFor="let doorIndex of doorIndices;"

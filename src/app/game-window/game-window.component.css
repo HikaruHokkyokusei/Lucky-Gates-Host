@@ -35,28 +35,63 @@
 
 .GW-TurnTextHolder {
   height: 100%;
-  flex: 90 0 0;
+  flex: 95 0 0;
+  z-index: 1;
+
+  font-weight: bold;
 }
 
 .GW-Timer {
-  flex: 20 0 0;
+  width: 100%;
+  flex: 25 0 0;
+  position: relative;
+
+  border: 2px solid coral;
+  border-radius: 7px;
+  font-size: max(12px, 1.125vw);
+}
+
+.GW-TimerMask {
+  height: 90%;
+  position: absolute;
+  border-radius: 7px;
+  transition: all 750ms;
+  z-index: 2;
+  background: coral
+}
+
+.GW-TimerText {
+  position: absolute;
+  z-index: 3;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
 .GW-TurnText {
   width: 100%;
-  flex: 80 0 0;
+  flex: 75 0 0;
+
+  font-size: max(22px, 1.5vw);
+}
+
+.GW-HeadingDivider {
+  height: 100%;
+  flex: 5 0 0;
 }
 
 .GW-TotalPoints {
   height: 100%;
-  flex: 10 0 0;
+  aspect-ratio: 1 / 1;
 
   text-align: center;
   font-weight: bold;
   font-size: max(15px, 1.1vw);
 }
 
-.GW-Divider {
+.GW-WrapperDivider {
   width: 100%;
   flex: 9 0 0;
 }
