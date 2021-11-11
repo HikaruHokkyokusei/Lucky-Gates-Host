@@ -10,7 +10,7 @@
       </div>
       <div class="Header-Button">
         <app-button (onButtonClick)="appComponent.gameManagerService.getAvailableGameList()"
-                    buttonText="Refresh"></app-button>
+                    buttonText="Refresh" [millisBetweenClicks]="5000"></app-button>
       </div>
     </div>
   </div>

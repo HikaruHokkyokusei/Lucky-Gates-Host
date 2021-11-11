@@ -91,14 +91,10 @@ class TwoWayMap {
   }
 
   setKeyAndValue(key, value) {
-    if ((this.valueMap[value] == null) && (this.keyMap[key] !== value)) {
-      this.unsetWithKey(key);
-      this.keyMap[key] = value;
-      this.valueMap[value] = key;
-      return true
-    } else {
-      return false
-    }
+    this.unsetWithKey(key);
+    this.unsetWithValue(value);
+    this.keyMap[key] = value;
+    this.valueMap[value] = key;
   }
 
   unsetWithKey(key) {

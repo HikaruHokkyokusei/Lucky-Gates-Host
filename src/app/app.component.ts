@@ -1,4 +1,4 @@
-import {AfterViewInit, Component} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
@@ -11,7 +11,7 @@ import {ActivatedRoute} from "@angular/router";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
@@ -21,6 +21,7 @@ export class AppComponent implements AfterViewInit {
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
   hasUserInteracted: boolean = false;
   isBindingPlayerAddress: boolean = false;
+  intervalId: number = 0;
 
   /*
   * 0 => Main Menu
@@ -32,8 +33,14 @@ export class AppComponent implements AfterViewInit {
   * */
   windowNumberToShow: number = 0;
 
-  constructor(private activatedRoute: ActivatedRoute) {
+  constructor(private changeDetector: ChangeDetectorRef, private activatedRoute: ActivatedRoute) {
     this.gameManagerService = new GameManagerService(activatedRoute, this);
+  }
+
+  ngOnInit() {
+    this.intervalId = setInterval(() => {
+      this.changeDetector.detectChanges();
+    }, 500);
   }
 
   ngAfterViewInit() {
@@ -63,7 +70,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   shouldShowLoadingScreen = () => {
-    return this.socketIOService.signCode === "" || !this.web3Service.web3BuildSuccess || !this.web3Service.didSignMessage;
+    return this.socketIOService.signCode === "" || !this.web3Service.web3BuildSuccess || !this.web3Service.didSignMessage ||
+      this.isBindingPlayerAddress;
   };
 
   setWindowNumberToShowTo = (windowNumberToShow: number) => {
@@ -91,4 +99,10 @@ export class AppComponent implements AfterViewInit {
       });
     }
   };
+
+  ngOnDestroy() {
+    if (this.intervalId != 0) {
+      clearInterval(this.intervalId);
+    }
+  }
 }

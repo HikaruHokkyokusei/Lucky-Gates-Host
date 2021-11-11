@@ -30,7 +30,7 @@ def exit_function():
 def build_io_threads():
     return_list = []
     c_i_r = IOTools.ContinuousInputReader(should_log=shouldLogIO)
-    c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler)
+    c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler, db_handler=DBHandler)
     c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
     c_i_r_th = threading.Thread(target=c_i_r.run)
     c_i_r_th.daemon = True
@@ -69,6 +69,7 @@ class GameHandler:
 
     def __init__(self):
         self.configs = copy.deepcopy(configs)
+        self.DBHandler = DBHandler
         self.activeGames = {}
 
     def stop(self):
@@ -311,8 +312,9 @@ class GameHandler:
     def add_player_to_game(self, game_id, player_address):
         game = self.get_game(game_id)
         if game is not None:
-            if DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
-                                               game.gameState["coinChainName"], player_address):
+            has_tickets = DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
+                                                          game.gameState["coinChainName"], player_address)
+            if has_tickets:
                 success, message = game.add_player_to_game({"playerAddress": player_address})
                 return success, message, copy.deepcopy(game.gameState)
             else:

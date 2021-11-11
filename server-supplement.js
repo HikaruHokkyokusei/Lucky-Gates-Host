@@ -62,6 +62,7 @@ const bindAddress = (socketId, signedMessage, playerAddress) => {
         }
       }
     } catch {
+      console.log("Unable to bind player address.");
     }
   }
 };
@@ -128,8 +129,7 @@ const scriptOutputHandler = async (packet) => {
       }
     }
 
-
-    if (packet["Body"]["error"] == null) {
+    if (packet["Body"]["error"] == null || packet["Header"]["command"] === "ticket") {
       switch (packet["Header"]["command"]) {
         case "gameCreation":
           gameIdToPlayerCollectionMap[gameId] = {
@@ -173,6 +173,22 @@ const scriptOutputHandler = async (packet) => {
           delete lastGameStateMap[gameId];
           delete gameIdToPlayerCollectionMap[gameId];
           shouldForwardToPlayers = false;
+          break;
+
+        case "ticket":
+          if (playerSocketId != null) {
+            if (packet["Header"]["action"] === "buy") {
+              connectedClients[playerSocketId]["socket"].emit("ticketPurchase", {
+                success: packet["Body"]["error"] == null,
+                ticketCount: packet["Body"]["ticketCount"],
+                reasonIfNotSuccess: packet["Body"]["error"]
+              });
+            } else if (packet["Header"]["action"] === "get") {
+              connectedClients[playerSocketId]["socket"].emit("ticketCount", {
+                ticketCount: packet["Body"]["ticketCount"]
+              });
+            }
+          }
           break;
       }
 
@@ -319,11 +335,18 @@ const buyTicketsForPlayer = (referenceId, coinChainName, playerAddress = null, s
     }
 
     blockchainManager.verifyPaymentForPlayer(referenceId, playerAddress, coinChainName)
-      .then(({success, ticketCount, reasonIfNotSuccess}) => {
+      .then(({success, ticketCount, gameCoinAddress, reasonIfNotSuccess}) => {
         let message = {success, ticketCount, reasonIfNotSuccess};
         if (success) {
-          // TODO : Complete this... Send packet to py process.
-          //  then based on reply from python, send confirmation to client side.
+          pythonProcess.sendRawPacketToScript({
+            command: "ticket", action: "buy", body: {
+              playerAddress,
+              ticketCount,
+              referenceId,
+              coinChainName,
+              gameCoinAddress
+            }
+          });
         } else {
           let socket = connectedClients[socketId]["socket"];
           if (socket != null) {

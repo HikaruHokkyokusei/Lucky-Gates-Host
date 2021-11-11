@@ -70,8 +70,9 @@ class ContinuousInputReader:
 
 
 class ContinuousInputHandler:
-    def __init__(self, exit_function, game_handler):
+    def __init__(self, exit_function, game_handler, db_handler):
         self.should_handle = True
+        self.DBHandler = db_handler
         self.exit_function = exit_function
         self.game_handler = game_handler
 
@@ -79,10 +80,7 @@ class ContinuousInputHandler:
         self.should_handle = False
 
     def root_handler(self, packet):
-        header = packet.get("Header")
-        if header is None:
-            return
-        command = header.get("command")
+        command = packet.get("Header", {}).get("command", None)
         if command is None:
             return
         elif command == "exit":
@@ -91,9 +89,47 @@ class ContinuousInputHandler:
             self.game_handler.rebuild_pending_games()
         elif command == "game":
             self.game_handler.handle_game_packet(packet)
-        elif command == "user":
-            # TODO : Update DB for number of ticket for the specified user
-            pass
+        elif command == "ticket":
+            action = packet["Header"].get("action")
+            if action is None:
+                return
+
+            player_address = packet.get("Body", {}).get("playerAddress", None)
+            coin_chain_name = packet.get("Body", {}).get("coinChainName", None)
+            game_coin_address = packet["Body"].get("gameCoinAddress", None)
+
+            reply_body = {"error": None}
+            if coin_chain_name is None or game_coin_address is None or player_address is None:
+                reply_body["error"] = "Incomplete Information."
+                append_packet_buffer(reply_body, "ticket", action)
+                return
+
+            reply_body["playerAddress"] = player_address
+            reply_body["coinChainName"] = coin_chain_name
+            reply_body["gameCoinAddress"] = game_coin_address
+
+            if action == "buy":
+                ticket_count = packet["Body"].get("ticketCount")
+                reference_id = packet["Body"].get("referenceId")
+                if ticket_count is None or ticket_count <= 0 or reference_id is None:
+                    reply_body["error"] = "Invalid ticket amount or reference id"
+                else:
+                    success = self.DBHandler.change_player_tickets_by(
+                        game_coin_address, coin_chain_name, player_address, ticket_count, reference_id
+                    )
+                    if not success:
+                        reply_body["error"] = "Unable to update tickets."
+
+            elif action == "get":
+                has_tickets, ticket_count = self.DBHandler.does_user_has_tickets(
+                    game_coin_address, coin_chain_name, player_address
+                )
+            else:
+                ticket_count = None
+                reply_body["error"] = "Invalid action"
+
+            reply_body["ticketCount"] = ticket_count
+            append_packet_buffer(reply_body, "ticket", action)
         else:
             ioLogger.error(f"Invalid input command : {command}")
 
@@ -154,26 +190,55 @@ class DBHandler:
         if player_document is not None:
             ticket_count = player_document.get("tickets", {}).get(coin_chain_name, {}).get(game_coin_address, None)
             if ticket_count is not None and ticket_count >= 1:
-                return True
+                return True, ticket_count
 
-        return False
+        return False, 0
 
-    def change_player_tickets_by(self, game_coin_address, coin_chain_name, player_address, signed_amount):
+    def change_player_tickets_by(self, game_coin_address, coin_chain_name, player_address,
+                                 signed_amount, reference_id=None):
         player_tickets_collection = self.database["PlayerTickets"]
         player_document = {"playerAddress": player_address}
 
-        try:
-            found_player_doc = player_tickets_collection.find_one(player_document)
-            ticket_count = found_player_doc["tickets"][coin_chain_name][game_coin_address]
+        if self.is_game_coin_registered(game_coin_address, coin_chain_name):
+            try:
+                found_player_doc = player_tickets_collection.find_one(player_document)
+                if found_player_doc is None:
+                    if signed_amount >= 0:
+                        insert_doc = {
+                            "playerAddress": player_address,
+                            "referenceIds": {},
+                            "tickets": {
+                                coin_chain_name: {
+                                    game_coin_address: signed_amount
+                                }
+                            }
+                        }
+                        if reference_id is not None:
+                            insert_doc["referenceIds"] = {reference_id: True}
+                        player_tickets_collection.insert_one(insert_doc)
+                        return True
+                else:
+                    ticket_count = found_player_doc.get("tickets", {}).get(coin_chain_name, {})\
+                        .get(game_coin_address, 0)
+                    new_ticket_count = ticket_count + signed_amount
 
-            new_ticket_count = ticket_count + signed_amount
-            if 0 <= new_ticket_count:
-                player_tickets_collection.update_one(player_document, {
-                    "$set": {
+                    update_doc = {
                         "tickets." + coin_chain_name + "." + game_coin_address: new_ticket_count
                     }
-                })
-                return True
-        except Exception as e:
-            print(str(e), sys.stderr)
+                    if reference_id is not None:
+                        reference_ids = player_tickets_collection["referenceIds"]
+                        if reference_ids.get(reference_id, None) is None:
+                            reference_ids.set(reference_id, True)
+                            update_doc["referenceIds"] = reference_ids
+                        else:
+                            return False
+
+                    if new_ticket_count >= 0:
+                        player_tickets_collection.update_one(player_document, {
+                            "$set": update_doc
+                        }, upsert=True)
+                        return True
+            except Exception as e:
+                ioLogger.exception(e)
+
         return False

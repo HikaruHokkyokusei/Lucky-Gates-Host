@@ -80,9 +80,6 @@ class Game:
         return len(self.gameState["players"])
 
     def add_player_to_game(self, options):
-        # TODO : Reminder
-        # Set authentication to verify player identity on JS Side
-
         if not self.is_current_state_equal_to(0):
             return False, "Game Is Not Accepting Players Presently"
 

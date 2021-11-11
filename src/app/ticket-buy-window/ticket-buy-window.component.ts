@@ -82,6 +82,10 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.appComponent.socketIOService.setActionForEvent("ticketPurchase",
+      (data: any) => {
+        this.onResponseFromServer(data["success"], data["ticketCount"], data["reasonIfNotSuccess"]);
+      });
     let registeredCoinData = <CoinCollectionData>RCPJson;
     this.localCoinChainName = this.appComponent.gameManagerService.localCoinChainName;
     this.localGameCoinAddress = this.appComponent.gameManagerService.localGameCoinAddress;
@@ -245,12 +249,12 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
         setTimeout(this.displayPaymentSummary, 2000);
       }
     } else {
-      this.generateNewPopUp(false, "Purchase Ended.", 1500);
+      this.generateNewPopUp(false, "Purchase Ended / Cancelled.", 1500);
     }
   };
 
   approveCoins = () => {
-    this.generateNewPopUp(false, "Please confirm the Transaction for Approval in MetaMask.");
+    this.generateNewPopUp(false, "Please confirm the Transaction for Approval in MetaMask.", -1, false);
     this.erc20Contract.methods.approve(this.paymentManagerContractAddress, this.currentActivePurchase.purchaseCostWithDecimals)
       .send({
         from: this.appComponent.web3Service.userAccount
@@ -273,7 +277,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     if (this.buildSuccess && !this.currentActivePurchase.encounteredError &&
       !this.currentActivePurchase.hasEnded && this.currentActivePurchase.hasFetchedData) {
       this.generateNewPopUp(false, "Please confirm the Transaction for Payment in MetaMask.<br>" +
-        "Reference Id :<br>" + this.currentActivePurchase.id + "<br>" + "(It is advisable to keep a copy this ID)",
+        "Please copy the below shown reference ID before confirming the transaction.<br>" + this.currentActivePurchase.id,
         -1, false);
 
       this.paymentManagerContract.methods.initiateNewPayment(
@@ -304,7 +308,8 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   };
 
   sendPaymentInformationToServer = () => {
-    this.generateNewPopUp(false, "Payment Successful. Waiting for confirmation from server.<br>PLEASE DO NOT RELOAD THE PAGE.",
+    this.generateNewPopUp(false, "Payment Successful. Waiting for confirmation from server.<br>" +
+      "PLEASE DO NOT RELOAD THE PAGE.<br>(Due to communication with blockchain, it can take few minutes.)",
       -1, false);
 
     this.appComponent.socketIOService.emitEventToServer("buyTicketsForPlayer", {
@@ -313,7 +318,15 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     });
   };
 
-  // TODO : Needs to handle ticketPurchase Event from server side...
+  onResponseFromServer = (success: boolean, ticketCount: number, reasonIfNotSuccess: string = "") => {
+    if (success) {
+      this.generateNewPopUp(false, "Successfully added " + ticketCount + " tickets.", 3500);
+    } else {
+      this.generateNewPopUp(false, "Error!!<br>Reason : " + reasonIfNotSuccess);
+    }
+
+    this.currentActivePurchase.hasEnded = true;
+  };
 
   ngOnDestroy() {
     this.closeOldPopUpIfAny(false);

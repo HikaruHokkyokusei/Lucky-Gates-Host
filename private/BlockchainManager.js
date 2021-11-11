@@ -33,10 +33,16 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
       return {
         success: false,
         ticketCount: 0,
+        gameCoinAddress: "",
         reasonIfNotSuccess: "Invalid Payment Information. No such payment exists."
       };
     } else if (paymentData["1"].toString() === "true") {
-      return {success: false, ticketCount: 0, reasonIfNotSuccess: "This payment has already been acknowledged"};
+      return {
+        success: false,
+        ticketCount: 0,
+        gameCoinAddress: "",
+        reasonIfNotSuccess: "This payment has already been acknowledged"
+      };
     }
 
     let gameCoinAddress = Web3.utils.toChecksumAddress(paymentData["3"]);
@@ -46,7 +52,7 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
     let ticketCount = Number(paidAmount / BigInt(registeredCoinData["serverTicketCost"]));
 
     if (ticketCount === 0) {
-      return {success: false, ticketCount, reasonIfNotSuccess: "Cannot buy 0 tickets"};
+      return {success: false, ticketCount, gameCoinAddress, reasonIfNotSuccess: "Cannot buy 0 tickets"};
     }
 
     let transaction = {
@@ -61,11 +67,12 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
     let result = await web3ObjHolder[coinChainName].eth.sendSignedTransaction(signedTransaction.rawTransaction);
 
     if (result.status) {
-      return {success: true, ticketCount, reasonIfNotSuccess: ""};
+      return {success: true, ticketCount, gameCoinAddress, reasonIfNotSuccess: ""};
     } else {
       return {
         success: false,
         ticketCount: 0,
+        gameCoinAddress: "",
         reasonIfNotSuccess: "Approval Transaction Failed. Please keep the reference Id handy and contact support."
       };
     }
@@ -75,7 +82,7 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
     );
     console.log(err);
     return {
-      success: false, ticketCount: 0, reasonIfNotSuccess: "Unknown Error Encountered at server. " +
+      success: false, ticketCount: 0, gameCoinAddress: "", reasonIfNotSuccess: "Unknown Error Encountered at server. " +
         "Please keep the reference Id handy and contact support."
     };
   }
