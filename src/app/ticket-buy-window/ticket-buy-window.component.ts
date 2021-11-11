@@ -254,7 +254,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   };
 
   approveCoins = () => {
-    this.generateNewPopUp(false, "Please confirm the Transaction for Approval in MetaMask.", -1, false);
+    this.generateNewPopUp(false, "Waiting for Approval Transaction to complete.", -1, false);
     this.erc20Contract.methods.approve(this.paymentManagerContractAddress, this.currentActivePurchase.purchaseCostWithDecimals)
       .send({
         from: this.appComponent.web3Service.userAccount
@@ -276,8 +276,8 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   payCoins = () => {
     if (this.buildSuccess && !this.currentActivePurchase.encounteredError &&
       !this.currentActivePurchase.hasEnded && this.currentActivePurchase.hasFetchedData) {
-      this.generateNewPopUp(false, "Please confirm the Transaction for Payment in MetaMask.<br>" +
-        "Please copy the below shown reference ID before confirming the transaction.<br>" + this.currentActivePurchase.id,
+      this.generateNewPopUp(false, "Waiting for Payment Transaction to complete.<br>" +
+        "Please copy the below shown reference ID before making the payment.<br>" + this.currentActivePurchase.id,
         -1, false);
 
       this.paymentManagerContract.methods.initiateNewPayment(

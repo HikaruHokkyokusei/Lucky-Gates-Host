@@ -226,12 +226,7 @@ class DBHandler:
                         "tickets." + coin_chain_name + "." + game_coin_address: new_ticket_count
                     }
                     if reference_id is not None:
-                        reference_ids = player_tickets_collection["referenceIds"]
-                        if reference_ids.get(reference_id, None) is None:
-                            reference_ids.set(reference_id, True)
-                            update_doc["referenceIds"] = reference_ids
-                        else:
-                            return False
+                        update_doc["referenceIds." + reference_id] = True
 
                     if new_ticket_count >= 0:
                         player_tickets_collection.update_one(player_document, {
