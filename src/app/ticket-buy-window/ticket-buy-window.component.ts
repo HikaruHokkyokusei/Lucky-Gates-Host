@@ -1,12 +1,15 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
+import * as uuid from "uuid";
 import * as RCPJson from "private/PythonScripts/configsForRegisteredCoin.json";
 import * as configSmartContract from "private/PythonScripts/configsForSmartContract.json";
+import {ButtonData} from "../UIElements/pop-up/pop-up.component";
 
 interface CoinData {
   symbol: string
   decimals: number,
   ticketCost: number,
+  serverTicketCost: number,
   isTicketPurchaseActive: boolean,
   otherOptions?: any
 }
@@ -21,6 +24,19 @@ interface CoinCollectionData {
   }
 }
 
+interface PurchaseData {
+  id: string,
+  encounteredError: boolean,
+  hasEnded: boolean,
+  amountToBuy: number,
+  costOfPurchase: bigint,
+  purchaseCostWithDecimals: bigint,
+  hasFetchedData: boolean,
+  playerBalance: bigint,
+  coinAllowance: bigint,
+  networkGasFee: bigint
+}
+
 @Component({
   selector: 'app-ticket-buy-window[appComponent]',
   templateUrl: './ticket-buy-window.component.html',
@@ -33,17 +49,34 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   localGameCoinAddress: string = "";
   chainId: number = -1;
   paymentManagerContractAddress: string = "";
-  paymentManagerContract: any = null;
+  smartContractConfigs: any = (<any>configSmartContract).default;
   buildSuccess: boolean = false;
+  errorMessage: string = "";
+
+  paymentManagerContract: any = null;
+  erc20Contract: any = null;
   localCoinData: CoinData = {
     symbol: "",
     decimals: 0,
     ticketCost: 0,
+    serverTicketCost: 0,
     isTicketPurchaseActive: false
   };
   amountToBuy: number = 0;
-  errorMessage: string = "";
   activePopUpId: string = "";
+  lastPopUpMessage: string = "";
+  currentActivePurchase: PurchaseData = {
+    id: "",
+    encounteredError: false,
+    hasEnded: true,
+    amountToBuy: 0,
+    costOfPurchase: BigInt(0),
+    hasFetchedData: false,
+    purchaseCostWithDecimals: BigInt(0),
+    playerBalance: BigInt(0),
+    coinAllowance: BigInt(0),
+    networkGasFee: BigInt(0)
+  };
 
   constructor() {
   }
@@ -59,7 +92,10 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
         registeredCoinData[this.localCoinChainName].paymentManagerContractAddress, this.chainId
       );
       this.paymentManagerContract = new this.appComponent.web3Service.web3.eth.Contract(
-        (<any>configSmartContract).default, this.paymentManagerContractAddress
+        this.smartContractConfigs["paymentManagerABI"], this.paymentManagerContractAddress
+      );
+      this.erc20Contract = new this.appComponent.web3Service.web3.eth.Contract(
+        this.smartContractConfigs["erc20ABI"], this.localGameCoinAddress
       );
 
       if (registeredCoinData[this.localCoinChainName] != null &&
@@ -84,6 +120,21 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     }
   }
 
+  resetCurrentPurchase = () => {
+    this.currentActivePurchase = {
+      id: "",
+      encounteredError: false,
+      hasEnded: true,
+      amountToBuy: 0,
+      costOfPurchase: BigInt(0),
+      hasFetchedData: false,
+      purchaseCostWithDecimals: BigInt(0),
+      playerBalance: BigInt(0),
+      coinAllowance: BigInt(0),
+      networkGasFee: BigInt(0)
+    };
+  };
+
   onClickSub = () => {
     if (this.amountToBuy > 0) {
       this.amountToBuy--;
@@ -96,6 +147,17 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     }
   };
 
+  generateNewPopUp = (saveMsg: boolean, text: string, autoCloseAfterMillis: number = -1,
+                      isClosable: boolean = true, buttonList?: ButtonData[]) => {
+    this.closeOldPopUpIfAny();
+    this.activePopUpId = this.appComponent.popUpManagerService.popNewPopUp(text, autoCloseAfterMillis, isClosable, buttonList);
+    if (saveMsg) {
+      this.lastPopUpMessage = text;
+    } else {
+      this.lastPopUpMessage = "";
+    }
+  };
+
   closeOldPopUpIfAny = (performBuildCheck: boolean = true) => {
     if (performBuildCheck && !this.buildSuccess) {
       return;
@@ -105,35 +167,153 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     }
   };
 
-  onClickBuy = async () => {
-    if (this.amountToBuy < 0 || this.amountToBuy > 10) {
+  onClickBuy = () => {
+    this.resetCurrentPurchase();
+    if (this.amountToBuy <= 0 || this.amountToBuy > 10) {
       return;
     }
-    let costOfPurchase = BigInt(this.amountToBuy) * BigInt(this.localCoinData.ticketCost);
-    let purchaseCostWithDecimals = costOfPurchase * (BigInt(10) ** BigInt(this.localCoinData.decimals));
 
     if (this.buildSuccess && this.paymentManagerContract != null) {
-      this.activePopUpId = this.appComponent.popUpManagerService.popNewPopUp("Please Wait");
+      let id: string = uuid.v4() + uuid.v4();
+      let costOfPurchase = BigInt(this.amountToBuy) * BigInt(this.localCoinData.ticketCost);
+      this.currentActivePurchase = {
+        id: id,
+        encounteredError: false,
+        hasEnded: false,
+        amountToBuy: 0,
+        costOfPurchase: costOfPurchase,
+        purchaseCostWithDecimals: costOfPurchase * (BigInt(10) ** BigInt(this.localCoinData.decimals)),
+        hasFetchedData: false,
+        playerBalance: BigInt(0),
+        coinAllowance: BigInt(0),
+        networkGasFee: BigInt(0)
+      };
 
-      let playerBalance, coinAllowance, networkGasFee;
-      try {
-        let prepData = await this.paymentManagerContract.methods["getPrepData"](
-          this.appComponent.web3Service.userAccount,
-          this.localGameCoinAddress
-        ).call();
+      this.generateNewPopUp(false, "You are about to buy " + this.amountToBuy + " ticket(s) of " + this.localCoinData.symbol +
+        " on " + this.localCoinChainName + " network. Once bought, they cannot be converted back. It is recommended to buy " +
+        "tickets in small batches and use them in game before buying more.", -1, true, [
+        {
+          buttonText: "Confirm",
+          onClickFunction: this.displayPaymentSummary,
+          millisBeforeClose: 500
+        }
+      ]);
 
-        playerBalance = prepData["0"];
-        coinAllowance = prepData["1"];
-        networkGasFee = prepData["2"];
-      } catch (err) {
-        this.closeOldPopUpIfAny();
-        this.appComponent.popUpManagerService.popNewPopUp("Unable to communicate payment smart contract. Please contract support.");
-        console.log(err);
-        return;
-      }
+      this.paymentManagerContract.methods["getPrepData"](
+        this.appComponent.web3Service.userAccount,
+        this.localGameCoinAddress
+      ).call().then((prepData: any) => {
+        this.currentActivePurchase.playerBalance = prepData["0"];
+        this.currentActivePurchase.coinAllowance = prepData["1"];
+        this.currentActivePurchase.networkGasFee = prepData["2"];
+        this.currentActivePurchase.hasFetchedData = true;
+      }).catch(() => {
+        this.currentActivePurchase.encounteredError = true;
+      });
 
     }
   };
+
+  displayPaymentSummary = () => {
+    if (!this.currentActivePurchase.hasEnded) {
+      if (this.currentActivePurchase.encounteredError) {
+        this.generateNewPopUp(false, "Unable to fetch data from blockchain. Please try again later.");
+      } else if (this.currentActivePurchase.hasFetchedData) {
+        if (this.currentActivePurchase.playerBalance >= this.currentActivePurchase.purchaseCostWithDecimals) {
+          let isApprovalNeeded = this.currentActivePurchase.purchaseCostWithDecimals > this.currentActivePurchase.coinAllowance;
+          let popUpMessage = "Once you click continue, you need to :<br>";
+          if (isApprovalNeeded) {
+            popUpMessage += "Approve " + this.currentActivePurchase.costOfPurchase + " " + this.localCoinData.symbol + "<br>";
+          }
+          popUpMessage += "Pay " + this.currentActivePurchase.costOfPurchase + " " + this.localCoinData.symbol + "<br>";
+
+          this.generateNewPopUp(false, popUpMessage, -1, true, [
+            {
+              buttonText: "Continue",
+              onClickFunction: (isApprovalNeeded) ? this.approveCoins : this.payCoins,
+              millisBeforeClose: 500
+            }
+          ]);
+        } else {
+          this.generateNewPopUp(false, "You do not have enough " + this.localCoinData.symbol + " to make the purchase.");
+          this.currentActivePurchase.hasEnded = true;
+        }
+      } else {
+        if (this.lastPopUpMessage != "Please Wait. Gathering Information!!") {
+          this.generateNewPopUp(true, "Please Wait. Gathering Information!!", -1, false);
+        }
+        setTimeout(this.displayPaymentSummary, 2000);
+      }
+    } else {
+      this.generateNewPopUp(false, "Purchase Ended.", 1500);
+    }
+  };
+
+  approveCoins = () => {
+    this.generateNewPopUp(false, "Please confirm the Transaction for Approval in MetaMask.");
+    this.erc20Contract.methods.approve(this.paymentManagerContractAddress, this.currentActivePurchase.purchaseCostWithDecimals)
+      .send({
+        from: this.appComponent.web3Service.userAccount
+      }).then((result: any) => {
+      if (result.status) {
+        this.payCoins();
+      } else {
+        this.generateNewPopUp(false, "Transaction Reverted. Please try again later.", 2000);
+        this.resetCurrentPurchase();
+        console.log(result);
+      }
+    }).catch((err: any) => {
+      this.generateNewPopUp(false, "Transaction Cancelled.", 2000);
+      this.resetCurrentPurchase();
+      console.log(err);
+    });
+  };
+
+  payCoins = () => {
+    if (this.buildSuccess && !this.currentActivePurchase.encounteredError &&
+      !this.currentActivePurchase.hasEnded && this.currentActivePurchase.hasFetchedData) {
+      this.generateNewPopUp(false, "Please confirm the Transaction for Payment in MetaMask.<br>" +
+        "Reference Id :<br>" + this.currentActivePurchase.id + "<br>" + "(It is advisable to keep a copy this ID)",
+        -1, false);
+
+      this.paymentManagerContract.methods.initiateNewPayment(
+        this.currentActivePurchase.id,
+        this.localGameCoinAddress,
+        this.currentActivePurchase.purchaseCostWithDecimals
+      ).send({
+        from: this.appComponent.web3Service.userAccount,
+        value: this.currentActivePurchase.networkGasFee
+      }).then((result: any) => {
+        if (result.status) {
+          this.sendPaymentInformationToServer();
+        } else {
+          this.generateNewPopUp(false, "Transaction Reverted. Please try again later.", 2000);
+          this.resetCurrentPurchase();
+          console.log(result);
+        }
+      }).catch((err: any) => {
+        this.generateNewPopUp(false, "Transaction Cancelled.", 2000);
+        this.resetCurrentPurchase();
+        console.log(err);
+      });
+
+    } else {
+      this.generateNewPopUp(false, "This purchase is no longer valid. Please try again.", 3000);
+      this.resetCurrentPurchase();
+    }
+  };
+
+  sendPaymentInformationToServer = () => {
+    this.generateNewPopUp(false, "Payment Successful. Waiting for confirmation from server.<br>PLEASE DO NOT RELOAD THE PAGE.",
+      -1, false);
+
+    this.appComponent.socketIOService.emitEventToServer("buyTicketsForPlayer", {
+      referenceId: this.currentActivePurchase.id,
+      coinChainName: this.localCoinChainName
+    });
+  };
+
+  // TODO : Needs to handle ticketPurchase Event from server side...
 
   ngOnDestroy() {
     this.closeOldPopUpIfAny(false);

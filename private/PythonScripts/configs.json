@@ -64,6 +64,11 @@
     "7": 0
   },
   "blockchainData": {
-    "ownerPrivateKeyConfigKey": "ownerPrivateKey"
+    "ownerWalletAddressConfigKey": "ownerWalletAddress",
+    "ownerPrivateKeyConfigKey": "ownerPrivateKey",
+    "keysForApiURL": {
+      "BSC": "BSC-API",
+      "GOERLI": "GOERLI-API"
+    }
   }
 }

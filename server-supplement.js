@@ -1,6 +1,7 @@
 "use strict";
 
 const toolSet = require("./private/ToolSet");
+const blockchainManager = require("./private/BlockchainManager");
 const Web3 = require("web3");
 const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
 
@@ -154,7 +155,7 @@ const scriptOutputHandler = async (packet) => {
 
         case "informPlayers":
           if (packet["Header"]["action"] === "stageUpdated") {
-            addPlayerToGame({gameId: gameId, playerAddress: gameCreator});
+            addPlayerToGame(gameId, gameCreator, null);
             shouldForwardToPlayers = false;
           }
           break;
@@ -179,7 +180,6 @@ const scriptOutputHandler = async (packet) => {
         emitter(gameId, 'synchronizeGamePacket', packet);
       }
     } else if (!isGameCreatorAdmin) {
-      // TODO : Send 'error' event to client.
       let emitSocketId = null;
       if (playerAddress) {
         emitSocketId = playerSocketId;
@@ -219,7 +219,7 @@ const createNewGame = (creatorSocketId, gameCoinAddress, coinChainName) => {
   }
   pythonProcess.sendRawPacketToScript({command: "game", action: "createNewGame", body: body});
 };
-const addPlayerToGame = ({gameId = null, playerAddress = null, socketId = null}) => {
+const addPlayerToGame = (gameId, playerAddress = null, socketId = null) => {
   if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null) {
     if (playerAddress == null) {
       if (socketId == null) {
@@ -252,7 +252,7 @@ const beginGameEarly = (gameId, creatorCheck, socketId) => {
   };
   pythonProcess.sendRawPacketToScript({command: "game", action: "beginGameEarly", body: body});
 };
-const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId = null, doorNumber = null}) => {
+const savePlayerDoorSelection = (gameId, playerAddress = null, socketId = null, doorNumber = null) => {
   if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null && doorNumber != null) {
     if (playerAddress == null) {
       if (socketId == null) {
@@ -278,7 +278,7 @@ const savePlayerDoorSelection = ({gameId = null, playerAddress = null, socketId 
     pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerDoorSelection", body: body});
   }
 };
-const savePlayerSwitchSelection = ({gameId = null, playerAddress = null, socketId = null, wantToSwitch = null}) => {
+const savePlayerSwitchSelection = (gameId, playerAddress = null, socketId = null, wantToSwitch = null) => {
   if (gameId != null && gameIdToPlayerCollectionMap[gameId] != null && wantToSwitch != null) {
     if (playerAddress == null) {
       if (socketId == null) {
@@ -304,8 +304,34 @@ const savePlayerSwitchSelection = ({gameId = null, playerAddress = null, socketI
     pythonProcess.sendRawPacketToScript({command: "game", action: "savePlayerSwitchSelection", body: body});
   }
 };
-const buyTicketsForPlayer = () => {
-  // TODO : Complete this...
+const buyTicketsForPlayer = (referenceId, coinChainName, playerAddress = null, socketId = null) => {
+  if (referenceId != null && coinChainName != null) {
+    if (playerAddress == null) {
+      if (socketId == null) {
+        return;
+      }
+
+      playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
+
+      if (playerAddress == null) {
+        return;
+      }
+    }
+
+    blockchainManager.verifyPaymentForPlayer(referenceId, playerAddress, coinChainName)
+      .then(({success, ticketCount, reasonIfNotSuccess}) => {
+        let message = {success, ticketCount, reasonIfNotSuccess};
+        if (success) {
+          // TODO : Complete this... Send packet to py process.
+          //  then based on reply from python, send confirmation to client side.
+        } else {
+          let socket = connectedClients[socketId]["socket"];
+          if (socket != null) {
+            socket.emit("ticketPurchase", message);
+          }
+        }
+      });
+  }
 };
 
 

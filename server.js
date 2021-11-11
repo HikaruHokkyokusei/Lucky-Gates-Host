@@ -129,14 +129,11 @@ io.on('connection', (socket) => {
   socket.on('addPlayerToGame', (options) => {
     if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
-        serverSupplement.pythonFunctions["addPlayerToGame"]({
-          gameId: options["gameId"],
-          playerAddress: options["playerAddress"]
-        });
+        serverSupplement.pythonFunctions["addPlayerToGame"](options["gameId"], options["playerAddress"], null);
       }
     } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
       if (options != null && options["gameId"] != null) {
-        serverSupplement.pythonFunctions["addPlayerToGame"]({gameId: options["gameId"], socketId: socket.id});
+        serverSupplement.pythonFunctions["addPlayerToGame"](options["gameId"], null, socket.id);
       }
     }
   });
@@ -155,42 +152,35 @@ io.on('connection', (socket) => {
     if (serverSupplement.isAdmin(socket.id)) {
       if (options != null && options["gameId"] != null && options["playerAddress"] != null) {
         if (options["doorNumber"] != null) {
-          serverSupplement.pythonFunctions["savePlayerDoorSelection"]({
-            gameId: options["gameId"],
-            playerAddress: options["playerAddress"],
-            doorNumber: options["doorNumber"]
-          });
+          serverSupplement.pythonFunctions["savePlayerDoorSelection"](options["gameId"], options["playerAddress"], null, options["doorNumber"]);
         } else if (options["wantToSwitch"] != null) {
-          serverSupplement.pythonFunctions["savePlayerSwitchSelection"]({
-            gameId: options["gameId"],
-            playerAddress: options["playerAddress"],
-            wantToSwitch: options["wantToSwitch"]
-          });
+          serverSupplement.pythonFunctions["savePlayerSwitchSelection"](options["gameId"], options["playerAddress"], null, options["wantToSwitch"]);
         }
       }
     } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
       if (options != null && options["gameId"] != null) {
         if (options["doorNumber"] != null) {
-          serverSupplement.pythonFunctions["savePlayerDoorSelection"]({
-            gameId: options["gameId"],
-            socketId: socket.id,
-            doorNumber: options["doorNumber"]
-          });
+          serverSupplement.pythonFunctions["savePlayerDoorSelection"](options["gameId"], null, socket.id, options["doorNumber"]);
         } else if (options["wantToSwitch"] != null) {
-          serverSupplement.pythonFunctions["savePlayerSwitchSelection"]({
-            gameId: options["gameId"],
-            socketId: socket.id,
-            wantToSwitch: options["wantToSwitch"]
-          });
+          serverSupplement.pythonFunctions["savePlayerSwitchSelection"](options["gameId"], null, socket.id, options["wantToSwitch"]);
         }
       }
     }
   });
 
-  socket.on('buyTicketsForPlayer', () => {
-    if (serverSupplement.isAdmin(socket.id) || serverSupplement.isSocketBoundToAddress(socket.id)) {
-      // TODO : Add options here...
-      serverSupplement.pythonFunctions["buyTicketsForPlayer"]();
+  socket.on('buyTicketsForPlayer', (options) => {
+    if (options["referenceId"] != null && options["coinChainName"] != null) {
+      let playerAddress = null, socketId = null;
+      if (serverSupplement.isAdmin(socket.id) && options["playerAddress"] != null) {
+        playerAddress = options["playerAddress"];
+        socketId = socket.id;
+      } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+        socketId = socket.id;
+      }
+
+      if (socketId != null) {
+        serverSupplement.pythonFunctions["buyTicketsForPlayer"](options["referenceId"], options["coinChainName"], playerAddress, socketId);
+      }
     }
   });
 

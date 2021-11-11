@@ -7,9 +7,12 @@
         "symbol": "AINU",
         "decimals": 18,
         "ticketCost": 0,
+        "serverTicketCost": 0,
         "isTicketPurchaseActive": true,
-        "minPlayers": 5,
-        "rewardPercent": 70
+        "otherOptions": {
+          "minPlayers": 5,
+          "rewardPercent": 70
+        }
       }
     }
   },
@@ -21,9 +24,12 @@
         "symbol": "( . Y . )",
         "decimals": 18,
         "ticketCost": 50,
+        "serverTicketCost": 50,
         "isTicketPurchaseActive": true,
-        "minPlayers": 3,
-        "rewardPercent": 80
+        "otherOptions": {
+          "minPlayers": 3,
+          "rewardPercent": 80
+        }
       }
     }
   }
