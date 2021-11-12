@@ -30,8 +30,8 @@
          class="CenterColumnFlex GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
       <div class="CenterRowFlex GW-DoorImage">
         <app-animated-image src="assets/images/Portal-Sprite.png" alt="Portal {{doorIndex + 1}}"
-                            [originalGifHeightPX]="480" [originalGifWidthPX]="480"
-                            [frameCount]=24 [duration]=1 durationUnit="s">
+                            [recogniseId]=doorIndex [notifiableComponent]="this" [originalGifHeightPX]="480"
+                            [originalGifWidthPX]="480" [frameCount]=24 [duration]=1 durationUnit="s">
         </app-animated-image>
       </div>
       <div class="GW-OpenButton">

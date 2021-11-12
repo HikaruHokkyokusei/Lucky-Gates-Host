@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
@@ -11,7 +11,7 @@ import {ActivatedRoute} from "@angular/router";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AppComponent implements AfterViewInit {
 
   title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
@@ -21,7 +21,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
   hasUserInteracted: boolean = false;
   isBindingPlayerAddress: boolean = false;
-  intervalId: number = 0;
 
   /*
   * 0 => Main Menu
@@ -35,12 +34,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private changeDetector: ChangeDetectorRef, private activatedRoute: ActivatedRoute) {
     this.gameManagerService = new GameManagerService(activatedRoute, this);
-  }
-
-  ngOnInit() {
-    this.intervalId = setInterval(() => {
-      this.changeDetector.detectChanges();
-    }, 500);
   }
 
   ngAfterViewInit() {
@@ -87,6 +80,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   bindPlayerAddress = () => {
     if (this.web3Service.userAccount !== "" && this.socketIOService.signCode !== "" && !this.isBindingPlayerAddress) {
       this.isBindingPlayerAddress = true;
+      this.changeDetector.detectChanges();
       this.web3Service.requestSignatureFromUser(this.socketIOService.signCode).then((signedMessage) => {
         if (signedMessage != null) {
           this.socketIOService.emitEventToServer("bindAddress", {
@@ -96,13 +90,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }).finally(() => {
         this.isBindingPlayerAddress = false;
+        this.changeDetector.detectChanges();
       });
     }
   };
-
-  ngOnDestroy() {
-    if (this.intervalId != 0) {
-      clearInterval(this.intervalId);
-    }
-  }
 }

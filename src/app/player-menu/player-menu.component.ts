@@ -10,27 +10,27 @@ export class PlayerMenuComponent implements OnInit, OnDestroy {
 
   @Input() appComponent!: AppComponent;
   remainingPercent: number = 100;
-  intervalRepeater: number = 0;
+  intervalId: number = 0;
   timerValue: number = 0;
 
   constructor(private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
-    this.intervalRepeater = setInterval(() => {
+    this.intervalId = setInterval(() => {
       let shouldContinue = this.updateTimerValue();
       this.changeDetector.detectChanges();
 
-      if (!shouldContinue && this.intervalRepeater != 0) {
-        clearInterval(this.intervalRepeater);
-        this.intervalRepeater = 0;
+      if (!shouldContinue && this.intervalId != 0) {
+        clearInterval(this.intervalId);
+        this.intervalId = 0;
       }
-    }, 500);
+    }, 900);
   }
 
   ngOnDestroy() {
-    if (this.intervalRepeater != 0) {
-      clearInterval(this.intervalRepeater);
+    if (this.intervalId != 0) {
+      clearInterval(this.intervalId);
     }
   }
 

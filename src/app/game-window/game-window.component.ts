@@ -1,12 +1,13 @@
 import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
+import {AnimatedImageComponent, CanSetAnimatedImage} from "../UIElements/animated-image/animated-image.component";
 
 @Component({
   selector: 'app-game-window[appComponent]',
   templateUrl: './game-window.component.html',
   styleUrls: ['./game-window.component.css']
 })
-export class GameWindowComponent implements OnInit, OnDestroy {
+export class GameWindowComponent implements CanSetAnimatedImage, OnInit, OnDestroy {
 
   @Input() appComponent!: AppComponent;
   intervalId: number = 0;
@@ -15,6 +16,7 @@ export class GameWindowComponent implements OnInit, OnDestroy {
   remainingPercent: number = 100;
   headerText: string = "...Initializing...";
   doorIndices: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  doorComponents: { [recogniseId: number]: AnimatedImageComponent } = {};
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
   }
@@ -31,14 +33,12 @@ export class GameWindowComponent implements OnInit, OnDestroy {
       }
 
       this.changeDetectorRef.detectChanges();
-    }, 250);
+    }, 900);
   }
 
-  ngOnDestroy() {
-    if (this.intervalId != 0) {
-      clearInterval(this.intervalId);
-    }
-  }
+  setAnimatedImageComponent = (recogniseId: any, animatedImageComponent: AnimatedImageComponent) => {
+    this.doorComponents[recogniseId] = animatedImageComponent;
+  };
 
   setHeaderText = () => {
     let data = this.appComponent.gameManagerService.getChoiceMaker();
@@ -60,4 +60,13 @@ export class GameWindowComponent implements OnInit, OnDestroy {
     this.remainingPercent = Math.floor(this.timerValue * 100 / this.appComponent.gameManagerService.stageDuration);
   };
 
+  openDoorAnimation = (doorNumber: number, pointsBehindDoor: number) => {
+    // TODO : Complete this...
+  };
+
+  ngOnDestroy() {
+    if (this.intervalId != 0) {
+      clearInterval(this.intervalId);
+    }
+  }
 }
