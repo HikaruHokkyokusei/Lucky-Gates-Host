@@ -1,16 +1,18 @@
 <div class="AI-Container" [id]="containerId">
 
-  <div class="AI-FrameHolder" [ngStyle]="{
-  'aspect-ratio': gifAspectRatio
-  }">
+  <div class="CenterRowFlex AI-FrameHolder">
 
-    <div class="AI-FrameWrapper">
+    <div class="AI-FrameWrapper" [ngStyle]="{
+    'aspect-ratio': gifAspectRatio
+    }">
 
       <div class="AI-Frame">
 
-        <img [src]="src" [alt]="alt" [ngStyle]="{
-        'animation': getAnimationString(),
-        'aspect-ratio': getAspectRatio()
+        <img [id]="containerId + 'Img'" [src]="src" [alt]="alt" [ngStyle]="{
+        'animation-duration': duration + durationUnit,
+        'animation-iteration-count': ((iterationCount < 0) ? 'infinite' : iterationCount),
+        'animation-timing-function': 'steps(' + frameCount + ')',
+        'aspect-ratio': ((originalGifWidthPX * frameCount) / originalGifHeightPX)
         }">
 
         <div class="Fader State-1"></div>
