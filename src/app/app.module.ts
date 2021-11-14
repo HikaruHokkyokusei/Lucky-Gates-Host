@@ -12,6 +12,7 @@ import {PopUpComponent} from './UIElements/pop-up/pop-up.component';
 import {RulesWindowComponent} from './rules-window/rules-window.component';
 import {RoutingModule} from "./routing.module";
 import {TicketBuyWindowComponent} from './ticket-buy-window/ticket-buy-window.component';
+import {AspectVideoComponent} from './UIElements/aspect-video/aspect-video.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import {TicketBuyWindowComponent} from './ticket-buy-window/ticket-buy-window.co
     AnimatedImageComponent,
     PopUpComponent,
     RulesWindowComponent,
-    TicketBuyWindowComponent
+    TicketBuyWindowComponent,
+    AspectVideoComponent
   ],
   imports: [
     BrowserModule,

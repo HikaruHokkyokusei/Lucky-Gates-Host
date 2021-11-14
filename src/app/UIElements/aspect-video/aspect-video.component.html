@@ -1,0 +1,25 @@
+<div class="Media-Container" [id]="containerId">
+
+  <div class="Media-VWHolder">
+
+    <div class="Media-ViewWindow" [ngStyle]="{
+    'aspect-ratio': vidAspectRatio
+    }">
+
+      <div class="Media-Holder">
+
+        <video [id]="containerId + 'Vid'" [ngStyle]="{
+        'aspect-ratio': (originalVidWidthPX / originalVidHeightPX)
+        }">
+          <source [src]="src" [type]="type">
+        </video>
+
+      </div>
+
+      <div class="Media-Fader"></div>
+
+    </div>
+
+  </div>
+
+</div>

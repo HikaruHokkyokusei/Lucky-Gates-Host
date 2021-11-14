@@ -1,12 +1,12 @@
 <div class="Media-Container" [id]="containerId">
 
-  <div class="CenterRowFlex Media-FrameHolder">
+  <div class="Media-VWHolder">
 
-    <div class="Media-FrameWrapper" [ngStyle]="{
+    <div class="Media-ViewWindow" [ngStyle]="{
     'aspect-ratio': gifAspectRatio
     }">
 
-      <div class="Media-Frame">
+      <div class="Media-Holder">
 
         <img [id]="containerId + 'Img'" [src]="src" [alt]="alt" [ngStyle]="{
         'animation-duration': duration + durationUnit,

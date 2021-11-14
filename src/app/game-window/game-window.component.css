@@ -129,6 +129,8 @@
   max-height: 100%;
 
   flex: 92 0 0;
+
+  position: relative;
 }
 
 .GW-OpenButton {
@@ -139,7 +141,11 @@
   flex: 8 0 0;
 }
 
-app-animated-image {
-  width: 100%;
-  height: 100%;
+app-aspect-video {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  position: absolute;
 }

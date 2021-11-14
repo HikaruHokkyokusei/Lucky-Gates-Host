@@ -1,13 +1,13 @@
 import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {AnimatedImageComponent, CanSetAnimatedImage} from "../UIElements/animated-image/animated-image.component";
+import {AspectVideoComponent, CanSetAspectVideo} from "../UIElements/aspect-video/aspect-video.component";
 
 @Component({
   selector: 'app-game-window[appComponent]',
   templateUrl: './game-window.component.html',
   styleUrls: ['./game-window.component.css']
 })
-export class GameWindowComponent implements CanSetAnimatedImage, OnInit, OnDestroy {
+export class GameWindowComponent implements CanSetAspectVideo, OnInit, OnDestroy {
 
   @Input() appComponent!: AppComponent;
   intervalId: number = 0;
@@ -16,12 +16,13 @@ export class GameWindowComponent implements CanSetAnimatedImage, OnInit, OnDestr
   remainingPercent: number = 100;
   headerText: string = "...Initializing...";
   doorIndices: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  doorComponents: { [recogniseId: number]: AnimatedImageComponent } = {};
+  doorComponents: { [recogniseId: number]: AspectVideoComponent } = {};
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
+    this.appComponent.gameManagerService.setGameWindow(this);
     this.intervalId = setInterval(() => {
       this.updateTimerValue();
 
@@ -33,10 +34,10 @@ export class GameWindowComponent implements CanSetAnimatedImage, OnInit, OnDestr
       }
 
       this.changeDetectorRef.detectChanges();
-    }, 900);
+    }, 500);
   }
 
-  setAnimatedImageComponent = (recogniseId: any, animatedImageComponent: AnimatedImageComponent) => {
+  setAspectVideoComponent = (recogniseId: any, animatedImageComponent: AspectVideoComponent) => {
     this.doorComponents[recogniseId] = animatedImageComponent;
   };
 
@@ -61,7 +62,19 @@ export class GameWindowComponent implements CanSetAnimatedImage, OnInit, OnDestr
   };
 
   openDoorAnimation = (doorNumber: number, pointsBehindDoor: number) => {
-    // TODO : Complete this...
+    try {
+      let aVComponent = this.doorComponents[doorNumber];
+
+      aVComponent.playVideo();
+    } catch {
+    }
+  };
+
+  resetAllDoors = () => {
+    let keySet = Object.keys(this.doorComponents);
+    for (let key in keySet) {
+      this.doorComponents[key].resetVideo();
+    }
   };
 
   ngOnDestroy() {

@@ -25,10 +25,10 @@ interface AnimationState {
 })
 export class AnimatedImageComponent implements AfterViewInit {
 
+  containerId: string = uuid.v4();
   imageElement: HTMLImageElement | null = null;
   @Input() notifiableComponent: null | CanSetAnimatedImage = null;
   @Input() recogniseId!: any;
-  containerId: string = uuid.v4();
 
   @Input() src!: string;
   @Input() alt!: string;
