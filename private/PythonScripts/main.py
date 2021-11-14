@@ -13,7 +13,6 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[logging.FileHandler('log.log', 'w+', 'utf-8'), logging.StreamHandler()],
                     level=logging.INFO)
 
-
 mainLogger = logging.getLogger(__name__)
 shouldContinue = True
 Game_Handler = None
@@ -312,8 +311,8 @@ class GameHandler:
     def add_player_to_game(self, game_id, player_address):
         game = self.get_game(game_id)
         if game is not None:
-            has_tickets = DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
-                                                          game.gameState["coinChainName"], player_address)
+            has_tickets, ticket_count = DBHandler.does_user_has_tickets(game.gameState["gameCoinAddress"],
+                                                                        game.gameState["coinChainName"], player_address)
             if has_tickets:
                 success, message = game.add_player_to_game({"playerAddress": player_address})
                 return success, message, copy.deepcopy(game.gameState)
