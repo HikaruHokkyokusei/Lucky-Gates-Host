@@ -1,5 +1,6 @@
 import {AppComponent} from "../app.component";
 import {ActivatedRoute} from "@angular/router";
+import {GameWindowComponent} from "../game-window/game-window.component";
 
 export interface TransferData {
   gameCoinAddress?: string,
@@ -26,6 +27,8 @@ export interface GameState {
   gameCreator?: string,
   minPlayers?: number,
   maxPlayers?: number,
+  winnerReward?: number,
+  gameFee?: number,
   players?: Player[],
   removedPlayers?: Player[],
   currentStage?: number,
@@ -66,8 +69,11 @@ export class GameManagerService {
     removedPlayers: []
   };
   ourIndex: number = -1;
+  previousStage: number = -1;
   stageDuration: number = 0;
   availableGameList: AvailableGame[] = [];
+
+  currentGameWindow: GameWindowComponent | null = null;
 
   constructor(private activatedRoute: ActivatedRoute, private appComponent: AppComponent) {
     this.activatedRoute.queryParams.subscribe((params) => {
@@ -95,6 +101,9 @@ export class GameManagerService {
   };
 
   synchroniseGameData = (gameState: GameState) => {
+    if (this.gameState.currentStage != null) {
+      this.previousStage = this.gameState.currentStage;
+    }
     let keySet = Object.keys(gameState);
     let max: number = keySet.length;
     for (let index: number = 0; index < max; index++) {
@@ -111,19 +120,24 @@ export class GameManagerService {
   };
 
   postGameDataSynchronize = () => {
-    if (this.gameState["currentStage"] != null && this.gameState.stageStartTime != null && this.gameState.stageEndTime != null) {
-      this.stageDuration = Math.ceil((this.gameState.stageEndTime - this.gameState.stageStartTime));
-    } else {
-      this.stageDuration = 0;
-    }
-    if (this.gameState["currentStage"] != null && this.gameState["currentStage"] >= -1 && this.gameState["currentStage"] < 6) {
-      if (this.gameState["currentStage"] < 2) {
-        this.appComponent.setWindowNumberToShowTo(1);
+    if (this.gameState["currentStage"] != null) {
+      if (this.gameState.stageStartTime != null && this.gameState.stageEndTime != null) {
+        this.stageDuration = Math.ceil((this.gameState.stageEndTime - this.gameState.stageStartTime));
       } else {
-        this.appComponent.setWindowNumberToShowTo(2);
+        this.stageDuration = 0;
       }
-    } else if (this.appComponent.windowNumberToShow === 1 || this.appComponent.windowNumberToShow === 2) {
-      this.appComponent.setWindowNumberToShowTo(0);
+      if (this.gameState["currentStage"] >= -1 && this.gameState["currentStage"] < 6) {
+        if (this.gameState["currentStage"] < 2) {
+          this.appComponent.setWindowNumberToShowTo(1);
+        } else {
+          this.appComponent.setWindowNumberToShowTo(2);
+          if (this.previousStage != this.gameState.currentStage && this.gameState.currentStage == 2) {
+            this.currentGameWindow?.resetAllDoors();
+          }
+        }
+      } else if (this.appComponent.windowNumberToShow === 1 || this.appComponent.windowNumberToShow === 2) {
+        this.appComponent.setWindowNumberToShowTo(0);
+      }
     }
   };
 
@@ -146,6 +160,10 @@ export class GameManagerService {
         });
       }
     }
+  };
+
+  setGameWindow = (gameWindow: GameWindowComponent) => {
+    this.currentGameWindow = gameWindow;
   };
 
   createNewGame = () => {
@@ -193,7 +211,12 @@ export class GameManagerService {
   };
 
   doorsOpenedByGame = (doorsOpened: number[], respectivePoints: number[]) => {
-    // TODO : Activate Door Open Animation
+    if (this.currentGameWindow != null) {
+      for (let i = 0; i < doorsOpened.length; i++) {
+        this.currentGameWindow.openDoorAnimation(doorsOpened[i], respectivePoints[i]);
+      }
+    }
+
     setTimeout(() => {
       let len = respectivePoints.length;
       let message: string = "You choose door ";
@@ -237,7 +260,7 @@ export class GameManagerService {
           millisBeforeClose: 500
         }
       ]);
-    }, 5000);
+    }, 7500);
   };
 
   sendPlayerDoorSelection = (doorNumber: number) => {

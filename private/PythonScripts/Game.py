@@ -11,11 +11,13 @@ save_all_games = False
 
 class Game:
     def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
-                 build_options, stage_durations):
+                 build_options, server_ticket_cost, reward_percent, stage_durations):
         self.handler_parent = handler_parent
         self.general_values = copy.deepcopy(general_values)
         self.default_player_values = copy.deepcopy(default_player_values)
         self.stageDurations = copy.deepcopy(stage_durations)
+        self.server_ticket_cost = server_ticket_cost
+        self.reward_percent = reward_percent
         self.step_duration = self.general_values["stageStepDuration"]
         self.shouldBeginEarly = False
 
@@ -25,6 +27,8 @@ class Game:
             "gameCreator",
             "minPlayers",
             "maxPlayers",
+            "winnerReward",
+            "gameFee",
             "players",
             "removedPlayers",
             "currentStage",
@@ -252,7 +256,8 @@ class Game:
         return self.gameState["stageEndTime"]
 
     def send_reward_to_winner(self):
-        # TODO : Complete this function by send request to js
+        # TODO : Complete this function by send request to
+        #  js to transfer self.gameState["winnerReward"] and self.gameState["gameFee"]
         pass
 
     def has_reward_been_sent(self):
@@ -287,7 +292,7 @@ class Game:
                     if self.get_player_count() >= self.gameState["maxPlayers"]:
                         break
                     elif self.shouldBeginEarly:
-                        time.sleep(12.5)
+                        time.sleep(10)
                         break
                     else:
                         time.sleep(self.step_duration)
@@ -304,7 +309,6 @@ class Game:
                 i = 0
                 while i < len(self.gameState["players"]):
                     if self.pay_for_player(i):
-
                         i += 1
                     else:
                         self.remove_player_from_game(i, "Ticket Payment Unsuccessful", False)
@@ -313,6 +317,9 @@ class Game:
                     end_reason = "Not Enough Players Completed Payment"
                     self.set_current_stage_to(6)
                 else:
+                    product = len(self.gameState["players"]) * self.server_ticket_cost
+                    self.gameState["winnerReward"] = round(product * self.reward_percent / 100, 5)
+                    self.gameState["gameFee"] = product - self.gameState["winnerReward"]
                     self.set_current_stage_to(2)
 
             # Stages 2 to 4
@@ -430,7 +437,8 @@ class Game:
                 self.send_information_to_players({
                     "playerAddress": winner_player["playerAddress"],
                     "totalPoints": winner_player["totalPoints"],
-                    "rewardAmount": 0,  # TODO : Change this...
+                    "rewardAmount": self.gameState["winnerReward"],
+                    "gameFee": self.gameState["gameFee"],
                     "rewardCoinAddress": self.gameState["gameCoinAddress"],
                     "rewardCoinChainName": self.gameState["coinChainName"]
                 }, "winnerSelected")

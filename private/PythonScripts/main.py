@@ -18,6 +18,7 @@ shouldContinue = True
 Game_Handler = None
 DBHandler = None
 configs = None
+configsForRegisteredCoin = None
 shouldLogIO = True
 
 
@@ -68,6 +69,7 @@ class GameHandler:
 
     def __init__(self):
         self.configs = copy.deepcopy(configs)
+        self.cFRC = copy.deepcopy(configsForRegisteredCoin)
         self.DBHandler = DBHandler
         self.activeGames = {}
 
@@ -273,14 +275,20 @@ class GameHandler:
         self.send_output(reply_body, reply_command, reply_action,
                          packet["Header"].get("requestId"), packet["Header"].get("origin"))
 
-    def create_game_with_options(self, build_options):
+    def create_game_with_options(self, options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
             raise self.GameException("Max Game Limit Reached")
+
+        c_data = self.cFRC[options["coinChainName"]]["registeredCoinAddresses"][options["gameCoinAddress"]]
+        server_ticket_cost = c_data["serverTicketCost"]
+        reward_percent = c_data["otherOptions"]["rewardPercent"]
+
         new_game = Game(handler_parent=self,
                         general_values=self.configs["generalValues"],
                         default_game_values=self.configs["defaultGameValues"],
                         default_player_values=self.configs["defaultPlayerValues"],
-                        build_options=build_options, stage_durations=self.configs["stageDurations"])
+                        build_options=options, server_ticket_cost=server_ticket_cost,
+                        reward_percent=reward_percent, stage_durations=self.configs["stageDurations"])
         th = threading.Thread(target=new_game.run)
         th.start()
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
@@ -295,7 +303,7 @@ class GameHandler:
         if game_creator is not None:
             build_options["gameCreator"] = game_creator
 
-        return self.create_game_with_options(build_options=build_options)
+        return self.create_game_with_options(options=build_options)
 
     def rebuild_pending_games(self):
         game_states_list = None
@@ -328,6 +336,9 @@ if __name__ == '__main__':
 
         configs_file = open("./configs.json", "r")
         configs = json.load(configs_file)
+        configs_file.close()
+        configs_file = open("./configsForRegisteredCoin", "r")
+        configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
         Game_Handler = GameHandler()

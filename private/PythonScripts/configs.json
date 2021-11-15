@@ -5,6 +5,8 @@
     "gameCreator": "",
     "minPlayers": 3,
     "maxPlayers": 15,
+    "winnerReward": 0,
+    "gameFee": 0,
     "players": [],
     "removedPlayers": [],
     "currentStage": -1,

@@ -18,7 +18,7 @@
   },
   "GOERLI": {
     "chainId": 5,
-    "paymentManagerContractAddress": "0x2EDE957727F9e91dC2c37D35F4e05564F9Ca808D",
+    "paymentManagerContractAddress": "0x3cD153F19cdf1A7B30D9E17f56751B1C59c7b72A",
     "registeredCoinAddresses": {
       "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9": {
         "symbol": "( . Y . )",
