@@ -2,3 +2,49 @@ video {
   max-height: 100%;
   max-width: 100%;
 }
+
+.Points-Overlay-Holder {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 4;
+
+  display: grid;
+  box-sizing: border-box;
+  position: absolute;
+}
+
+.Points-Overlay {
+  max-height: 100%;
+  max-width: 100%;
+  margin: auto;
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+
+  animation-play-state: paused;
+  animation-timing-function: ease-in;
+  animation-name: PopPoints;
+  animation-duration: 1.25s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+@keyframes PopPoints {
+  from {
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+
+  30% {
+    width: 24%;
+    opacity: 1;
+  }
+
+  to {
+    width: 80%;
+    opacity: 1;
+  }
+}

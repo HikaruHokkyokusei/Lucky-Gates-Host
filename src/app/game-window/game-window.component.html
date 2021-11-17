@@ -29,7 +29,7 @@
          [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
          class="CenterColumnFlex GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
       <div class="CenterRowFlex GW-DoorImage">
-        <app-aspect-video src="assets/video/Door.mp4" type="video/mp4" [recogniseId]=doorIndex
+        <app-aspect-video videoSrc="assets/video/Door.mp4" videoType="video/mp4" [recogniseId]=doorIndex
                           [notifiableComponent]="this" [shouldPlay]="false"
                           [originalVidHeightPX]="1024" [originalVidWidthPX]="512">
         </app-aspect-video>

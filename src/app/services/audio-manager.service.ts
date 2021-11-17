@@ -1,10 +1,12 @@
 import {AppComponent} from "../app.component";
 import {CookieService} from "./cookie.service";
+import {ToolSetService} from "./tool-set.service";
 
 export class AudioManagerService {
 
-  cookieService: CookieService = new CookieService();
-  audioElement: HTMLAudioElement | null = null;
+    cookieService: CookieService = new CookieService();
+    toolsetService: ToolSetService = new ToolSetService();
+    audioElement: HTMLAudioElement | null = null;
   audioTrackList = [
     "assets/audio/bensound-endlessMotion.mp3",
     "assets/audio/bensound-creativeMinds.mp3",
@@ -17,12 +19,6 @@ export class AudioManagerService {
 
   constructor(private appComponent: AppComponent) {
   }
-
-  getRandomNumber = (start: number, end: number) => {
-    let num = Math.floor(Math.random() * (end - start));
-    num += start;
-    return num;
-  };
 
   getShouldPlayBGCookieValue = () => {
     return this.cookieService.getCookie("shouldPlayBG");
@@ -71,9 +67,9 @@ export class AudioManagerService {
 
   changeAudioTrack = () => {
     if (this.audioElement != null) {
-      this.audioElement.src = this.audioTrackList[this.getRandomNumber(
-        (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
-      )];
+        this.audioElement.src = this.audioTrackList[this.toolsetService.getRandomNumber(
+            (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
+        )];
       if (this.isPlayingAudio) {
         this.playAudio();
       }

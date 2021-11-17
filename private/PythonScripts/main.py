@@ -337,7 +337,7 @@ if __name__ == '__main__':
         configs_file = open("./configs.json", "r")
         configs = json.load(configs_file)
         configs_file.close()
-        configs_file = open("./configsForRegisteredCoin", "r")
+        configs_file = open("./configsForRegisteredCoin.json", "r")
         configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
