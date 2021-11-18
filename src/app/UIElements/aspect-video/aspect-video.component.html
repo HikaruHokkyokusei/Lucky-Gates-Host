@@ -2,7 +2,7 @@
 
   <div class="Media-VWHolder">
 
-    <div class="CenterRowFlex Media-ViewWindow" [ngStyle]="{
+    <div class="Media-ViewWindow" [ngStyle]="{
     'aspect-ratio': vidAspectRatio
     }">
 
@@ -16,9 +16,11 @@
 
       </div>
 
-      <div class="Points-Overlay-Holder">
-        <div [id]="containerId + 'Img'" class="Points-Overlay">
-          <img [src]="pointSrc" [alt]="pointAlt" width="100%" height="100%">
+      <div class="CenterRowFlex Points-Overlay-Container">
+        <div class="CenterRowFlex Points-Overlay-Holder">
+          <div [id]="containerId + 'Img'" class="Points-Overlay Points-Animation">
+            <img [src]="pointSrc" [alt]="pointAlt" width="100%" height="100%">
+          </div>
         </div>
       </div>
 

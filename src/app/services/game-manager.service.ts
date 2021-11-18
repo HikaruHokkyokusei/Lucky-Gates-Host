@@ -260,7 +260,7 @@ export class GameManagerService {
           millisBeforeClose: 500
         }
       ]);
-    }, 7500);
+    }, 6150);
   };
 
   sendPlayerDoorSelection = (doorNumber: number) => {

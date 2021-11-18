@@ -77,13 +77,23 @@ export class SocketIOService {
               break;
 
             case "earlyGameBeginning":
-              this.appComponent.popUpManagerService.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!", 14500, false);
+              this.appComponent.popUpManagerService.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!",
+                13750, false);
               break;
 
             case "doorsOpenedByGame":
               if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
                 this.appComponent.gameManagerService.doorsOpenedByGame(body["openedDoors"], body["respectivePoints"]);
+              } else {
+                let len = body["openedDoors"].length;
+                for (let i = 0; i < len; i++) {
+                  this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][i], body["respectivePoints"][i]);
+                }
               }
+              break;
+
+            case "openFinalDoor":
+              this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][0], body["respectivePoints"][0]);
               break;
           }
           break;

@@ -74,7 +74,7 @@ class Game:
 
     def send_information_to_players(self, reply_body, action, command: str = "informPlayers"):
         reply_body["gameId"] = self.get_game_id()
-        reply_body["gameState"] = copy.deepcopy(self.gameState)
+        reply_body["gameState"] = self.gameState
         self.handler_parent.send_output(body=reply_body, command=command, action=action)
 
     def get_game_id(self):
@@ -393,6 +393,7 @@ class Game:
                             "totalPoints": current_player["totalPoints"]
                         }, "openFinalDoor")
                         self.gameState["currentChoiceMakingPlayer"] += 1
+                        time.sleep(5.25)
                         self.set_current_stage_to(2)
                     current_player["hasMadeChoice"] = False
 
@@ -419,6 +420,7 @@ class Game:
                             "respectivePoints": [current_player["doorPattern"][current_player["selectedDoor"]]],
                             "totalPoints": current_player["totalPoints"]
                         }, "openFinalDoor")
+                        time.sleep(5.25)
                     else:
                         current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
                         self.send_information_to_players({

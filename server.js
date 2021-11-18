@@ -50,7 +50,7 @@ process.on("SIGINT", () => {
     setTimeout(() => {
       console.log("Shutdown Handler Over (Success)");
       process.exit();
-    }, 15000);
+    }, 10000);
     serverSupplement.pythonFunctions["stopScript"]();
   } catch (e) {
     console.log(e);

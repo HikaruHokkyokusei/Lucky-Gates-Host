@@ -58,42 +58,40 @@ export class AspectVideoComponent implements AfterViewInit {
   };
 
   playVideo = () => {
-    if (this.videoElement != null) {
-      this.videoElement.play().then();
-      this.shouldPlay = true;
-    }
+    this.videoElement?.play().then();
+    this.shouldPlay = true;
 
     if (this.pointSrc != "") {
       setTimeout(() => {
         if (this.pointImgElement != null) {
+          this.pointImgElement.style.removeProperty("width");
+          this.pointImgElement.style.removeProperty("height");
           this.pointImgElement.style.animationPlayState = "running";
           this.changeDetector.detectChanges();
         }
-      }, 2750);
+      }, 2600);
     }
 
     this.changeDetector.detectChanges();
   };
 
   pauseVideo = () => {
-    if (this.videoElement != null) {
-      this.videoElement.pause();
-      this.shouldPlay = false;
-    }
+    this.videoElement?.pause();
+    this.shouldPlay = false;
     this.changeDetector.detectChanges();
   };
 
   resetVideo = () => {
-    this.pointSrc = "";
-    this.pointAlt = "";
-
     if (this.pointImgElement != null) {
-      this.pointImgElement.style.animation = "none";
-      this.pointImgElement.style.animationPlayState = "paused";
-      this.pointImgElement.style.width = "0";
       this.pointImgElement.style.height = "0";
-      this.changeDetector.detectChanges();
+      this.pointImgElement.style.width = "0";
+      this.pointImgElement.style.animationPlayState = "paused";
     }
+    this.pointImgElement?.classList.remove("Points-Animation");
+    void this.pointImgElement?.offsetWidth;
+    setTimeout(() => {
+      this.pointImgElement?.classList.add("Points-Animation");
+    }, 25);
 
     if (this.videoElement != null) {
       if (!this.defaultPlayState) {
@@ -101,10 +99,6 @@ export class AspectVideoComponent implements AfterViewInit {
         this.videoElement.pause();
       }
       this.videoElement.currentTime = 0;
-    }
-
-    if (this.pointImgElement != null) {
-      this.pointImgElement.style.animation = "PopNumber";
     }
     this.changeDetector.detectChanges();
   };
