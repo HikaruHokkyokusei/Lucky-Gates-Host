@@ -88,6 +88,45 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
   }
 };
 
+const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoinAddress, rewardAmount, feeAmount) => {
+  try {
+    let paymentManagerContractAddy = configsForRegisteredCoins[coinChainName]["paymentManagerContractAddress"];
+    let paymentManager = new web3ObjHolder[coinChainName].eth.Contract(
+      configsForSmartContract["paymentManagerABI"], paymentManagerContractAddy
+    );
+
+    let registeredCoinData = configsForRegisteredCoins[coinChainName]["registeredCoinAddresses"][gameCoinAddress];
+    let rewardValue = BigInt(rewardAmount) * (BigInt(10) ** BigInt(registeredCoinData["decimals"]));
+    let feeValue = BigInt(feeAmount) * (BigInt(10) ** BigInt(registeredCoinData["decimals"]));
+
+    let transaction = {
+      from: ownerWalletAddress,
+      to: paymentManagerContractAddy,
+      data: paymentManager.methods["sendRewardToWinner"](gameCoinAddress, playerAddress, rewardValue, feeValue).encodeABI(),
+      gas: 500000,
+      gasPrice: await web3ObjHolder[coinChainName].eth.getGasPrice()
+    };
+
+    let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, ownerPrivateKey);
+    let trxHash = signedTransaction["transactionHash"];
+    web3ObjHolder[coinChainName].eth.sendSignedTransaction(signedTransaction.rawTransaction).then((receipt) => {
+      console.log("Send Reward Transaction Complete.\nTrxHash : " + receipt["transactionHash"] + ", status : " + receipt["status"]);
+    }).catch((err) => {
+      console.log("Error in sent Trx.");
+      console.log(err);
+    });
+
+    return {success: true, gameId, trxHash};
+
+  } catch (err) {
+    console.log("Error when sending reward. gameId : " + gameId + ", playerAddress : " + playerAddress + ", coinChainName" +
+      coinChainName + ", gameCoinAddress : " + gameCoinAddress + ", rewardAmount : " + rewardAmount + ", feeAmount : " + feeAmount);
+    console.log(err);
+    return {success: false, gameId, trxHash: ""};
+  }
+};
+
 module.exports = {
-  verifyPaymentForPlayer
+  verifyPaymentForPlayer,
+  sendRewardToWinner
 };

@@ -5,6 +5,7 @@ import {GameState} from "./game-manager.service";
 export class SocketIOService {
   socket;
   signCode: string = "";
+  winPopUpId: string = "";
 
   constructor(private appComponent: AppComponent) {
     this.socket = io(window.location.origin, {
@@ -54,8 +55,16 @@ export class SocketIOService {
 
         case "playerRemovalFromGame":
           if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
-            this.appComponent.popUpManagerService.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
-              5000);
+            if (body["reasonForRemoval"] === "Reward Sent and Game Ended") {
+              if (this.winPopUpId !== "") {
+                this.appComponent.popUpManagerService.closePopUpWithId(this.winPopUpId);
+                this.winPopUpId = "";
+              }
+              this.appComponent.popUpManagerService.popNewPopUp("Thanks for Playing. Your Reward has been sent.", 5000);
+            } else {
+              this.appComponent.popUpManagerService.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
+                5000);
+            }
             this.appComponent.gameManagerService.resetGameState();
           } else {
             // TODO : Complete this...
@@ -94,6 +103,13 @@ export class SocketIOService {
 
             case "openFinalDoor":
               this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][0], body["respectivePoints"][0]);
+              break;
+
+            case "winnerSelected":
+              if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
+                this.winPopUpId = this.appComponent.popUpManagerService.popNewPopUp("Congratulations. You have won the game.<br>" +
+                  "Your reward : " + body["rewardAmount"] + " coins.<br>Please Wait while your reward is being sent.");
+              }
               break;
           }
           break;

@@ -28,6 +28,7 @@ export interface GameState {
   minPlayers?: number,
   maxPlayers?: number,
   winnerReward?: number,
+  sendRewardTransactionHash?: string,
   gameFee?: number,
   players?: Player[],
   removedPlayers?: Player[],
@@ -313,7 +314,10 @@ export class GameManagerService {
     };
 
     if (this.gameState.currentChoiceMakingPlayer != null && this.gameState.players != null) {
-      data.playerAddress = this.gameState.players[this.gameState.currentChoiceMakingPlayer].playerAddress;
+      try {
+        data.playerAddress = this.gameState.players[this.gameState.currentChoiceMakingPlayer].playerAddress;
+      } catch {
+      }
       data.isMe = data.playerAddress === this.appComponent.web3Service.userAccount;
     }
 
@@ -324,9 +328,10 @@ export class GameManagerService {
     let points = 0;
 
     if (this.gameState.players != null) {
-      if (this.ourIndex === -1 || this.gameState["players"][this.ourIndex].playerAddress !== this.appComponent.web3Service.userAccount) {
-        for (let i = 0; i < this.gameState.players.length; i++) {
-          if (this.gameState.players[i].playerAddress === this.appComponent.web3Service.userAccount) {
+      if (this.ourIndex === -1 || this.ourIndex >= this.gameState["players"].length ||
+        this.gameState["players"][this.ourIndex].playerAddress !== this.appComponent.web3Service.userAccount) {
+        for (let i = 0; i < this.gameState["players"].length; i++) {
+          if (this.gameState["players"][i].playerAddress === this.appComponent.web3Service.userAccount) {
             this.ourIndex = i;
             break;
           } else {
@@ -336,7 +341,7 @@ export class GameManagerService {
       }
 
       if (this.ourIndex >= 0) {
-        let temp = this.gameState.players[this.ourIndex].totalPoints;
+        let temp = this.gameState["players"][this.ourIndex].totalPoints;
         points = (temp == null) ? 0 : temp;
       }
     }

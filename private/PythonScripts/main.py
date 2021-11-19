@@ -219,6 +219,7 @@ class GameHandler:
 
                     if door_number is not None:
                         success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
+                        mainLogger.info("Success : " + str(success))  # TODO : Remove this...
                         if success:
                             reply_body["result"] = "Success"
                             reply_body["gameState"] = copy.deepcopy(game.gameState)
@@ -254,6 +255,17 @@ class GameHandler:
                         reply_body["error"] = "Switch Choice Not Specified"
             else:
                 reply_body["error"] = "Either of gameId or playerAddress field missing from the body"
+        elif action == "rewardSent":
+            game_id = packet_body.get("gameId")
+            trx_hash = packet_body.get("trxHash")
+
+            if game_id is not None:
+                game = self.get_game(game_id)
+
+                if game is not None:
+                    game.set_reward_sent(trx_hash)
+
+            return None, None, None
         else:
             reply_command = "error"
             reply_body["error"] = "Action Not Specified for a Game Packet"
@@ -272,8 +284,9 @@ class GameHandler:
             reply_action = None
             reply_body = {"error": "Error during execution of action"}
 
-        self.send_output(reply_body, reply_command, reply_action,
-                         packet["Header"].get("requestId"), packet["Header"].get("origin"))
+        if reply_command is not None:
+            self.send_output(reply_body, reply_command, reply_action,
+                             packet["Header"].get("requestId"), packet["Header"].get("origin"))
 
     def create_game_with_options(self, options):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:

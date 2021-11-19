@@ -20,6 +20,7 @@ class Game:
         self.reward_percent = reward_percent
         self.step_duration = self.general_values["stageStepDuration"]
         self.shouldBeginEarly = False
+        self.hasRewardBeenSent = False
 
         self.game_key_list = [
             "gameCoinAddress",
@@ -28,6 +29,7 @@ class Game:
             "minPlayers",
             "maxPlayers",
             "winnerReward",
+            "sendRewardTransactionHash",
             "gameFee",
             "players",
             "removedPlayers",
@@ -205,6 +207,8 @@ class Game:
 
     def set_door_selection_for_player(self, player_address: str, door_index: int):
         if self.is_current_state_equal_to(2) or self.is_current_state_equal_to(4):
+            if self.gameState["currentChoiceMakingPlayer"] < 0:
+                return False, "Cannot open door in current state"
             choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
             if choice_maker["playerAddress"] == player_address:
                 if not choice_maker["hasMadeChoice"]:
@@ -228,6 +232,8 @@ class Game:
 
     def set_switch_selection_for_player(self, player_address: str, want_to_switch: bool):
         if self.is_current_state_equal_to(3):
+            if self.gameState["currentChoiceMakingPlayer"] < 0:
+                return False, "Cannot make choice in current state"
             choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
             if choice_maker["playerAddress"] == player_address:
                 if not choice_maker["hasMadeChoice"]:
@@ -255,15 +261,9 @@ class Game:
     def get_stage_end_time(self):
         return self.gameState["stageEndTime"]
 
-    def send_reward_to_winner(self):
-        # TODO : Complete this function by send request to
-        #  js to transfer self.gameState["winnerReward"] and self.gameState["gameFee"]
-        pass
-
-    def has_reward_been_sent(self):
-        # TODO : Complete this function...
-        # Make function in JS that will set a flag in game indicating reward had been sent
-        pass
+    def set_reward_sent(self, send_reward_trx_hash):
+        self.gameState["sendRewardTransactionHash"] = send_reward_trx_hash
+        self.hasRewardBeenSent = True
 
     def game_ended(self, end_reason):
         self.gameState["gameEndReason"] = end_reason
@@ -330,6 +330,7 @@ class Game:
                     self.gameState["currentChoiceMakingPlayer"] = 0
                 # Pre-Check-2
                 if len(self.gameState["players"]) <= 1:
+                    self.gameState["currentChoiceMakingPlayer"] = -1
                     self.set_current_stage_to(5)
                     break
 
@@ -435,17 +436,17 @@ class Game:
 
             # --> 5) Game End and Reward Distribution Stage
             if self.is_current_state_equal_to(5):
+                self.set_current_stage_to(5)
                 winner_player = self.gameState["players"][0]
                 self.send_information_to_players({
                     "playerAddress": winner_player["playerAddress"],
                     "totalPoints": winner_player["totalPoints"],
                     "rewardAmount": self.gameState["winnerReward"],
                     "gameFee": self.gameState["gameFee"],
-                    "rewardCoinAddress": self.gameState["gameCoinAddress"],
-                    "rewardCoinChainName": self.gameState["coinChainName"]
+                    "gameCoinAddress": self.gameState["gameCoinAddress"],
+                    "coinChainName": self.gameState["coinChainName"]
                 }, "winnerSelected")
-                self.send_reward_to_winner()
-                while time.time() < self.get_stage_end_time() and not self.has_reward_been_sent():
+                while time.time() < self.get_stage_end_time() and not self.hasRewardBeenSent:
                     time.sleep(self.step_duration)
 
                 self.set_current_stage_to(6)
@@ -453,7 +454,7 @@ class Game:
             # --> 6) Database Clear Stage
             if self.is_current_state_equal_to(6, True):
                 # TODO : Check logic here... Possibly, there can be error here, or in previous stage.
-                if self.has_reward_been_sent():
+                if self.hasRewardBeenSent:
                     self.gameState["gameEndTime"] = time.time()
                     self.remove_player_from_game(0, "Reward Sent and Game Ended")
                     self.handler_parent.save_game_in_archive_database(self.get_game_id(), self.gameState)

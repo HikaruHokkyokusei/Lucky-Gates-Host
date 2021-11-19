@@ -69,7 +69,7 @@ export class AspectVideoComponent implements AfterViewInit {
           this.pointImgElement.style.animationPlayState = "running";
           this.changeDetector.detectChanges();
         }
-      }, 2600);
+      }, 3000);
     }
 
     this.changeDetector.detectChanges();

@@ -6,6 +6,7 @@
     "minPlayers": 3,
     "maxPlayers": 15,
     "winnerReward": 0,
+    "sendRewardTransactionHash": "",
     "gameFee": 0,
     "players": [],
     "removedPlayers": [],
@@ -61,7 +62,7 @@
     "2": 35,
     "3": 45,
     "4": 35,
-    "5": 0,
+    "5": 180,
     "6": 0,
     "7": 0
   },

@@ -139,7 +139,7 @@ class ContinuousInputHandler:
                 try:
                     self.root_handler(InputBuffer.pop(0))
                 except Exception as e:
-                    print(e, file=sys.stderr)
+                    ioLogger.exception(e)
             time.sleep(sleepTime)
 
 

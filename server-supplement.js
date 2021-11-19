@@ -157,6 +157,20 @@ const scriptOutputHandler = async (packet) => {
           if (packet["Header"]["action"] === "stageUpdated") {
             addPlayerToGame(gameId, gameCreator, null);
             shouldForwardToPlayers = false;
+          } else if (packet["Header"]["action"] === "winnerSelected") {
+            blockchainManager.sendRewardToWinner(gameId, packet["Body"]["playerAddress"], packet["Body"]["coinChainName"],
+              packet["Body"]["gameCoinAddress"], packet["Body"]["rewardAmount"], packet["Body"]["gameFee"])
+              .then(({success, gameId, trxHash}) => {
+                if (success) {
+                  pythonProcess.sendRawPacketToScript({
+                      command: "game", action: "rewardSent", body: {
+                        gameId,
+                        trxHash
+                      }
+                    }
+                  );
+                }
+              });
           }
           break;
 
