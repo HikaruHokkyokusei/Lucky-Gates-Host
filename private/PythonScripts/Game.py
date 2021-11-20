@@ -187,15 +187,10 @@ class Game:
             players_and_points = {}
             for player in self.gameState["players"]:
                 players_and_points[player["playerAddress"]] = player["totalPoints"]
-            self.send_information_to_players({
-                "playerAndPoints": players_and_points,
-                "minPoints": min_points
-            }, "displayScoreboard")
 
             if len(player_indices_with_min_points) < len(self.gameState["players"]):
                 player_indices_with_min_points.sort()
                 removed_player_count = 0
-
                 for player_index in player_indices_with_min_points:
                     self.remove_player_from_game(player_index - removed_player_count,
                                                  f"Removed For Securing Least Total Points : {min_points}", False)
@@ -207,9 +202,10 @@ class Game:
 
     def set_door_selection_for_player(self, player_address: str, door_index: int):
         if self.is_current_state_equal_to(2) or self.is_current_state_equal_to(4):
-            if self.gameState["currentChoiceMakingPlayer"] < 0:
-                return False, "Cannot open door in current state"
-            choice_maker = self.gameState["players"][self.gameState["currentChoiceMakingPlayer"]]
+            choice_maker = self.gameState["currentChoiceMakingPlayer"]
+            if choice_maker < 0:
+                return False, "Unable to open door now"
+            choice_maker = self.gameState["players"][choice_maker]
             if choice_maker["playerAddress"] == player_address:
                 if not choice_maker["hasMadeChoice"]:
                     if 0 <= door_index < len(choice_maker["doorPattern"]):
@@ -329,8 +325,9 @@ class Game:
                     self.remove_players_with_least_points()
                     self.gameState["currentChoiceMakingPlayer"] = 0
                 # Pre-Check-2
-                if len(self.gameState["players"]) <= 1:
-                    self.gameState["currentChoiceMakingPlayer"] = -1
+                player_len = len(self.gameState["players"])
+                if player_len <= 1:
+                    self.gameState["currentChoiceMakingPlayer"] = player_len - 1
                     self.set_current_stage_to(5)
                     break
 

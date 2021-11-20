@@ -96,8 +96,9 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
     );
 
     let registeredCoinData = configsForRegisteredCoins[coinChainName]["registeredCoinAddresses"][gameCoinAddress];
-    let rewardValue = BigInt(rewardAmount) * (BigInt(10) ** BigInt(registeredCoinData["decimals"]));
-    let feeValue = BigInt(feeAmount) * (BigInt(10) ** BigInt(registeredCoinData["decimals"]));
+    let multiplier = BigInt(10) ** BigInt(registeredCoinData["decimals"]);
+    let rewardValue = BigInt(rewardAmount) * (multiplier);
+    let feeValue = BigInt(feeAmount) * (multiplier);
 
     let transaction = {
       from: ownerWalletAddress,
@@ -117,7 +118,6 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
     });
 
     return {success: true, gameId, trxHash};
-
   } catch (err) {
     console.log("Error when sending reward. gameId : " + gameId + ", playerAddress : " + playerAddress + ", coinChainName" +
       coinChainName + ", gameCoinAddress : " + gameCoinAddress + ", rewardAmount : " + rewardAmount + ", feeAmount : " + feeAmount);

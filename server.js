@@ -3,6 +3,7 @@
 const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
+const {ShutdownHandler} = require('./shutdownHandler');
 const uuid = require('uuid');
 const angularJson = require('./angular.json');
 const serverSupplement = require("./server-supplement");
@@ -44,19 +45,16 @@ app.all('*', function (req, res) {
 });
 
 // Shutdown Handler
-process.on("SIGINT", () => {
+ShutdownHandler.on('exit', (e) => {
+  e.preventDefault();
+
   console.log("Shutdown Handler Start");
-  try {
-    setTimeout(() => {
-      console.log("Shutdown Handler Over (Success)");
-      process.exit();
-    }, 10000);
-    serverSupplement.pythonFunctions["stopScript"]();
-  } catch (e) {
-    console.log(e);
-    console.log("Shutdown Handler Over (Error)");
-    process.exit();
-  }
+  serverSupplement.pythonFunctions["stopScript"]();
+
+  setTimeout(() => {
+    console.log("Shutdown Handler End");
+    process.exit(1);
+  }, 15000);
 });
 
 const ioEmitter = (roomId, emitEvent, data) => {

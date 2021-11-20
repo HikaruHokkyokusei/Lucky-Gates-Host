@@ -161,6 +161,7 @@ const scriptOutputHandler = async (packet) => {
             blockchainManager.sendRewardToWinner(gameId, packet["Body"]["playerAddress"], packet["Body"]["coinChainName"],
               packet["Body"]["gameCoinAddress"], packet["Body"]["rewardAmount"], packet["Body"]["gameFee"])
               .then(({success, gameId, trxHash}) => {
+                console.log("Send Reward (" + gameId + ") Success : " + success);
                 if (success) {
                   pythonProcess.sendRawPacketToScript({
                       command: "game", action: "rewardSent", body: {

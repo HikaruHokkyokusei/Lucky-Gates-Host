@@ -1,6 +1,8 @@
+import atexit
 import copy
 import json
 import logging
+import signal
 import sys
 import threading
 import time
@@ -17,6 +19,7 @@ mainLogger = logging.getLogger(__name__)
 shouldContinue = True
 Game_Handler = None
 DBHandler = None
+IOElements = None
 configs = None
 configsForRegisteredCoin = None
 shouldLogIO = True
@@ -33,7 +36,6 @@ def build_io_threads():
     c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler, db_handler=DBHandler)
     c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
     c_i_r_th = threading.Thread(target=c_i_r.run)
-    c_i_r_th.daemon = True
     c_i_h_th = threading.Thread(target=c_i_h.run)
     c_o_w_th = threading.Thread(target=c_o_w.run)
     return_list.append({"Object": c_i_r, "Thread": c_i_r_th})
@@ -72,15 +74,18 @@ class GameHandler:
         self.cFRC = copy.deepcopy(configsForRegisteredCoin)
         self.DBHandler = DBHandler
         self.activeGames = {}
+        self.isExiting = False
 
     def stop(self):
+        if not self.isExiting:
+            self.isExiting = True
+        else:
+            return
         for game in self.activeGames:
             game.stop()
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
-        exit_message = {"message": "Python Script Exited"}
-        print(f"{json.dumps(exit_message)}")
-        sys.stdout.flush()
+        mainLogger.info("Python Script Exited")
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
@@ -219,7 +224,6 @@ class GameHandler:
 
                     if door_number is not None:
                         success, message = game.set_door_selection_for_player(reply_body["playerAddress"], door_number)
-                        mainLogger.info("Success : " + str(success))  # TODO : Remove this...
                         if success:
                             reply_body["result"] = "Success"
                             reply_body["gameState"] = copy.deepcopy(game.gameState)
@@ -343,6 +347,19 @@ class GameHandler:
             raise self.GameException("No such game exists")
 
 
+def exit_handler(exit_signal, frame_type):
+    mainLogger.info("Exit Handler Called. Signal : " + str(exit_signal))
+    for io_elem in IOElements:
+        io_elem["Object"].stop()
+        if io_elem["Thread"].is_alive():
+            io_elem["Thread"].join()
+
+    Game_Handler.stop()  # Internally also calls DBHandler.stop()
+
+
+signal.signal(signal.SIGINT, exit_handler)
+signal.signal(signal.SIGTERM, exit_handler)
+
 if __name__ == '__main__':
     if len(sys.argv) >= 5:
         sys.stderr = LogWriter(mainLogger.warning)
@@ -356,17 +373,10 @@ if __name__ == '__main__':
 
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-        io_elements = build_io_threads()
+        IOElements = build_io_threads()
 
         try:
             while shouldContinue:
                 time.sleep(2.5)
         except KeyboardInterrupt as ki_err:
             mainLogger.exception(ki_err)
-
-        for io_elem in io_elements:
-            io_elem["Object"].stop()
-            if io_elem["Thread"].is_alive():
-                io_elem["Thread"].join()
-
-        Game_Handler.stop()  # Internally also calls DBHandler.stop()
