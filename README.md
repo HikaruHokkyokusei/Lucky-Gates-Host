@@ -4,7 +4,7 @@
 
 <h1 align="center"><font color="#26fd00">Lucky Gates Host</font></h1>
 
-Base framework for the project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 12.2.8.
+Base framework for the project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 13.0.3.
 
 ## Build
 

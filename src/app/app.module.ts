@@ -13,6 +13,8 @@ import {RulesWindowComponent} from './rules-window/rules-window.component';
 import {RoutingModule} from "./routing.module";
 import {TicketBuyWindowComponent} from './ticket-buy-window/ticket-buy-window.component';
 import {AspectVideoComponent} from './UIElements/aspect-video/aspect-video.component';
+import {ServiceWorkerModule} from '@angular/service-worker';
+import {environment} from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -30,7 +32,13 @@ import {AspectVideoComponent} from './UIElements/aspect-video/aspect-video.compo
   ],
   imports: [
     BrowserModule,
-    RoutingModule
+    RoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the app is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
