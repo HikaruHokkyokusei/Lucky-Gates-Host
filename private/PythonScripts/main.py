@@ -1,4 +1,3 @@
-import atexit
 import copy
 import json
 import logging

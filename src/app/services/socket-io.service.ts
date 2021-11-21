@@ -44,6 +44,8 @@ export class SocketIOService {
         }
       }
 
+      console.log("Received : " + header["command"] + ", " + header["action"] + " packet");
+
       switch (header["command"]) {
         case "gameCreation":
           if (body["error"] == null) {

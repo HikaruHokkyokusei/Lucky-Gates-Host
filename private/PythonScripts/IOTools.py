@@ -9,7 +9,7 @@ import pymongo
 ioLogger = logging.getLogger(__name__)
 InputBuffer = []
 OutputBuffer = []
-sleepTime = 0.1
+sleepTime = 0.25
 
 
 def append_packet_buffer(body: dict, command: str, action: str,
@@ -46,7 +46,6 @@ class ContinuousOutputWriter:
                 print(f"{message}")
                 sys.stdout.flush()
             time.sleep(sleepTime)
-            time.sleep(sleepTime)
 
 
 class ContinuousInputReader:
@@ -60,8 +59,6 @@ class ContinuousInputReader:
     def run(self):
         while self.should_read:
             inp = input()
-            if self.should_log:
-                ioLogger.info(f"In : {inp}")
             try:
                 inp = json.loads(inp)
                 InputBuffer.append(inp)
@@ -138,7 +135,8 @@ class ContinuousInputHandler:
         while self.should_handle:
             while len(InputBuffer) > 0:
                 try:
-                    self.root_handler(InputBuffer.pop(0))
+                    packet = InputBuffer.pop(0)
+                    self.root_handler(packet)
                 except Exception as e:
                     ioLogger.exception(e)
             time.sleep(sleepTime)
