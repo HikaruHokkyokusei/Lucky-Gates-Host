@@ -9,7 +9,12 @@ gameLogger = logging.getLogger(__name__)
 save_all_games = False
 
 
-class Game:
+def set_logger(logger_ref):
+    global gameLogger
+    gameLogger = logger_ref
+
+
+class GameClass:
     def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
                  build_options, server_ticket_cost, reward_percent, stage_durations):
         self.handler_parent = handler_parent

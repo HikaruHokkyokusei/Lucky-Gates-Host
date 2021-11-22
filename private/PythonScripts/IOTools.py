@@ -29,6 +29,11 @@ def append_packet_buffer(body: dict, command: str, action: str,
     OutputBuffer.append(packet)
 
 
+def set_logger(logger_ref):
+    global ioLogger
+    ioLogger = logger_ref
+
+
 class ContinuousOutputWriter:
     def __init__(self, should_log):
         self.should_write = True
@@ -42,7 +47,7 @@ class ContinuousOutputWriter:
             while len(OutputBuffer) > 0:
                 message = json.dumps(OutputBuffer.pop(0))
                 if self.should_log:
-                    ioLogger.info(f"Out : {message}")
+                    ioLogger.debug(f"Out : {message}")
                 print(f"{message}")
                 sys.stdout.flush()
             time.sleep(sleepTime)
@@ -59,6 +64,8 @@ class ContinuousInputReader:
     def run(self):
         while self.should_read:
             inp = input()
+            if self.should_log:
+                ioLogger.debug(f"In : {inp}")
             try:
                 inp = json.loads(inp)
                 InputBuffer.append(inp)
@@ -135,8 +142,7 @@ class ContinuousInputHandler:
         while self.should_handle:
             while len(InputBuffer) > 0:
                 try:
-                    packet = InputBuffer.pop(0)
-                    self.root_handler(packet)
+                    self.root_handler(InputBuffer.pop(0))
                 except Exception as e:
                     ioLogger.exception(e)
             time.sleep(sleepTime)
@@ -217,7 +223,7 @@ class DBHandler:
                         player_tickets_collection.insert_one(insert_doc)
                         return True
                 else:
-                    ticket_count = found_player_doc.get("tickets", {}).get(coin_chain_name, {})\
+                    ticket_count = found_player_doc.get("tickets", {}).get(coin_chain_name, {}) \
                         .get(game_coin_address, 0)
                     new_ticket_count = ticket_count + signed_amount
 

@@ -1,20 +1,21 @@
 import copy
 import json
-import logging
+import logging.handlers
 import signal
 import sys
 import threading
 import time
 
 import IOTools
-from Game import Game
-
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    handlers=[logging.FileHandler('log.log', 'w+', 'utf-8'), logging.StreamHandler()],
-                    level=logging.INFO)
+import Game
 
 mainLogger = logging.getLogger(__name__)
+mainLogger.setLevel(logging.DEBUG)
+handler = logging.handlers.WatchedFileHandler('log.log', 'w+', 'utf-8')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+mainLogger.addHandler(handler)
+
 shouldContinue = True
 Game_Handler = None
 DBHandler = None
@@ -31,6 +32,7 @@ def exit_function():
 
 def build_io_threads():
     return_list = []
+    IOTools.set_logger(mainLogger)
     c_i_r = IOTools.ContinuousInputReader(should_log=shouldLogIO)
     c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler, db_handler=DBHandler)
     c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
@@ -84,7 +86,7 @@ class GameHandler:
             game.stop()
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
-        mainLogger.info("Python Script Exited")
+        mainLogger.debug("Python Script Exited")
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
@@ -94,7 +96,7 @@ class GameHandler:
                 "gameEndReason": game_end_reason
             }, command="gameDeletion")
 
-    def get_game(self, game_id: str) -> Game | None:
+    def get_game(self, game_id: str) -> Game.GameClass | None:
         return self.activeGames.get(game_id, {}).get("Game", None)
 
     @staticmethod
@@ -299,12 +301,12 @@ class GameHandler:
         server_ticket_cost = c_data["serverTicketCost"]
         reward_percent = c_data["otherOptions"]["rewardPercent"]
 
-        new_game = Game(handler_parent=self,
-                        general_values=self.configs["generalValues"],
-                        default_game_values=self.configs["defaultGameValues"],
-                        default_player_values=self.configs["defaultPlayerValues"],
-                        build_options=options, server_ticket_cost=server_ticket_cost,
-                        reward_percent=reward_percent, stage_durations=self.configs["stageDurations"])
+        new_game = Game.GameClass(handler_parent=self,
+                                  general_values=self.configs["generalValues"],
+                                  default_game_values=self.configs["defaultGameValues"],
+                                  default_player_values=self.configs["defaultPlayerValues"],
+                                  build_options=options, server_ticket_cost=server_ticket_cost,
+                                  reward_percent=reward_percent, stage_durations=self.configs["stageDurations"])
         th = threading.Thread(target=new_game.run)
         th.start()
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
@@ -347,7 +349,7 @@ class GameHandler:
 
 
 def exit_handler(exit_signal, frame_type):
-    mainLogger.info("Exit Handler Called. Signal : " + str(exit_signal))
+    mainLogger.debug("Exit Handler Called. Signal : " + str(exit_signal))
     for io_elem in IOElements:
         io_elem["Object"].stop()
         if io_elem["Thread"].is_alive():
@@ -370,6 +372,7 @@ if __name__ == '__main__':
         configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
+        Game.set_logger(mainLogger)
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
         IOElements = build_io_threads()
