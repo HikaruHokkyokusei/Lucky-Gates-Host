@@ -47,6 +47,7 @@ Thumbs.db
 
 # User Files
 temp.js
+/public
 /private/PythonScripts/venv/
 /private/PythonScripts/.idea/
 /private/PythonScripts/Temp/

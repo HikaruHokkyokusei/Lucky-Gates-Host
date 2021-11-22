@@ -21,7 +21,7 @@ const shutdown = () => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-if (!process.stdin.isRaw) {
+if (process.stdin.isTTY && !process.stdin.isRaw) {
   process.stdin.setRawMode(true);
 }
 

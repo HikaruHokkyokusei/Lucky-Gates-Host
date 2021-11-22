@@ -1,7 +1,0 @@
-{
-  "name": "Lucky-Gates-Host",
-  "short_name": "Lucky-Gates-Host",
-  "display": "standalone",
-  "scope": "./",
-  "start_url": "./"
-}
