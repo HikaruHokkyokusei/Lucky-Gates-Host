@@ -245,7 +245,7 @@ export class GameManagerService {
       }
       message += " Would you like to stick with current choice, or switch the door?";
 
-      this.appComponent.popUpManagerService.popNewPopUp(message, 53500, false, [
+      this.appComponent.popUpManagerService.popNewPopUp(message, 45000, false, [
         {
           buttonText: "Switch",
           onClickFunction: () => {
@@ -261,7 +261,7 @@ export class GameManagerService {
           millisBeforeClose: 500
         }
       ]);
-    }, 6150);
+    }, 5750);
   };
 
   sendPlayerDoorSelection = (doorNumber: number) => {

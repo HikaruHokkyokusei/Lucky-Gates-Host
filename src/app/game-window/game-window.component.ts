@@ -64,7 +64,7 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, OnDestroy
   openDoorAnimation = (doorNumber: number, pointsBehindDoor: number) => {
     try {
       let aVComponent = this.doorComponents[doorNumber];
-      aVComponent.setPoints(pointsBehindDoor, 0, 1);
+      aVComponent.setPoints(pointsBehindDoor, 0, 0);
       aVComponent.playVideo();
     } catch {
     }
