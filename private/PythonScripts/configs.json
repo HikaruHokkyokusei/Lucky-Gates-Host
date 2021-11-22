@@ -70,8 +70,8 @@
     "ownerWalletAddressConfigKey": "ownerWalletAddress",
     "ownerPrivateKeyConfigKey": "ownerPrivateKey",
     "keysForApiURL": {
-      "BSC": "BSC-API",
-      "GOERLI": "GOERLI-API"
+      "BSC": "BSC_API",
+      "GOERLI": "GOERLI_API"
     }
   }
 }

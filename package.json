@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "server": "node server",
-    "build": "ng build",
+    "build": "ng build --prod",
     "start": "npm run -s build && npm run -s server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
