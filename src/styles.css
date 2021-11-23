@@ -60,14 +60,19 @@ app-root {
 
   width: 100%;
   height: 100%;
+
+  max-height: 100%;
+  max-width: 100%;
+
+  box-sizing: border-box;
   position: absolute;
 }
 
-/*
-* Sub - Component CSS Below
-*/
+/* Sub - Component CSS Below */
 
 .Menu-Wrapper {
+  max-height: 100%;
+  max-width: 100%;
   height: 100%;
   width: 100%;
 
@@ -80,7 +85,9 @@ app-root {
 }
 
 .Menu-Header {
+  min-height: 14%;
   height: 14%;
+  max-height: 14%;
   width: 100%;
   z-index: 1;
 
@@ -101,7 +108,7 @@ app-root {
 
   background-repeat: repeat-x;
   background-size: contain;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .Menu-Header-Holder {
@@ -119,7 +126,7 @@ app-root {
   text-align: center;
   text-overflow: ellipsis;
 
-  color: #7e0202;
+  color: #880000;
   font-weight: bold;
   font-size: max(20px, 1.6vw);
   max-font-size: 35px;
@@ -139,11 +146,16 @@ app-root {
 }
 
 .Menu-Body {
+  min-height: 85%;
   height: 85%;
+  max-height: 85%;
+  min-width: 100%;
   width: 100%;
+  max-width: 100%;
 
   background: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
+  box-sizing: border-box;
 
   color: antiquewhite;
   font-size: max(14px, 1vw);
@@ -153,6 +165,8 @@ app-root {
 .Menu-SubBody {
   height: calc(100% - 50px);
   width: 100%;
+
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -175,6 +189,27 @@ app-root {
   justify-content: center;
   align-items: center;
 }
+
+/* Text Content Related Properties Below */
+
+.Text-ContentHolder {
+  width: 97.5%;
+  height: 98%;
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  display: flex;
+  justify-content: center;
+}
+
+.Text-ContentWrapper {
+  width: 80%;
+  height: fit-content;
+}
+
+/* Media Related Properties Below */
 
 .Media-Container {
   width: 100%;

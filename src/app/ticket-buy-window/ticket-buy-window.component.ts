@@ -11,10 +11,10 @@ interface CoinData {
   ticketCost: number,
   serverTicketCost: number,
   isTicketPurchaseActive: boolean,
-  otherOptions?: any
+  otherOptions: any
 }
 
-interface CoinCollectionData {
+export interface CoinCollectionData {
   [coinChainName: string]: {
     chainId: number;
     paymentManagerContractAddress: string;
@@ -60,7 +60,8 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     decimals: 0,
     ticketCost: 0,
     serverTicketCost: 0,
-    isTicketPurchaseActive: false
+    isTicketPurchaseActive: false,
+    otherOptions: null
   };
   amountToBuy: number = 0;
   activePopUpId: string = "";

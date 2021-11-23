@@ -46,6 +46,7 @@ audio {
 }
 
 .RootContainer {
+  max-width: 100%;
   width: 100%;
   flex: 1 0 0;
   z-index: 1;
@@ -53,6 +54,7 @@ audio {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /*
@@ -84,6 +86,14 @@ app-game-window {
 app-ticket-buy-window {
   width: max(575px, 42.5%);
   height: max(500px, 70%);
+}
+
+app-rules-window {
+  width: 900px;
+  height: max(775px, 90%);
+
+  min-width: 900px;
+  max-width: 900px;
 }
 
 .LoadingImageDiv {

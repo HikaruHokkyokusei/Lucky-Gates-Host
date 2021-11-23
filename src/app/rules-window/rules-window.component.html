@@ -1,4 +1,123 @@
-<app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
+<div class="Menu-Wrapper">
 
-<p>Credits:</p>
-<p>Royalty Free Music from https://www.bensound.com</p>
+  <div class="Menu-Header">
+    <div class="Menu-Texture"></div>
+    <div class="CenterRowFlex Menu-Header-Holder">
+      <div class="Header-Button">
+        <app-button (onButtonClick)="appComponent.setWindowNumberToShowTo(0)" buttonText="Back"></app-button>
+      </div>
+      <div style="font-size: max(30px, 2vw)" class="CenterColumnFlex Header-Title">How To Play?</div>
+      <div class="Header-Button"></div>
+    </div>
+  </div>
+
+  <div class="Menu-Divider"></div>
+
+  <div class="CenterRowFlex Menu-Body">
+    <div class="Text-ContentHolder">
+      <div class="Text-ContentWrapper">
+        <h2>Creating and Joining Games</h2>
+
+        <br>
+        Players can create a new Game by clicking on "New Game" in the main menu.
+        <br>
+        <br>
+        Once created, the game will enter the player gathering phase that lasts for {{playerGatheringDuration}} secs.
+        <br>
+        <br>
+        To join a game, players can click on "Join Game" and join a game based on game Id.
+        <br>
+        <br>
+        For each game, at least {{minPlayers}} players should join the game.
+        <br>
+        <br>
+        There can be a maximum of {{maxPlayers}} players in each game.
+        <br>
+        <br>
+        There are two ways for the game to start.
+        <ul type="disk">
+          <li>Min. no. of players have joined the game and the game creator clicks on begin early.</li>
+          <li>The minimum no. of players has joined the game and the timer runs out.</li>
+        </ul>
+        Once the game starts, one ticket gets deducted from the account of each player.
+        <br>
+        <br>
+        In case the game is canceled due to lack of players, then the ticket is refunded back.
+        <br>
+        <br>
+        <h2>Game Play</h2>
+
+        Once the game starts, each player gets to play their turn one after another.
+        <br>
+        <br>
+        The turns order is based upon the order in which the player joined the game.
+        <br>
+        <br>
+        In each turn: -
+        <br>
+        <br>
+        There are {{doorCount}} doors in front of the players numbered 1 to {{doorCount}}.
+        <br>
+        <br>
+        {{doorPoints}} points are hidden behind doors in random order.
+        <br>
+        <br>
+        First, the player playing the turn has to pick one door. Let's call it door A.
+        <br>
+        <br>
+        Once selected, the game will open {{openDoorCount}} other doors, excluding door A
+        <br>
+        <br>
+        These opened doors can have only {{openDoorPoints}} points.
+        <br>
+        <br>
+        The player is then provided with a choice of switching or not switching the door.
+        <br>
+        <br>
+        If the player decides to switch the door, they must select a new door other than the opened door and door A.
+        <br>
+        <br>
+        This newly selected door becomes their final door.
+        <br>
+        <br>
+        If the player decides not to switch the door, then door A becomes their final door.
+        <br>
+        <br>
+        Next, the game will reveal the points behind their final door which will get added to their total points.
+        <br>
+        <br>
+        Once every player has played their turn, all players with LEAST points are then removed from the game.
+        <br>
+        <br>
+        If all players have the same points, NO one is removed from the game.
+        <br>
+        <br>
+        Rest of the players will enter the next round, and once again play their turn.
+        <br>
+        <br>
+        This cycle continues, until only one player is left.
+        <br>
+        <br>
+        The last remaining player is the winner of the game, and they will receive the winning reward.
+        <br>
+
+        <h2>Reward Calculation</h2>
+
+        Reward for any game is calculated using the following formula: -
+        <br>
+        <br>
+        <p style="display: flex; justify-content: center;">
+          <code>{{rewardPercent}} x No. of Players x {{serverTicketCost}}</code>
+        </p>
+        <br>
+        <div style="display: block;" *ngIf="showMismatchNotice">
+          Note:
+          <br>
+          Reward is multiplied by {{serverTicketCost}} which is less than actual ticket cost, as it also accounts for
+          transfer fees
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
