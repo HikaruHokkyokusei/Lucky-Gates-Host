@@ -4,11 +4,11 @@
 
 <h1 align="center"><font color="#26fd00">Lucky Gates Host</font></h1>
 
-Base framework for the project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 13.0.3.
+Base framework for the project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 13.0.0.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Run `ng build` to build the project. The build artifacts will be stored in the `public/` directory.
 
 ## Development server
 
@@ -22,11 +22,6 @@ The root folder contains a `server.js` file.
 </ul>
 
 After this, the server will start, and listen on `localhost:PORT`.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also
-use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Running unit tests
 

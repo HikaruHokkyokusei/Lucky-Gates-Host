@@ -27,13 +27,6 @@ if (process.stdin.isTTY && !process.stdin.isRaw) {
 
 process.stdin.resume();
 
-// process.stdin.on("data", function (input) {
-//   for (let i = 0; i < input.length; i++) {
-//     if (input[i] === 0x03) return shutdown();
-//   }
-// });
-
-
 module.exports = {
   ShutdownHandler
 };
