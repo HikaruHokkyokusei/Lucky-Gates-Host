@@ -29,6 +29,7 @@ export class AppComponent implements AfterViewInit {
   * 3 => Join Menu
   * 4 => Rules Menu
   * 5 => Ticket Buy Window
+  * 6 => About Window
   * */
   windowNumberToShow: number = 0;
 

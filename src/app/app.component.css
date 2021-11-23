@@ -96,6 +96,14 @@ app-rules-window {
   max-width: 900px;
 }
 
+app-about-window {
+  width: 900px;
+  height: max(775px, 90%);
+
+  min-width: 900px;
+  max-width: 900px;
+}
+
 .LoadingImageDiv {
   height: fit-content;
   width: fit-content;

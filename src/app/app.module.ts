@@ -10,11 +10,12 @@ import {JoinMenuComponent} from './join-menu/join-menu.component';
 import {AnimatedImageComponent} from './UIElements/animated-image/animated-image.component';
 import {PopUpComponent} from './UIElements/pop-up/pop-up.component';
 import {RulesWindowComponent} from './rules-window/rules-window.component';
-import {RoutingModule} from "./routing.module";
+import {RoutingService} from "./routing.service";
 import {TicketBuyWindowComponent} from './ticket-buy-window/ticket-buy-window.component';
 import {AspectVideoComponent} from './UIElements/aspect-video/aspect-video.component';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
+import {AboutWindowComponent} from './about-window/about-window.component';
 
 @NgModule({
   declarations: [
@@ -28,11 +29,12 @@ import {environment} from '../environments/environment';
     PopUpComponent,
     RulesWindowComponent,
     TicketBuyWindowComponent,
-    AspectVideoComponent
+    AspectVideoComponent,
+    AboutWindowComponent
   ],
   imports: [
     BrowserModule,
-    RoutingModule,
+    RoutingService,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stable

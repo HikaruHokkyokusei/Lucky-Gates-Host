@@ -1,0 +1,33 @@
+h1 {
+  display: block;
+  text-align: center;
+  color: aqua;
+  font-weight: bold;
+}
+
+h2 {
+  display: block;
+  text-align: center;
+  color: gold;
+  font-weight: bold;
+}
+
+hr {
+  width: 75%;
+  height: 1px;
+  border-width: 0;
+  background-color: gray;
+}
+
+a {
+  color: chartreuse;
+  text-decoration: none;
+}
+
+a:focus {
+  color: chartreuse;
+}
+
+a:active {
+  color: darksalmon;
+}
