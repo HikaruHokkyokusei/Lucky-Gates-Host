@@ -1,3 +1,21 @@
+.Game-Title-Holder {
+  width: 600px;
+  height: 350px;
+
+  position: relative;
+  margin: 0 auto;
+
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 7px 10px rgba(0, 0, 0, 0.8);
+}
+
+.Game-Title {
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+}
+
 h1 {
   display: block;
   text-align: center;

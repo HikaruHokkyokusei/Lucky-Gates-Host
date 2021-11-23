@@ -54,38 +54,21 @@
         <br>
         <br>
         In each turn: -
-        <br>
-        <br>
-        There are {{doorCount}} doors in front of the players numbered 1 to {{doorCount}}.
-        <br>
-        <br>
-        {{doorPoints}} points are hidden behind doors in random order.
-        <br>
-        <br>
-        First, the player playing the turn has to pick one door. Let's call it door A.
-        <br>
-        <br>
-        Once selected, the game will open {{openDoorCount}} other doors, excluding door A
-        <br>
-        <br>
-        These opened doors can have only {{openDoorPoints}} points.
-        <br>
-        <br>
-        The player is then provided with a choice of switching or not switching the door.
-        <br>
-        <br>
-        If the player decides to switch the door, they must select a new door other than the opened door and door A.
-        <br>
-        <br>
-        This newly selected door becomes their final door.
-        <br>
-        <br>
-        If the player decides not to switch the door, then door A becomes their final door.
-        <br>
-        <br>
-        Next, the game will reveal the points behind their final door which will get added to their total points.
-        <br>
-        <br>
+        <ol type="a">
+          <li>There are {{doorCount}} doors in front of the players numbered 1 to {{doorCount}}.</li>
+          <li>{{doorPoints}} points are hidden behind doors in random order.</li>
+          <li>First, the player playing the turn has to pick one door. Let's call it door A.</li>
+          <li>Once selected, the game will open {{openDoorCount}} other doors, excluding door A.</li>
+          <li>These opened doors can have only {{openDoorPoints}} points.</li>
+          <li>The player is then provided with a choice of switching or not switching the door.</li>
+          <li>If the player decides to switch the door, they must select a new door other than the opened door and door
+            A. This newly selected door becomes their final door.
+          </li>
+          <li>If the player decides not to switch the door, then door A becomes their final door.</li>
+          <li>Next, the game will reveal the points behind their final door which will get added to their total
+            points.
+          </li>
+        </ol>
         Once every player has played their turn, all players with LEAST points are then removed from the game.
         <br>
         <br>
