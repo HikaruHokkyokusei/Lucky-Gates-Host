@@ -70,7 +70,7 @@ export class AboutWindowComponent implements AfterViewInit, OnDestroy {
 
   intervalId: number = 0;
   particles: Particle[] = [];
-  frequency: number = 40;
+  frequency: number = 30;
   windowWidth: number = 600;
   windowHeight: number = 350;
 
@@ -79,10 +79,6 @@ export class AboutWindowComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     let canvas = document.getElementById("c1");
-    if (canvas == null) {
-      console.log("Null Canvas");
-      return;
-    }
 
     this.canvas1 = <HTMLCanvasElement>canvas;
     this.canvas2 = <HTMLCanvasElement>document.getElementById("c2");

@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
@@ -11,7 +11,7 @@ import {ActivatedRoute} from "@angular/router";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
 
   title: string = 'Lucky-Gates-Bot';
   socketIOService: SocketIOService = new SocketIOService(this);
@@ -95,4 +95,10 @@ export class AppComponent implements AfterViewInit {
       });
     }
   };
+
+  ngOnDestroy() {
+    if (this.audioManagerService.playerInterval != 0) {
+      clearInterval(this.audioManagerService.playerInterval);
+    }
+  }
 }

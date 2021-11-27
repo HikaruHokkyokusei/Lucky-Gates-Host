@@ -4,9 +4,9 @@ import {ToolSetService} from "./tool-set.service";
 
 export class AudioManagerService {
 
-    cookieService: CookieService = new CookieService();
-    toolsetService: ToolSetService = new ToolSetService();
-    audioElement: HTMLAudioElement | null = null;
+  cookieService: CookieService = new CookieService();
+  toolsetService: ToolSetService = new ToolSetService();
+  audioElement: HTMLAudioElement | null = null;
   audioTrackList = [
     "assets/audio/bensound-endlessMotion.mp3",
     "assets/audio/bensound-creativeMinds.mp3",
@@ -15,6 +15,8 @@ export class AudioManagerService {
     "assets/audio/bensound-evolution.mp3"
   ];
   audioIcon = "assets/images/MusicPause.png";
+  playerInterval: number = 0;
+  shouldPlayAudio: boolean = false;
   isPlayingAudio = false;
 
   constructor(private appComponent: AppComponent) {
@@ -24,37 +26,49 @@ export class AudioManagerService {
     return this.cookieService.getCookie("shouldPlayBG");
   };
 
-  playAudio = (shouldRetry: boolean = true) => {
-    if (this.audioElement != null && this.audioElement.paused) {
-      this.audioElement.load();
-      this.audioElement.volume = 0.1;
-      this.audioElement.play().then().catch(() => {
-        if (shouldRetry) {
-          setTimeout(() => {
-            this.playAudio(false);
-          }, 1000);
-        } else if (this.appComponent && this.appComponent.shouldShowLoadingScreen()) {
-          setTimeout(() => {
-            this.playAudio(false);
-          }, 1000);
-        }
-      });
+  playAudio = (isRetry: boolean = false) => {
+    if (isRetry && !this.shouldPlayAudio) {
+      clearInterval(this.playerInterval);
+      this.playerInterval = 0;
+      return;
     }
-    this.isPlayingAudio = true;
+
+    this.shouldPlayAudio = true;
     this.cookieService.setCookie({
       name: "shouldPlayBG",
       value: "true",
       expireDays: 10 * 365
     });
-    this.audioIcon = "assets/images/MusicPlay.png";
+
+    if (this.audioElement != null && this.audioElement.paused) {
+      this.audioElement.load();
+      this.audioElement.volume = 0.1;
+      this.audioElement.play().then(() => {
+        if (this.playerInterval != 0 && !this.audioElement?.paused) {
+          clearInterval(this.playerInterval);
+          this.playerInterval = 0;
+        }
+        this.isPlayingAudio = true;
+        this.audioIcon = "assets/images/MusicPlay.png";
+      }).catch(() => {
+        if (this.playerInterval == 0) {
+          if (this.playerInterval != 0) {
+            this.playerInterval = setInterval(() => {
+              this.playAudio(true);
+            }, 2500);
+          }
+        }
+      });
+    }
   };
 
   pauseAudio = (shouldSetCookie: boolean = true) => {
+    this.shouldPlayAudio = false;
+    this.isPlayingAudio = false;
     if (this.audioElement != null && (!this.audioElement.paused || this.audioElement.currentTime !== 0)) {
       this.audioElement.currentTime = 0;
       this.audioElement.pause();
     }
-    this.isPlayingAudio = false;
     if (shouldSetCookie) {
       this.cookieService.setCookie({
         name: "shouldPlayBG",
@@ -67,9 +81,9 @@ export class AudioManagerService {
 
   changeAudioTrack = () => {
     if (this.audioElement != null) {
-        this.audioElement.src = this.audioTrackList[this.toolsetService.getRandomNumber(
-            (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
-        )];
+      this.audioElement.src = this.audioTrackList[this.toolsetService.getRandomNumber(
+        (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
+      )];
       if (this.isPlayingAudio) {
         this.playAudio();
       }
