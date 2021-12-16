@@ -1,4 +1,7 @@
-<div *ngIf="windowNumberToShow !== 2" class="Texture"></div>
+<div *ngIf="windowNumberToShow !== 2" class="Texture"
+     [ngStyle]="{
+     'background-image': 'url(' + textureBg + ')'
+     }"></div>
 
 <div class="MM-Top-Header">
   <div (click)="audioManagerService.toggleAudio()" class="MM-Music-Icon-Holder">

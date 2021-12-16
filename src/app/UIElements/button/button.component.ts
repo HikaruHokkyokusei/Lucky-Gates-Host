@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ThemeService} from "../../theme.service";
 
 @Component({
   selector: 'app-button',
@@ -7,11 +8,17 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class ButtonComponent implements OnInit {
   @Input() buttonText: string = "";
-    @Input() millisBetweenClicks: number = 2500;
-    nextClickTime: number = Date.now();
+  @Input() millisBetweenClicks: number = 2500;
   @Output() onButtonClick: EventEmitter<any> = new EventEmitter();
 
+  nextClickTime: number = Date.now();
+  textColor: string;
+  buttonBgColor: string; // TODO : Bind this var in the html file
+
   constructor() {
+    let theme = ThemeService.getTheme();
+    this.textColor = theme.buttonTextColor;
+    this.buttonBgColor = theme.buttonBgColor;
   }
 
   ngOnInit(): void {

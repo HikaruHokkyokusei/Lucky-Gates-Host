@@ -5,6 +5,7 @@ import {GameManagerService} from "./services/game-manager.service";
 import {PopUpManagerService} from "./services/pop-up-manager.service";
 import {AudioManagerService} from "./services/audio-manager.service";
 import {ActivatedRoute} from "@angular/router";
+import {ThemeService} from "./theme.service";
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import {ActivatedRoute} from "@angular/router";
 export class AppComponent implements AfterViewInit, OnDestroy {
 
   title: string = 'Lucky-Gates-Bot';
+  textureBg: string;
   socketIOService: SocketIOService = new SocketIOService(this);
   web3Service: Web3Service = new Web3Service(this);
   gameManagerService: GameManagerService;
@@ -34,6 +36,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(private changeDetector: ChangeDetectorRef, private activatedRoute: ActivatedRoute) {
     this.gameManagerService = new GameManagerService(activatedRoute, this);
+    this.textureBg = ThemeService.getTheme().bgImage;
   }
 
   ngAfterViewInit() {
