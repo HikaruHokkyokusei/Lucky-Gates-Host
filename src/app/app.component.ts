@@ -19,7 +19,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   gameManagerService: GameManagerService;
   audioManagerService: AudioManagerService = new AudioManagerService(this);
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
-  hasUserInteracted: boolean = false;
   isBindingPlayerAddress: boolean = false;
 
   /*
@@ -39,27 +38,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.audioManagerService.audioElement = document.querySelector("audio");
-    if (this.audioManagerService.audioElement != null) {
-      this.audioManagerService.changeAudioTrack();
-      this.audioManagerService.audioElement.addEventListener("ended", () => {
-        this.audioManagerService.changeAudioTrack();
-      });
-    }
-    let shouldPlayBG: string | boolean = this.audioManagerService.getShouldPlayBGCookieValue();
-    this.audioManagerService.pauseAudio(false);
-    shouldPlayBG = shouldPlayBG === '' || shouldPlayBG === 'true';
 
     if (!this.web3Service.web3) {
       this.popUpManagerService.popNewPopUp("No Web3 Support Found! Consider Using Metamask.");
     } else {
-      document.body.addEventListener("mousemove", () => {
-        if (!this.hasUserInteracted) {
-          if (shouldPlayBG) {
-            this.audioManagerService.playAudio();
-          }
-          this.hasUserInteracted = true;
-        }
-      });
+      this.audioManagerService.initiateMusic();
     }
   }
 

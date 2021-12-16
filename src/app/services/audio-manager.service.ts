@@ -16,14 +16,39 @@ export class AudioManagerService {
   ];
   audioIcon = "assets/images/MusicPause.png";
   playerInterval: number = 0;
+  hasUserInteracted: boolean = false;
+  shouldPlayBG: string | boolean = false;
   shouldPlayAudio: boolean = false;
   isPlayingAudio = false;
 
   constructor(private appComponent: AppComponent) {
   }
 
-  getShouldPlayBGCookieValue = () => {
-    return this.cookieService.getCookie("shouldPlayBG");
+  initiateMusic = () => {
+    this.shouldPlayBG = this.cookieService.getCookie("shouldPlayBG");
+    this.pauseAudio(false);
+    this.shouldPlayBG = this.shouldPlayBG === '' || this.shouldPlayBG === 'true';
+
+    setTimeout(() => {
+      if (this.audioElement != null) {
+        this.changeAudioTrack();
+        this.audioElement.addEventListener("ended", () => {
+          this.changeAudioTrack();
+        });
+      }
+      document.body.addEventListener("mousemove", this.userInteractionHandler);
+    }, 100);
+  };
+
+  userInteractionHandler = () => {
+    if (!this.hasUserInteracted) {
+      this.hasUserInteracted = true;
+      if (this.shouldPlayBG) {
+        this.playAudio();
+      }
+    } else {
+      document.body.removeEventListener("mousemove", this.userInteractionHandler);
+    }
   };
 
   playAudio = (isRetry: boolean = false) => {
@@ -52,11 +77,9 @@ export class AudioManagerService {
         this.audioIcon = "assets/images/MusicPlay.png";
       }).catch(() => {
         if (this.playerInterval == 0) {
-          if (this.playerInterval != 0) {
-            this.playerInterval = setInterval(() => {
-              this.playAudio(true);
-            }, 2500);
-          }
+          this.playerInterval = setInterval(() => {
+            this.playAudio(true);
+          }, 2500);
         }
       });
     }
