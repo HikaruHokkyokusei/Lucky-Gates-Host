@@ -12,15 +12,14 @@
   position: relative;
 }
 
-.BC-Button::before {
-  content: '';
+.BC-Button-BG {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
-  background-color: #151515;
+  opacity: 1;
   transition: all 0.4s;
   border-radius: 10px;
 }
@@ -40,17 +39,17 @@
   border-radius: 10px;
 }
 
-.BC-Button:hover::before {
-  opacity: 0;
-  transform: scale(0.5, 0.5);
-}
-
 .BC-Button:hover::after {
   opacity: 1;
   transform: scale(1, 1);
 }
 
 .TextHolder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   z-index: 2;
 
   text-align: center;

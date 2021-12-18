@@ -1,6 +1,9 @@
 <div class="CenterRowFlex BC-ButtonHolder">
-  <div class="CenterRowFlex BC-Button" (click)="onClick()">
-    <div class="TextHolder" [ngStyle]="{
+  <div class="BC-Button" (click)="onClick()" (mouseenter)="shrink()" (mouseleave)="expand()">
+    <div class="BC-Button-BG" [id]="id" [ngStyle]="{
+    'background-color': buttonBgColor
+    }"></div>
+    <div class="CenterRowFlex TextHolder" [ngStyle]="{
     'color': textColor
     }">{{ buttonText }}</div>
   </div>

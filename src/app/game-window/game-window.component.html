@@ -1,44 +1,67 @@
 <div class="BlackBG"></div>
 
-<div class="CenterColumnFlex GW-Wrapper">
+<div class="GW-Container">
+  <div class="CenterColumnFlex GW-Wrapper">
 
-  <div class="CenterRowFlex GW-HeadingHolder">
-    <div class="CenterColumnFlex GW-TurnTextHolder">
-      <div class="CenterRowFlex GW-Timer">
-        <div [ngStyle]="{
+    <div class="CenterRowFlex GW-HeadingHolder">
+      <div class="CenterColumnFlex GW-TurnTextHolder">
+        <div class="CenterRowFlex GW-Timer">
+          <div [ngStyle]="{
         'width': remainingPercent + '%'
         }" class="GW-TimerMask"></div>
-        <div class="CenterRowFlex GW-TimerText">
-          Time left : {{timerValue}} s
+          <div class="CenterRowFlex GW-TimerText">
+            Time left : {{timerValue}} s
+          </div>
+        </div>
+        <div class="CenterRowFlex GW-TurnText">
+          {{headerText}}
         </div>
       </div>
-      <div class="CenterRowFlex GW-TurnText">
-        {{headerText}}
+      <div class="GW-HeadingDivider"></div>
+      <div class="CenterRowFlex GW-TotalPoints">
+        Your points:<br>{{appComponent.gameManagerService.getTotalPlayerPoints()}}
       </div>
     </div>
-    <div class="GW-HeadingDivider"></div>
-    <div class="CenterRowFlex GW-TotalPoints">
-      Your points:<br>{{appComponent.gameManagerService.getTotalPlayerPoints()}}
-    </div>
-  </div>
 
-  <div class="GW-WrapperDivider"></div>
+    <div class="GW-WrapperDivider"></div>
 
-  <div class="GW-DoorHolder">
-    <div *ngFor="let doorIndex of doorIndices;"
-         [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
-         class="CenterColumnFlex GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
-      <div class="CenterRowFlex GW-DoorImage">
-        <app-aspect-video videoSrc="assets/video/Door.mp4" videoType="video/mp4" [recogniseId]=doorIndex
-                          [notifiableComponent]="this" [shouldPlay]="false"
-                          [originalVidHeightPX]="1024" [originalVidWidthPX]="512">
-        </app-aspect-video>
-      </div>
-      <div class="GW-OpenButton">
-        <app-button (onButtonClick)="appComponent.gameManagerService.sendPlayerDoorSelection(doorIndex)"
-                    buttonText="OPEN DOOR {{doorIndex + 1}}"></app-button>
+    <div class="GW-DoorHolder">
+      <div *ngFor="let doorIndex of doorIndices;"
+           [ngStyle]="{'grid-column': ((doorIndex % (doorIndices.length / 2)) + 1) + ' / span 1'}"
+           class="CenterColumnFlex GW-DoorElement {{ (doorIndex < doorIndices.length / 2) ? 'Door-Up' : 'Door-Down' }}">
+        <div class="CenterRowFlex GW-DoorImage">
+          <app-aspect-video videoSrc="assets/video/Door.mp4" videoType="video/mp4" [recogniseId]=doorIndex
+                            [notifiableComponent]="this" [shouldPlay]="false"
+                            [originalVidHeightPX]="1024" [originalVidWidthPX]="512">
+          </app-aspect-video>
+        </div>
+        <div class="GW-OpenButton">
+          <app-button (onButtonClick)="appComponent.gameManagerService.sendPlayerDoorSelection(doorIndex)"
+                      buttonText="OPEN DOOR {{doorIndex + 1}}"></app-button>
+        </div>
       </div>
     </div>
   </div>
 
+  <div class="GW-StatsWrapper">
+    <div class="GW-ChatBox">
+      <div class="CenterRowFlex GW-SE-Heading">
+        Chat
+      </div>
+      <div class="GW-SE-Body" style="height: calc(80% - 3px)">
+        Coming Soon...
+      </div>
+      <input class="GW-SE-ChatInput">
+    </div>
+    <div class="GW-SE-Divider">
+
+    </div>
+    <div class="GW-PlayerBox">
+      <div class="CenterRowFlex GW-SE-Heading">
+        <span style="color: #8cff8c">Active</span> &nbsp;/ &nbsp;<span style="color: #d50000">Removed</span>&nbsp;
+        Players
+      </div>
+      <div class="GW-SE-Body"></div>
+    </div>
+  </div>
 </div>

@@ -78,7 +78,7 @@ app-join-menu {
 }
 
 app-game-window {
-  width: max(775px, 80%);
+  width: max(775px, 100%);
   height: max(450px, 95%);
 }
 
