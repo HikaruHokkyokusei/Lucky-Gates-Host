@@ -8,12 +8,14 @@
   <link rel="icon" type="image/png" href="src/assets/images/lucky-gates.png">
   <link rel="manifest" href="manifest.webmanifest">
   <script type="text/javascript" src="node_modules/web3/dist/web3.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
     let web3 = null;
     if (window.ethereum != null) {
       web3 = new Web3(window.ethereum);
     }
     window["web3"] = web3;
+    window["customParticleJs"] = particlesJS;
   </script>
 </head>
 <body>
