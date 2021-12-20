@@ -48,7 +48,7 @@
       <div class="CenterRowFlex GW-SE-Heading">
         Chat
       </div>
-      <div class="GW-SE-Body" style="height: calc(80% - 3px)">
+      <div class="CenterRowFlex GW-SE-Body" style="height: calc(80% - 3px); text-align: center;">
         Coming Soon...
       </div>
       <input class="GW-SE-ChatInput">
@@ -58,10 +58,30 @@
     </div>
     <div class="GW-PlayerBox">
       <div class="CenterRowFlex GW-SE-Heading">
-        <span style="color: #8cff8c">Active</span> &nbsp;/ &nbsp;<span style="color: #d50000">Removed</span>&nbsp;
-        Players
+        <span style="color: #8cff8c">Active</span>&nbsp;/&nbsp;<span style="color: #d50000">Removed</span>&nbsp;&nbsp;Players
       </div>
-      <div class="GW-SE-Body"></div>
+      <div class="GW-SE-Body">
+        <div class="CenterRowFlex GW-SE-DataBlock">
+          <div class="CenterRowFlex GW-SE-Body-Data-Addy">Player</div>
+          <div class="CenterRowFlex GW-SE-Body-Data-Points">Points</div>
+        </div>
+        <div style="height: 2%; width: 100%;"></div>
+        <div class="GW-SE-SubBody">
+          <div class="CenterRowFlex GW-SE-DataBlock"
+               *ngFor="let playerData of appComponent.gameManagerService.gameState.players"
+               style="color: #8cff8c;">
+            <div class="CenterRowFlex GW-SE-Body-Data-Addy">{{playerData.playerAddress}}</div>
+            <div style="flex: 1 0 0"></div>
+            <div class="CenterRowFlex GW-SE-Body-Data-Points">{{playerData.totalPoints}}</div>
+          </div>
+          <div class="CenterRowFlex GW-SE-DataBlock"
+               *ngFor="let playerData of appComponent.gameManagerService.gameState.removedPlayers"
+               style="color: #d50000;">
+            <div class="CenterRowFlex GW-SE-Body-Data-Addy">{{playerData.playerAddress}}</div>
+            <div class="CenterRowFlex GW-SE-Body-Data-Points">{{playerData.totalPoints}}</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

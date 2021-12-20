@@ -153,7 +153,7 @@
   width: 20%;
   height: 90%;
   box-sizing: border-box;
-  padding: 3px;
+  padding-right: 20px;
 
   position: relative;
   z-index: 1;
@@ -207,6 +207,33 @@
 .GW-SE-Body {
   width: 100%;
   height: 90%;
+}
+
+.GW-SE-DataBlock {
+  height: 5%;
+  width: 100%;
+  border-bottom: 1px solid #5f6267;
+}
+
+.GW-SE-SubBody {
+  height: 93%;
+  width: 100%;
+}
+
+.GW-SE-Body-Data-Addy {
+  justify-content: flex-start;
+  flex: 7 0 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 2px 5px;
+}
+
+.GW-SE-Body-Data-Points {
+  flex: 2 0 0;
+  text-align: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 2px 5px;
 }
 
 app-aspect-video {
