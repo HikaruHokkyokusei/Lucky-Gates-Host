@@ -209,31 +209,52 @@
   height: 90%;
 }
 
-.GW-SE-DataBlock {
-  height: 5%;
-  width: 100%;
-  border-bottom: 1px solid #5f6267;
-}
-
 .GW-SE-SubBody {
   height: 93%;
   width: 100%;
 }
 
+.GW-SE-DataBlock {
+  height: 5%;
+  width: 100%;
+  max-width: 100%;
+  border-bottom: 1px solid #5f6267;
+}
+
 .GW-SE-Body-Data-Addy {
-  justify-content: flex-start;
-  flex: 7 0 0;
-  overflow: hidden;
+  width: 80%;
+  max-width: 80%;
   box-sizing: border-box;
-  padding: 2px 5px;
+  padding: 2px 4px;
 }
 
 .GW-SE-Body-Data-Points {
-  flex: 2 0 0;
+  width: 20%;
   text-align: center;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 2px 5px;
+  padding: 2px 4px;
+}
+
+.GW-SE-SideDivide {
+  overflow: visible; /* For IE */
+  padding: 0;
+  margin: 13px 0;
+  border: none;
+  border-top: medium double #adadad;
+  color: #adadad;
+  text-align: center;
+}
+
+.GW-SE-SideDivide:after {
+  content: "§";
+  display: inline-block;
+  position: relative;
+  top: -14px;
+  color: #adadad;
+  font-size: 20px;
+  padding: 0 3px;
+  background: transparent;
 }
 
 app-aspect-video {

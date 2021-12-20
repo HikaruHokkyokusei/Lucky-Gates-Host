@@ -62,7 +62,7 @@
       </div>
       <div class="GW-SE-Body">
         <div class="CenterRowFlex GW-SE-DataBlock">
-          <div class="CenterRowFlex GW-SE-Body-Data-Addy">Player</div>
+          <div class="CenterRowFlex GW-SE-Body-Data-Addy" style="justify-content: flex-start;">Player</div>
           <div class="CenterRowFlex GW-SE-Body-Data-Points">Points</div>
         </div>
         <div style="height: 2%; width: 100%;"></div>
@@ -70,14 +70,20 @@
           <div class="CenterRowFlex GW-SE-DataBlock"
                *ngFor="let playerData of appComponent.gameManagerService.gameState.players"
                style="color: #8cff8c;">
-            <div class="CenterRowFlex GW-SE-Body-Data-Addy">{{playerData.playerAddress}}</div>
-            <div style="flex: 1 0 0"></div>
+            <div class="CenterRowFlex GW-SE-Body-Data-Addy">
+              <div style="overflow: hidden; flex: 9 0 0">{{playerData.playerAddress}}</div>
+              <div style="flex: 1 0 0">....</div>
+            </div>
             <div class="CenterRowFlex GW-SE-Body-Data-Points">{{playerData.totalPoints}}</div>
           </div>
+          <hr class="GW-SE-SideDivide">
           <div class="CenterRowFlex GW-SE-DataBlock"
                *ngFor="let playerData of appComponent.gameManagerService.gameState.removedPlayers"
                style="color: #d50000;">
-            <div class="CenterRowFlex GW-SE-Body-Data-Addy">{{playerData.playerAddress}}</div>
+            <div class="CenterRowFlex GW-SE-Body-Data-Addy">
+              <div style="overflow: hidden; flex: 9 0 0">{{playerData.playerAddress}}</div>
+              <div style="flex: 1 0 0">....</div>
+            </div>
             <div class="CenterRowFlex GW-SE-Body-Data-Points">{{playerData.totalPoints}}</div>
           </div>
         </div>
