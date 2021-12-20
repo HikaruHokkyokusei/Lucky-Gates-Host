@@ -7,6 +7,57 @@
   <div (click)="audioManagerService.toggleAudio()" class="MM-Music-Icon-Holder">
     <img id="music-icon" src="{{audioManagerService.audioIcon}}" alt="Play / Pause">
   </div>
+
+  <div *ngIf="windowNumberToShow === 0 || windowNumberToShow === 5" class="MM-Info-Holder">
+    <div class="MM-Info-Element" style="width: 9.5%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Players Online
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        {{playersOnline}}
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+    <div class="MM-Info-Element" style="width: 7%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Chain
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        {{gameManagerService.localCoinChainName}}
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+    <div class="MM-Info-Element" style="width: 16%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Coin Address
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        <div style="height: 100%; width: 90%; overflow: hidden;">{{gameManagerService.localGameCoinAddress}}</div>
+        <div style="height: 90%; width: 10%; font-size: 20px; line-height: 12px;">.....</div>
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+    <div class="MM-Info-Element" style="width: 7%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Tickets
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        {{gameManagerService.playerTicketCount}}
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+    <div class="MM-Info-Element" style="width: 16%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Wallet Address
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        <div
+          style="height: 100%; width: 90%; overflow: hidden;">{{(web3Service.userAccount) ? web3Service.userAccount : "Connect Now"}}</div>
+        <div style="height: 90%; width: 10%; font-size: 20px; line-height: 12px;">.....</div>
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+  </div>
 </div>
 
 <div class="CenterRowFlex RootContainer">

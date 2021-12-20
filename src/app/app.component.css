@@ -17,14 +17,15 @@
 
 .MM-Top-Header {
   width: 100vw;
-  height: 5vh;
+  min-width: 975px;
+  height: 4.25vh;
   z-index: 10;
 
   position: absolute;
   box-sizing: border-box;
-  padding: 5px;
+  padding: 0 10px;
 
-  top: 0;
+  top: 10px;
   display: flex;
 }
 
@@ -33,8 +34,8 @@ audio {
 }
 
 .MM-Music-Icon-Holder {
-  height: 100%;
-  max-height: 100%;
+  height: 95%;
+  max-height: 95%;
   aspect-ratio: 1 / 1;
 }
 
@@ -42,6 +43,44 @@ audio {
   height: 100%;
   max-height: 100%;
   aspect-ratio: 1 / 1;
+}
+
+.MM-Info-Holder {
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  justify-content: flex-end;
+  color: blanchedalmond;
+}
+
+.MM-Info-Element {
+  height: 100%;
+  border: 2px solid #5f6267;
+  border-radius: 3px;
+  position: relative;
+  font-size: 13px;
+}
+
+.MM-Info-ElemGap {
+  height: 100%;
+  width: 15px;
+}
+
+.MM-Info-Top {
+  border-bottom: 1px solid #5f6267;
+  height: 50%;
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+  font-weight: bold;
+}
+
+.MM-Info-Bottom {
+  height: 50%;
+  position: absolute;
+  left: 10px;
+  right: 10px;
 }
 
 .RootContainer {

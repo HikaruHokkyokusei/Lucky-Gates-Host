@@ -22,6 +22,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   audioManagerService: AudioManagerService = new AudioManagerService(this);
   popUpManagerService: PopUpManagerService = new PopUpManagerService();
   isBindingPlayerAddress: boolean = false;
+  playersOnline: number = 0; // TODO : Update this value...
 
   /*
   * 0 => Main Menu
