@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
   let signCode = "Please sign this message with unique code : " + uuid.v4() + ", to verify ownership of the address. " +
     "This will NOT cost you gas fees OR anything else.";
   serverSupplement.updateConnectionList(socket, signCode);
-  console.log('Socket connection opened. Id : ' + socket.id + ", Active Connections : " + serverSupplement.connectionCount());
+  io.sockets.emit("activePlayerCountUpdated", serverSupplement.connectionCount());
   socket.emit('signCode', signCode);
 
   socket.on('bindAddress', (options) => {
@@ -182,8 +182,20 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('getPlayerTicketCount', (options) => {
+    if (serverSupplement.isAdmin(socket.id)) {
+      if (options != null && options["coinChainName"] != null && options["gameCoinAddress"] != null && options["playerAddress"] != null) {
+        serverSupplement.pythonFunctions["getPlayerTicketCount"](options["coinChainName"], options["gameCoinAddress"], options["playerAddress"], null);
+      }
+    } else if (serverSupplement.isSocketBoundToAddress(socket.id)) {
+      if (options != null && options["coinChainName"] != null && options["gameCoinAddress"] != null) {
+        serverSupplement.pythonFunctions["getPlayerTicketCount"](options["coinChainName"], options["gameCoinAddress"], null, socket.id);
+      }
+    }
+  });
+
   socket.on('disconnect', () => {
     serverSupplement.deleteConnection(socket);
-    console.log('Socket connection closed. Active Connections : ' + serverSupplement.connectionCount());
+    io.sockets.emit("activePlayerCountUpdated", serverSupplement.connectionCount());
   });
 });

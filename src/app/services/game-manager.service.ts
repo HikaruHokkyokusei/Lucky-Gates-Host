@@ -60,7 +60,7 @@ export interface AvailableGame {
 }
 
 export class GameManagerService {
-  playerTicketCount: number = 0; // TODO : Update this value...
+  playerTicketCount: number = 0;
   hasSetCoinInformation: boolean = false;
   localGameCoinAddress: string = "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9";  // Default Value
   localCoinChainName: string = "GOERLI";  // Default Value

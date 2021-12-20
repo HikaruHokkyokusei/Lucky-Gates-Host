@@ -122,6 +122,14 @@ export class SocketIOService {
       this.appComponent.setWindowNumberToShowTo(3);
       this.appComponent.gameManagerService.synchronizeAvailableGameList(gameListPacket);
     });
+
+    this.setActionForEvent("activePlayerCountUpdated", (playerCount) => {
+      this.appComponent.playersOnline = playerCount;
+    });
+
+    this.setActionForEvent("playerTicketCount", (ticketCount) => {
+      this.appComponent.gameManagerService.playerTicketCount = ticketCount;
+    })
   }
 
   isAddressOur = (playerAddress?: string | null) => {

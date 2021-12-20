@@ -199,9 +199,7 @@ const scriptOutputHandler = async (packet) => {
                 reasonIfNotSuccess: packet["Body"]["error"]
               });
             } else if (packet["Header"]["action"] === "get") {
-              connectedClients[playerSocketId]["socket"].emit("ticketCount", {
-                ticketCount: packet["Body"]["ticketCount"]
-              });
+              connectedClients[playerSocketId]["socket"].emit("playerTicketCount", packet["Body"]["ticketCount"]);
             }
           }
           break;
@@ -371,6 +369,31 @@ const buyTicketsForPlayer = (referenceId, coinChainName, playerAddress = null, s
       });
   }
 };
+const getPlayerTicketCount = (coinChainName, gameCoinAddress, playerAddress = null, socketId = null) => {
+  if (coinChainName == null || gameCoinAddress == null) {
+    return;
+  }
+
+  if (playerAddress == null) {
+    if (socketId == null) {
+      return;
+    }
+
+    playerAddress = playerAddressToSocketIdMap.getKeyFromValue(socketId);
+
+    if (playerAddress == null) {
+      return;
+    }
+  }
+
+  pythonProcess.sendRawPacketToScript({
+    command: "ticket", action: "get", body: {
+      playerAddress,
+      coinChainName,
+      gameCoinAddress
+    }
+  });
+};
 
 
 let pythonFunctions = {
@@ -381,6 +404,7 @@ let pythonFunctions = {
   "savePlayerDoorSelection": savePlayerDoorSelection,
   "savePlayerSwitchSelection": savePlayerSwitchSelection,
   "buyTicketsForPlayer": buyTicketsForPlayer,
+  "getPlayerTicketCount": getPlayerTicketCount,
   "stopScript": pythonProcess.stopScript,
 };
 Object.freeze(pythonFunctions);

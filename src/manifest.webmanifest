@@ -3,5 +3,12 @@
   "short_name": "Lucky-Gates-Host",
   "display": "standalone",
   "scope": "./",
-  "start_url": "./"
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "./assets/images/lucky-gates.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
 }

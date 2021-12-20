@@ -14,6 +14,10 @@ export class MainMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.appComponent.socketIOService.emitEventToServer("getPlayerTicketCount", {
+      coinChainName: this.appComponent.gameManagerService.localCoinChainName,
+      gameCoinAddress: this.appComponent.gameManagerService.localGameCoinAddress
+    });
   }
 
 }
