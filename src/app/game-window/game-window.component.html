@@ -41,7 +41,8 @@
         </div>
         <div class="GW-OpenButton">
           <app-button (onButtonClick)="appComponent.gameManagerService.sendPlayerDoorSelection(doorIndex)"
-                      buttonText="OPEN DOOR {{doorIndex + 1}}"></app-button>
+                      buttonText="OPEN DOOR {{doorIndex + 1}}" recogniseId="{{doorIndex}}"
+                      [notifiableComponent]="this"></app-button>
         </div>
       </div>
     </div>

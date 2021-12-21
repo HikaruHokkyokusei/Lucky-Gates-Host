@@ -2,13 +2,14 @@ import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} f
 import {AppComponent} from "../app.component";
 import {AspectVideoComponent, CanSetAspectVideo} from "../UIElements/aspect-video/aspect-video.component";
 import {ThemeService} from "../theme.service";
+import {ButtonComponent, CanSetButtonComponent} from "../UIElements/button/button.component";
 
 @Component({
   selector: 'app-game-window[appComponent]',
   templateUrl: './game-window.component.html',
   styleUrls: ['./game-window.component.css']
 })
-export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterViewInit, OnDestroy {
+export class GameWindowComponent implements CanSetButtonComponent, CanSetAspectVideo, OnInit, AfterViewInit, OnDestroy {
 
   @Input() appComponent!: AppComponent;
   intervalId: number = 0;
@@ -18,10 +19,13 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterView
   headerText: string = "...Initializing...";
   doorIndices: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   doorComponents: { [recogniseId: number]: AspectVideoComponent } = {};
+  buttonComponents: { [recogniseId: number]: ButtonComponent } = {};
+  areDoorsDisabled: boolean = false;
   myTurnColor: string = "";
   otherTurnColor: string = "";
   currentTurnColor: string = "";
   currentPlayer: string = "";
+  isMe: boolean = false;
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     let theme = ThemeService.getTheme();
@@ -163,17 +167,36 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterView
     this.doorComponents[recogniseId] = animatedImageComponent;
   };
 
+  setButtonComponent = (recogniseId: any, buttonComponent: ButtonComponent) => {
+    this.buttonComponents[recogniseId] = buttonComponent;
+  };
+
   setHeaderText = () => {
     let data = this.appComponent.gameManagerService.getChoiceMaker();
     if (data.playerAddress != "") {
       this.currentPlayer = data.playerAddress;
+      this.isMe = data.isMe;
       if (data.isMe) {
         this.headerText = "It is YOUR turn. Please make choice.";
         this.currentTurnColor = this.myTurnColor;
+        if (this.areDoorsDisabled) {
+          let keySet = Object.keys(this.buttonComponents);
+          for (let key in keySet) {
+            this.buttonComponents[key].enable();
+          }
+          this.areDoorsDisabled = false;
+        }
       } else {
         this.headerText = "Player " + data.playerAddress.substr(0, Math.min(10, data.playerAddress.length)) +
           "... is playing their turn.";
         this.currentTurnColor = this.otherTurnColor;
+        if (!this.areDoorsDisabled) {
+          let keySet = Object.keys(this.buttonComponents);
+          for (let key in keySet) {
+            this.buttonComponents[key].disable("Wait for your turn");
+          }
+          this.areDoorsDisabled = true;
+        }
       }
     }
   };
@@ -186,9 +209,12 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterView
     this.remainingPercent = Math.floor(this.timerValue * 100 / this.appComponent.gameManagerService.stageDuration);
   };
 
-  openDoorAnimation = (doorNumber: number, pointsBehindDoor: number) => {
+  openDoorAnimation = (doorNumber: number, pointsBehindDoor: number, disableMessage: string) => {
     try {
       let aVComponent = this.doorComponents[doorNumber];
+      if (disableMessage) {
+        this.buttonComponents[doorNumber].disable(disableMessage);
+      }
       aVComponent.setPoints(pointsBehindDoor, 0, 0);
       aVComponent.playVideo();
     } catch {

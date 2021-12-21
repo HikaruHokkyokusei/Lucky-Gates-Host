@@ -98,13 +98,15 @@ export class SocketIOService {
               } else {
                 let len = body["openedDoors"].length;
                 for (let i = 0; i < len; i++) {
-                  this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][i], body["respectivePoints"][i]);
+                  this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][i],
+                    body["respectivePoints"][i], "");
                 }
               }
               break;
 
             case "openFinalDoor":
-              this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][0], body["respectivePoints"][0]);
+              this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][0],
+                body["respectivePoints"][0], "Door already open");
               break;
 
             case "winnerSelected":

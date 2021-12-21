@@ -1,4 +1,5 @@
 import {NgModule} from '@angular/core';
+import {MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
@@ -16,6 +17,7 @@ import {AspectVideoComponent} from './UIElements/aspect-video/aspect-video.compo
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {AboutWindowComponent} from './about-window/about-window.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,9 @@ import {AboutWindowComponent} from './about-window/about-window.component';
       // Register the ServiceWorker as soon as the app is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
-    })
+    }),
+    BrowserAnimationsModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

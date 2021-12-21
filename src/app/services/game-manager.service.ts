@@ -214,7 +214,7 @@ export class GameManagerService {
   doorsOpenedByGame = (doorsOpened: number[], respectivePoints: number[]) => {
     if (this.currentGameWindow != null) {
       for (let i = 0; i < doorsOpened.length; i++) {
-        this.currentGameWindow.openDoorAnimation(doorsOpened[i], respectivePoints[i]);
+        this.currentGameWindow.openDoorAnimation(doorsOpened[i], respectivePoints[i], "Door already open");
       }
     }
 
@@ -273,8 +273,8 @@ export class GameManagerService {
           gameId: this.gameState["gameId"],
           doorNumber: doorNumber
         };
-
         this.appComponent.socketIOService.emitEventToServer('acceptPlayerInput', data);
+        this.currentGameWindow?.buttonComponents[doorNumber].disable("Cannot open previously chosen door");
       } else {
         this.appComponent.popUpManagerService.popNewPopUp("You are not allowed to make the choice right now.", 3000);
       }

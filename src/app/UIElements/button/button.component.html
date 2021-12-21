@@ -1,10 +1,15 @@
 <div class="CenterRowFlex BC-ButtonHolder">
-  <div class="BC-Button" (click)="onClick()" (mouseenter)="shrink()" (mouseleave)="expand()">
+  <div class="BC-Button" (click)="onClick()" (mouseenter)="shrink()" (mouseleave)="expand()"
+       matTooltip="{{disabledReason}}" matTooltipDisabled="{{isEnabled}}" matTooltipPosition="below"
+       matTooltipShowDelay="250">
     <div class="BC-Button-BG" [id]="id" [ngStyle]="{
     'background-color': buttonBgColor
     }"></div>
     <div class="CenterRowFlex TextHolder" [ngStyle]="{
     'color': textColor
     }">{{ buttonText }}</div>
+    <div class="BC-Button-BG" style="z-index: 4; background-color: #5f6267" [ngStyle]="{
+    'opacity': isEnabled ? 0 : 0.75
+    }"></div>
   </div>
 </div>
