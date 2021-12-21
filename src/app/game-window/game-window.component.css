@@ -36,9 +36,9 @@
   box-sizing: border-box;
   padding: 5px;
 
-  background: rgba(255, 255, 200, 0.75);
+  background: rgba(255, 255, 200, 0.85);
   border-radius: 7px;
-  box-shadow: 0 0 10px 15px rgba(255, 255, 200, 0.75);
+  box-shadow: 0 0 10px 15px rgba(255, 255, 200, 0.85);
 }
 
 .GW-TurnTextHolder {
@@ -220,6 +220,7 @@
   width: 100%;
   max-width: 100%;
   border-bottom: 1px solid #5f6267;
+  border-radius: 7px;
 }
 
 .GW-SE-Body-Data-Addy {
@@ -240,6 +241,7 @@
 .GW-SE-SideDivide {
   overflow: visible; /* For IE */
   padding: 0;
+  height: 0;
   margin: 13px 0;
   border: none;
   border-top: medium double #adadad;

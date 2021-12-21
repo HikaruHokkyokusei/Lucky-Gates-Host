@@ -3,7 +3,10 @@ export class Theme {
     public bgImage: string,
     public buttonBgColor: string,
     public buttonTextColor: string,
-    public headerTitleColor: string
+    public headerBgColor: string,
+    public headerTitleColor: string,
+    public myTurnHeaderColor: string,
+    public otherTurnHeaderColor: string
   ) {
   }
 }
@@ -15,7 +18,10 @@ export abstract class ThemeService {
       "../assets/images/Body-BG.jpg",
       "#151515",
       "#ff5b82",
-      "#880000"
+      "#faebd7",
+      "#880000",
+      "#e3183e",
+      "#2a2a2a"
     )
   ];
   static currentTheme: number = 0;

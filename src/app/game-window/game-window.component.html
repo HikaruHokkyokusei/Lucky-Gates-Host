@@ -15,7 +15,9 @@
             Time left : {{timerValue}} s
           </div>
         </div>
-        <div class="CenterRowFlex GW-TurnText">
+        <div class="CenterRowFlex GW-TurnText" [ngStyle]="{
+        'color': currentTurnColor
+        }">
           {{headerText}}
         </div>
       </div>
@@ -71,7 +73,9 @@
         <div class="GW-SE-SubBody">
           <div class="CenterRowFlex GW-SE-DataBlock"
                *ngFor="let playerData of appComponent.gameManagerService.gameState.players"
-               style="color: #8cff8c;">
+               style="color: #8cff8c;" [ngStyle]="{
+               'background-color': (playerData.playerAddress === currentPlayer) ? 'rgba(154,154,154,0.8)' : 'rgba(0, 0, 0, 0)'
+               }">
             <div class="CenterRowFlex GW-SE-Body-Data-Addy">
               <div style="overflow: hidden; flex: 9 0 0">{{playerData.playerAddress}}</div>
               <div style="flex: 1 0 0">....</div>

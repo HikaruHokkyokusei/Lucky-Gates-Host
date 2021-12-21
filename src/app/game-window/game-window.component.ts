@@ -1,6 +1,7 @@
 import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
 import {AspectVideoComponent, CanSetAspectVideo} from "../UIElements/aspect-video/aspect-video.component";
+import {ThemeService} from "../theme.service";
 
 @Component({
   selector: 'app-game-window[appComponent]',
@@ -17,8 +18,16 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterView
   headerText: string = "...Initializing...";
   doorIndices: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   doorComponents: { [recogniseId: number]: AspectVideoComponent } = {};
+  myTurnColor: string = "";
+  otherTurnColor: string = "";
+  currentTurnColor: string = "";
+  currentPlayer: string = "";
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
+    let theme = ThemeService.getTheme();
+    this.myTurnColor = theme.myTurnHeaderColor;
+    this.otherTurnColor = theme.otherTurnHeaderColor;
+    this.currentTurnColor = this.otherTurnColor;
   }
 
   ngOnInit(): void {
@@ -157,11 +166,14 @@ export class GameWindowComponent implements CanSetAspectVideo, OnInit, AfterView
   setHeaderText = () => {
     let data = this.appComponent.gameManagerService.getChoiceMaker();
     if (data.playerAddress != "") {
+      this.currentPlayer = data.playerAddress;
       if (data.isMe) {
         this.headerText = "It is YOUR turn. Please make choice.";
+        this.currentTurnColor = this.myTurnColor;
       } else {
         this.headerText = "Player " + data.playerAddress.substr(0, Math.min(10, data.playerAddress.length)) +
           "... is playing their turn.";
+        this.currentTurnColor = this.otherTurnColor;
       }
     }
   };
