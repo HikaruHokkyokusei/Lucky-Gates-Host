@@ -120,7 +120,28 @@ contract Ownable is Context {
   }
 }
 
-contract PaymentManager is Ownable {
+contract Authorizable is Ownable {
+  mapping(address => bool) private authorized;
+
+  constructor () {
+    authorized[owner()] = true;
+  }
+
+  modifier onlyAuthorized() {
+    require(authorized[_msgSender()], "Only for authorized personnel");
+    _;
+  }
+
+  function setAuthorization(address _address, bool shouldAuthorize) external onlyOwner() {
+    authorized[_address] = shouldAuthorize;
+  }
+
+  function isAuthorized(address _address) external view returns (bool) {
+    return authorized[_address];
+  }
+}
+
+contract PaymentManager is Authorizable {
   using SafeMath for uint256;
   struct PaymentData {
     bool exists;
@@ -182,7 +203,7 @@ contract PaymentManager is Ownable {
     payable(_receiveWallet).transfer(_amount);
   }
 
-  function sendRewardToWinner(address _coinAddress, address _receiveWallet, uint256 _winnerReward, uint256 _gameFee) external onlyOwner() {
+  function sendRewardToWinner(address _coinAddress, address _receiveWallet, uint256 _winnerReward, uint256 _gameFee) external onlyAuthorized() {
     IERC20 sendCoin = IERC20(_coinAddress);
     sendCoin.transfer(_receiveWallet, _winnerReward);
     if (_gameFee > 0) {
