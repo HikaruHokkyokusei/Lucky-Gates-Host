@@ -1,7 +1,7 @@
 {
   "BSC": {
     "chainId": 56,
-    "paymentManagerContractAddress": "",
+    "paymentManagerContractAddress": "0xE49e3Dffd260cdfffcBF730FbA883b316075FA76",
     "registeredCoinAddresses": {
       "0x64F36701138f0E85cC10c34Ea535FdBADcB54147": {
         "symbol": "AINU",
@@ -25,7 +25,7 @@
         "decimals": 18,
         "ticketCost": 50,
         "serverTicketCost": 50,
-        "isTicketPurchaseActive": true,
+        "isTicketPurchaseActive": false,
         "otherOptions": {
           "minPlayers": 3,
           "rewardPercent": 80

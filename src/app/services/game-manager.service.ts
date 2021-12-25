@@ -1,6 +1,7 @@
 import {AppComponent} from "../app.component";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {GameWindowComponent} from "../game-window/game-window.component";
+import {CookieService} from "./cookie.service";
 
 export interface TransferData {
   gameCoinAddress?: string,
@@ -62,6 +63,8 @@ export interface AvailableGame {
 export class GameManagerService {
   playerTicketCount: number = 0;
   hasSetCoinInformation: boolean = false;
+  qGCA: string | null = null;
+  qCCN: string | null = null;
   localGameCoinAddress: string = "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9";  // Default Value
   localCoinChainName: string = "GOERLI";  // Default Value
 
@@ -76,25 +79,46 @@ export class GameManagerService {
 
   currentGameWindow: GameWindowComponent | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private appComponent: AppComponent) {
-    this.activatedRoute.queryParams.subscribe((params) => {
-      this.setCoinInformation(params["gameCoinAddress"], params["coinChainName"]);
-    });
-
-    setTimeout(() => {
-      this.hasSetCoinInformation = true;
-    }, 2500);
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private appComponent: AppComponent) {
   }
 
-  setCoinInformation = (localGameCoinAddress?: string, localCoinChainName?: string) => {
+  finalizeRoutes = () => {
     if (!this.hasSetCoinInformation) {
-      if (localGameCoinAddress != null || localCoinChainName != null) {
-        if (localGameCoinAddress != null) {
+      if (this.qCCN && this.qGCA) {
+        let params = JSON.parse(JSON.stringify(this.activatedRoute.snapshot.queryParams));
+        params["CCN"] = this.qCCN;
+        params["GCA"] = this.qGCA;
+        this.router.navigate([], {queryParams: params}).then(() => {
+        });
+      }
+    }
+  };
+
+  setCoinInformation = (localGameCoinAddress?: string, localCoinChainName?: string, GCA?: string | null, CCN?: string | null) => {
+    if (GCA) {
+      this.qGCA = GCA;
+    }
+    if (CCN) {
+      this.qCCN = CCN;
+    }
+    if (!this.hasSetCoinInformation) {
+      if (localGameCoinAddress || localCoinChainName) {
+        if (localGameCoinAddress) {
           this.localGameCoinAddress = localGameCoinAddress;
         }
-        if (localCoinChainName != null) {
+        if (localCoinChainName) {
           this.localCoinChainName = localCoinChainName;
         }
+        CookieService.setCookie({
+          name: "CCN",
+          value: this.localCoinChainName,
+          expireDays: 10 * 365
+        });
+        CookieService.setCookie({
+          name: "GCA",
+          value: this.localGameCoinAddress,
+          expireDays: 10 * 365
+        });
         this.hasSetCoinInformation = true;
         console.log("Coin Info Set To : " + this.localCoinChainName + ", " + this.localGameCoinAddress);
       }

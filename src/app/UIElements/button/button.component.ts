@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as uuid from "uuid";
-import {ThemeService} from "../../theme.service";
+import {ThemeService} from "../../services/theme.service";
 
 export abstract class CanSetButtonComponent {
   abstract setButtonComponent: (recogniseId: any, buttonComponent: ButtonComponent) => void;

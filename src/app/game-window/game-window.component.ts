@@ -1,7 +1,7 @@
 import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
 import {AspectVideoComponent, CanSetAspectVideo} from "../UIElements/aspect-video/aspect-video.component";
-import {ThemeService} from "../theme.service";
+import {ThemeService} from "../services/theme.service";
 import {ButtonComponent, CanSetButtonComponent} from "../UIElements/button/button.component";
 
 @Component({

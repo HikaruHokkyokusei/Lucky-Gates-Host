@@ -151,7 +151,7 @@ contract PaymentManager is Authorizable {
     uint256 amountPaid;
   }
 
-  uint256 networkGasFee = 0 ether;
+  uint256 public networkGasFee = 0.005 ether;
   mapping(address => uint256) public gameFeeCollected;
   mapping(address => string[]) public allPaymentIdsPerUser;
   mapping(address => mapping(string => PaymentData)) public allPaymentData;

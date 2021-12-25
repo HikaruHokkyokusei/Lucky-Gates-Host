@@ -4,7 +4,6 @@ import {ToolSetService} from "./tool-set.service";
 
 export class AudioManagerService {
 
-  cookieService: CookieService = new CookieService();
   toolsetService: ToolSetService = new ToolSetService();
   audioElement: HTMLAudioElement | null = null;
   audioTrackList = [
@@ -17,7 +16,7 @@ export class AudioManagerService {
   audioIcon = "assets/images/MusicPause.png";
   playerInterval: number = 0;
   hasUserInteracted: boolean = false;
-  shouldPlayBG: string | boolean = false;
+  shouldPlayBG: boolean = false;
   shouldPlayAudio: boolean = false;
   isPlayingAudio = false;
 
@@ -25,9 +24,9 @@ export class AudioManagerService {
   }
 
   initiateMusic = () => {
-    this.shouldPlayBG = this.cookieService.getCookie("shouldPlayBG");
+    let cookieData = CookieService.getCookie("shouldPlayBG");
+    this.shouldPlayBG = cookieData === 'true' || cookieData == null;
     this.pauseAudio(false);
-    this.shouldPlayBG = this.shouldPlayBG === '' || this.shouldPlayBG === 'true';
 
     setTimeout(() => {
       if (this.audioElement != null) {
@@ -59,7 +58,7 @@ export class AudioManagerService {
     }
 
     this.shouldPlayAudio = true;
-    this.cookieService.setCookie({
+    CookieService.setCookie({
       name: "shouldPlayBG",
       value: "true",
       expireDays: 10 * 365
@@ -93,7 +92,7 @@ export class AudioManagerService {
       this.audioElement.pause();
     }
     if (shouldSetCookie) {
-      this.cookieService.setCookie({
+      CookieService.setCookie({
         name: "shouldPlayBG",
         value: "false",
         expireDays: 10 * 365

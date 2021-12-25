@@ -1,18 +1,19 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {SocketIOService} from './services/socket-io.service'
 import {Web3Service} from "./services/web3.service";
 import {GameManagerService} from "./services/game-manager.service";
 import {PopUpManagerService} from "./services/pop-up-manager.service";
 import {AudioManagerService} from "./services/audio-manager.service";
-import {ActivatedRoute} from "@angular/router";
-import {ThemeService} from "./theme.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {ThemeService} from "./services/theme.service";
+import {CookieService} from "./services/cookie.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   title: string = 'Lucky-Gates-Bot';
   textureBg: string;
@@ -35,9 +36,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   * */
   windowNumberToShow: number = 0;
 
-  constructor(private changeDetector: ChangeDetectorRef, private activatedRoute: ActivatedRoute) {
-    this.gameManagerService = new GameManagerService(activatedRoute, this);
+  constructor(private changeDetector: ChangeDetectorRef, private router: Router, private activatedRoute: ActivatedRoute) {
+    this.gameManagerService = new GameManagerService(router, activatedRoute, this);
     this.textureBg = ThemeService.getTheme().bgImage;
+  }
+
+  ngOnInit() {
+    let CCN = CookieService.getCookie("CCN");
+    let GCA = CookieService.getCookie("GCA");
+
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.gameManagerService.setCoinInformation(params["GCA"], params["CCN"], GCA, CCN);
+    });
+
+    setTimeout(() => {
+      this.gameManagerService.finalizeRoutes();
+    }, 1000);
   }
 
   ngAfterViewInit() {
