@@ -8,10 +8,20 @@ export class AudioManagerService {
   audioTrackList = [
     "assets/audio/bensound-endlessMotion.mp3",
     "assets/audio/bensound-creativeMinds.mp3",
+    "assets/audio/chosic-adventure.mp3",
+    "assets/audio/chosic-leavingForValhalla.mp3",
+    "assets/audio/chosic-sparks.mp3",
+    "assets/audio/chosic-sweetDreams.mp3",
     "assets/audio/bensound-moose.mp3",
     "assets/audio/bensound-birthOfAHero.mp3",
-    "assets/audio/bensound-evolution.mp3"
+    "assets/audio/bensound-evolution.mp3",
+    "assets/audio/chosic-celtycDream.mp3",
+    "assets/audio/chosic-chase.mp3",
+    "assets/audio/chosic-heroism.mp3",
+    "assets/audio/chosic-theEpic2.mp3",
+    "assets/audio/chosic-theInspiration.mp3"
   ];
+  splitPosition: number = 6;
   audioIcon = "assets/images/MusicPause.png";
   playerInterval: number = 0;
   hasUserInteracted: boolean = false;
@@ -103,7 +113,8 @@ export class AudioManagerService {
   changeAudioTrack = () => {
     if (this.audioElement != null) {
       this.audioElement.src = this.audioTrackList[ToolSetService.getRandomNumber(
-        (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
+        (this.appComponent?.windowNumberToShow === 2) ? this.splitPosition : 0,
+        (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : this.splitPosition
       )];
       if (this.isPlayingAudio) {
         this.playAudio();
