@@ -84,13 +84,18 @@ export class GameManagerService {
 
   finalizeRoutes = () => {
     if (!this.hasSetCoinInformation) {
-      if (this.qCCN && this.qGCA) {
-        let params = JSON.parse(JSON.stringify(this.activatedRoute.snapshot.queryParams));
-        params["CCN"] = this.qCCN;
-        params["GCA"] = this.qGCA;
-        this.router.navigate([], {queryParams: params}).then(() => {
-        });
+      if (this.qCCN == null) {
+        this.qCCN = "BSC"; // Default
       }
+      if (this.qGCA == null) {
+        this.qGCA = "0x64F36701138f0E85cC10c34Ea535FdBADcB54147"; // Default
+      }
+
+      let params = JSON.parse(JSON.stringify(this.activatedRoute.snapshot.queryParams));
+      params["CCN"] = this.qCCN;
+      params["GCA"] = this.qGCA;
+      this.router.navigate([], {queryParams: params}).then(() => {
+      });
     }
   };
 
