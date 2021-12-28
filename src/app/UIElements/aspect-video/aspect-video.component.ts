@@ -14,7 +14,6 @@ export abstract class CanSetAspectVideo {
 export class AspectVideoComponent implements AfterViewInit {
 
   containerId: string = uuid.v4();
-  toolSetService: ToolSetService = new ToolSetService();
   videoElement: HTMLVideoElement | null = null;
   pointImgElement: HTMLElement | null = null;
   @Input() notifiableComponent: null | CanSetAspectVideo = null;
@@ -51,7 +50,7 @@ export class AspectVideoComponent implements AfterViewInit {
   }
 
   setPoints = (points: number, setStart: number, setEnd: number) => {
-    let setNumber = this.toolSetService.getRandomNumber(setStart, setEnd + 1);
+    let setNumber = ToolSetService.getRandomNumber(setStart, setEnd + 1);
 
     this.pointSrc = "assets/images/Numbers/Set " + setNumber + "/" + points + ".png";
     this.pointAlt = "" + points;

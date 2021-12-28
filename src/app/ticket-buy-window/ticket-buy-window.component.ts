@@ -4,6 +4,7 @@ import * as uuid from "uuid";
 import * as RCPJson from "private/PythonScripts/configsForRegisteredCoin.json";
 import * as configSmartContract from "private/PythonScripts/configsForSmartContract.json";
 import {ButtonData} from "../UIElements/pop-up/pop-up.component";
+import {ToolSetService} from "../services/tool-set.service";
 
 interface CoinData {
   symbol: string
@@ -55,6 +56,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
 
   paymentManagerContract: any = null;
   erc20Contract: any = null;
+  displayTicketCost: string = "0";
   localCoinData: CoinData = {
     symbol: "",
     decimals: 0,
@@ -106,6 +108,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
       if (registeredCoinData[this.localCoinChainName] != null &&
         registeredCoinData[this.localCoinChainName].registeredCoinAddresses[this.localGameCoinAddress] != null) {
         this.localCoinData = registeredCoinData[this.localCoinChainName].registeredCoinAddresses[this.localGameCoinAddress];
+        this.displayTicketCost = ToolSetService.nFormatter(this.localCoinData.ticketCost);
         let len = this.localCoinData.symbol.length;
         if (len > 9) {
           this.localCoinData.symbol = this.localCoinData.symbol.substr(0, 7) + "...";

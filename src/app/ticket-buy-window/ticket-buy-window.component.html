@@ -30,7 +30,7 @@
       <div class="TW-Spacer"></div>
       :
       <div class="TW-Spacer"></div>
-      {{localCoinData.ticketCost + "  "}}
+      {{displayTicketCost}}&nbsp;&nbsp;
       <div class="TW-Spacer"></div>
       {{localCoinData.symbol}} / Ticket
     </div>
@@ -56,7 +56,9 @@
   </div>
 
   <ng-template #ErrorBody class="CenterColumnFlex Menu-Body">
-    {{errorMessage}}
+    <div class="CenterColumnFlex TW-BodyElement" style="height: 20%">
+      <div class="CenterRowFlex" style="color: #ff0000; text-align: center;">Error:<br><br>{{errorMessage}}</div>
+    </div>
   </ng-template>
 
 </div>

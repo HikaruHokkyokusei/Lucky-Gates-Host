@@ -4,7 +4,6 @@ import {ToolSetService} from "./tool-set.service";
 
 export class AudioManagerService {
 
-  toolsetService: ToolSetService = new ToolSetService();
   audioElement: HTMLAudioElement | null = null;
   audioTrackList = [
     "assets/audio/bensound-endlessMotion.mp3",
@@ -103,7 +102,7 @@ export class AudioManagerService {
 
   changeAudioTrack = () => {
     if (this.audioElement != null) {
-      this.audioElement.src = this.audioTrackList[this.toolsetService.getRandomNumber(
+      this.audioElement.src = this.audioTrackList[ToolSetService.getRandomNumber(
         (this.appComponent?.windowNumberToShow === 2) ? 2 : 0, (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : 2
       )];
       if (this.isPlayingAudio) {

@@ -3,6 +3,7 @@ import {AppComponent} from "../app.component";
 import * as configs from "private/PythonScripts/configs.json";
 import * as configsForRegisteredCoin from "private/PythonScripts/configsForRegisteredCoin.json";
 import {CoinCollectionData} from "../ticket-buy-window/ticket-buy-window.component";
+import {ToolSetService} from "../services/tool-set.service";
 
 @Component({
   selector: 'app-rules-window[appComponent]',
@@ -22,7 +23,8 @@ export class RulesWindowComponent implements OnInit {
   openDoorPoints: string = "";
 
   rewardPercent: number = 0;
-  serverTicketCost: number = 0;
+  serverTicketCost: string = "0";
+  coinSymbol: string = "";
   showMismatchNotice: boolean = false;
 
   @Input() appComponent!: AppComponent;
@@ -36,6 +38,7 @@ export class RulesWindowComponent implements OnInit {
     let registeredCoin = (<CoinCollectionData>configsForRegisteredCoin)[localCoinChainName]["registeredCoinAddresses"][localGameCoinAddress];
 
     this.playerGatheringDuration = this.anyConfigs.stageDurations["0"];
+    this.coinSymbol = registeredCoin.symbol;
 
     this.maxPlayers = this.anyConfigs.defaultGameValues.maxPlayers;
     if (registeredCoin.otherOptions["minPlayers"] != null) {
@@ -57,9 +60,9 @@ export class RulesWindowComponent implements OnInit {
     this.openDoorPoints += "or " + this.anyConfigs.generalValues.openableDoorList[this.openDoorCount - 1];
 
     this.rewardPercent = registeredCoin.otherOptions["rewardPercent"] / 100;
-    this.serverTicketCost = registeredCoin.serverTicketCost;
+    this.serverTicketCost = ToolSetService.nFormatter(registeredCoin.serverTicketCost);
 
-    this.showMismatchNotice = this.serverTicketCost != registeredCoin.ticketCost;
+    this.showMismatchNotice = registeredCoin.serverTicketCost != registeredCoin.ticketCost;
 
     this.changeDetector.detectChanges();
   }

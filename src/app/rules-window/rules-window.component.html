@@ -90,14 +90,15 @@
         <br>
         <br>
         <p style="display: flex; justify-content: center;">
-          <code>{{rewardPercent}} x No. of Players x {{serverTicketCost}}</code>
+          <code>{{rewardPercent}} x (No. of Players) x {{serverTicketCost}}&nbsp;&nbsp;&nbsp;{{coinSymbol}}</code>
         </p>
         <br>
-        <div style="display: block;" *ngIf="showMismatchNotice">
+        <div style="display: block; opacity: 0.6; text-align: center;" *ngIf="showMismatchNotice">
           Note:
           <br>
-          Reward is multiplied by {{serverTicketCost}} which is less than actual ticket cost, as it also accounts for
-          transfer fees
+          Reward is multiplied by {{serverTicketCost}} which is slightly less than actual ticket cost, as it also
+          accounts for
+          transfer fees.
         </div>
       </div>
     </div>
