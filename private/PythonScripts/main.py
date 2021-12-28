@@ -300,13 +300,15 @@ class GameHandler:
         c_data = self.cFRC[options["coinChainName"]]["registeredCoinAddresses"][options["gameCoinAddress"]]
         server_ticket_cost = c_data["serverTicketCost"]
         reward_percent = c_data["otherOptions"]["rewardPercent"]
+        min_players = c_data["otherOptions"].get("minPlayers")
 
         new_game = Game.GameClass(handler_parent=self,
-                                  general_values=self.configs["generalValues"],
-                                  default_game_values=self.configs["defaultGameValues"],
-                                  default_player_values=self.configs["defaultPlayerValues"],
+                                  general_values=copy.deepcopy(self.configs["generalValues"]),
+                                  default_game_values=copy.deepcopy(self.configs["defaultGameValues"]),
+                                  default_player_values=copy.deepcopy(self.configs["defaultPlayerValues"]),
                                   build_options=options, server_ticket_cost=server_ticket_cost,
-                                  reward_percent=reward_percent, stage_durations=self.configs["stageDurations"])
+                                  reward_percent=reward_percent, min_players=min_players,
+                                  stage_durations=copy.deepcopy(self.configs["stageDurations"]))
         th = threading.Thread(target=new_game.run)
         th.start()
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}

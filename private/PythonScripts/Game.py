@@ -16,8 +16,10 @@ def set_logger(logger_ref):
 
 class GameClass:
     def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
-                 build_options, server_ticket_cost, reward_percent, stage_durations):
+                 build_options, server_ticket_cost, reward_percent, stage_durations, min_players=None):
         self.handler_parent = handler_parent
+        if min_players is not None:
+            default_game_values["minPlayers"] = min_players
         self.general_values = copy.deepcopy(general_values)
         self.default_player_values = copy.deepcopy(default_player_values)
         self.stageDurations = copy.deepcopy(stage_durations)
