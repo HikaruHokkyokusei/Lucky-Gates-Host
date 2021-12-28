@@ -74,8 +74,7 @@ export class AudioManagerService {
     });
 
     if (this.audioElement != null && this.audioElement.paused) {
-      this.audioElement.load();
-      this.audioElement.volume = 0.1;
+      this.audioElement.volume = 0.15;
       this.audioElement.play().then(() => {
         if (this.playerInterval != 0 && !this.audioElement?.paused) {
           clearInterval(this.playerInterval);
