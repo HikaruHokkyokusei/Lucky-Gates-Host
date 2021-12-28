@@ -17,6 +17,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   title: string = 'Lucky-Gates-Bot';
   textureBg: string;
+  textureOpacity: number;
   socketIOService: SocketIOService = new SocketIOService(this);
   web3Service: Web3Service = new Web3Service(this);
   gameManagerService: GameManagerService;
@@ -38,7 +39,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private changeDetector: ChangeDetectorRef, private router: Router, private activatedRoute: ActivatedRoute) {
     this.gameManagerService = new GameManagerService(router, activatedRoute, this);
-    this.textureBg = ThemeService.getTheme().bgImage;
+    let theme = ThemeService.getTheme();
+    this.textureBg = theme.bgImage;
+    this.textureOpacity = theme.bgOpacity;
   }
 
   ngOnInit() {

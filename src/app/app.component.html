@@ -1,6 +1,7 @@
 <div *ngIf="windowNumberToShow !== 2" class="Texture"
      [ngStyle]="{
-     'background-image': 'url(' + textureBg + ')'
+     'background-image': 'url(' + textureBg + ')',
+     'opacity': textureOpacity
      }"></div>
 
 <div class="MM-Top-Header">
@@ -27,16 +28,6 @@
       </div>
     </div>
     <div class="MM-Info-ElemGap"></div>
-    <div class="MM-Info-Element" style="width: 16%;">
-      <div class="CenterRowFlex MM-Info-Top">
-        Coin Address
-      </div>
-      <div class="CenterRowFlex MM-Info-Bottom">
-        <div style="height: 100%; width: 90%; overflow: hidden;">{{gameManagerService.localGameCoinAddress}}</div>
-        <div style="height: 90%; width: 10%; font-size: 20px; line-height: 12px;">.....</div>
-      </div>
-    </div>
-    <div class="MM-Info-ElemGap"></div>
     <div class="MM-Info-Element" style="width: 7%;">
       <div class="CenterRowFlex MM-Info-Top">
         Tickets
@@ -46,7 +37,17 @@
       </div>
     </div>
     <div class="MM-Info-ElemGap"></div>
-    <div class="MM-Info-Element" style="width: 16%;">
+    <div class="MM-Info-Element" style="width: 14%;">
+      <div class="CenterRowFlex MM-Info-Top">
+        Coin Address
+      </div>
+      <div class="CenterRowFlex MM-Info-Bottom">
+        <div style="height: 100%; width: 90%; overflow: hidden;">{{gameManagerService.localGameCoinAddress}}</div>
+        <div style="height: 90%; width: 10%; font-size: 20px; line-height: 12px;">.....</div>
+      </div>
+    </div>
+    <div class="MM-Info-ElemGap"></div>
+    <div class="MM-Info-Element" style="width: 14%;">
       <div class="CenterRowFlex MM-Info-Top">
         Wallet Address
       </div>

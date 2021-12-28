@@ -12,7 +12,6 @@
 
   background-position: center;
   background-size: cover;
-  opacity: 0.33;
 }
 
 .MM-Top-Header {
@@ -37,6 +36,10 @@ audio {
   height: 95%;
   max-height: 95%;
   aspect-ratio: 1 / 1;
+
+  border: 2px solid #5f6267;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.75);
 }
 
 #music-icon {
@@ -60,6 +63,7 @@ audio {
   border-radius: 3px;
   position: relative;
   font-size: 13px;
+  background-color: rgba(23, 23, 23, 0.75);
 }
 
 .MM-Info-ElemGap {
