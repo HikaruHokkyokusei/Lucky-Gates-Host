@@ -26,6 +26,10 @@ app.get('*/web3.min.js', (req, res) => {
   res.sendFile(__dirname + '/node_modules/web3/dist/web3.min.js');
 });
 
+app.get('*/web3.min.js.map', (req, res) => {
+  res.sendFile(__dirname + '/node_modules/web3/dist/web3.min.js.map');
+});
+
 app.get('*/socket.io.js', (req, res) => {
   res.sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
 });
