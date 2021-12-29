@@ -13,7 +13,8 @@ class PythonProcess {
                 pythonFileName = 'main.py'
               }) {
     this.pythonProcess = childProcess.spawn('python',
-      [pythonFileName, process.env["DBUsername"], process.env["DBPassword"], process.env["DBClusterName"], process.env["DBName"]],
+      [pythonFileName, process.env["DBUsername"], process.env["DBPassword"],
+        process.env["DBClusterName"], process.env["DBName"], process.env["goFileToken"]],
       {cwd: pythonFilePath});
 
     this.pythonProcess.stdin.setDefaultEncoding('utf-8');

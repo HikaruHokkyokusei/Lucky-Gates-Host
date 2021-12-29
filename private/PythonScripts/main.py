@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import logging.handlers
@@ -8,6 +9,10 @@ import time
 
 import IOTools
 import Game
+from pygofile import Gofile
+
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 mainLogger = logging.getLogger(__name__)
 mainLogger.setLevel(logging.DEBUG)
@@ -23,6 +28,7 @@ IOElements = None
 configs = None
 configsForRegisteredCoin = None
 shouldLogIO = True
+go_file = None
 
 
 def exit_function():
@@ -87,6 +93,7 @@ class GameHandler:
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
+        loop.run_until_complete(go_file.upload(file="./log.log", folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
@@ -364,7 +371,7 @@ signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 5:
+    if len(sys.argv) >= 6:
         sys.stderr = LogWriter(mainLogger.warning)
 
         configs_file = open("./configs.json", "r")
@@ -374,6 +381,7 @@ if __name__ == '__main__':
         configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
+        go_file = Gofile(sys.argv[5])
         Game.set_logger(mainLogger)
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
