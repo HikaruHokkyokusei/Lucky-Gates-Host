@@ -357,7 +357,7 @@ class GameHandler:
                     self.send_output({
                         "gameId": gi,
                         "gameState": gs
-                    }, "rebuildFromDB", "newPendingGame")
+                    }, "rebuildFromDB", "newPendingGame", origin="js")
                 except self.GameException as err:
                     mainLogger.exception(err)
 

@@ -92,6 +92,7 @@ class ContinuousInputHandler:
             self.exit_function()
         elif command == "rebuildFromDB":
             self.game_handler.rebuild_pending_games()
+            append_packet_buffer({}, command, "rebuildComplete", packet["Header"]["requestId"], "js")
         elif command == "game":
             self.game_handler.handle_game_packet(packet)
         elif command == "authWallets":
