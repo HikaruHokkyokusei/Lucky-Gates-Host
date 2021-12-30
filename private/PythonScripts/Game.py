@@ -294,6 +294,9 @@ class GameClass:
                     "stageEndTime": self.get_stage_end_time(),
                 }
                 self.send_information_to_players(reply_body, action="stageUpdated")
+            else:
+                # Time reset in case of rebuilding of pending games.
+                self.set_current_stage_to(self.gameState["currentStage"])
 
             # Game Stage Number Convention Specified In Comments
             # 0) Player Gathering Stage
@@ -367,6 +370,7 @@ class GameClass:
 
                     if current_player["hasMadeChoice"]:
                         self.open_doors_for_player(current_player)
+                        time.sleep(2.5)
                         self.set_current_stage_to(3)
                     else:
                         current_player["totalPoints"] += self.general_values["nonSelectionPenalty"]
@@ -376,6 +380,7 @@ class GameClass:
                             "penaltyPoints": self.general_values["nonSelectionPenalty"],
                             "totalPoints": current_player["totalPoints"]
                         }, "nonSelectionPenalty")
+                        time.sleep(2.5)
                         self.set_current_stage_to(2)
                     current_player["hasMadeChoice"] = False
 
@@ -440,6 +445,7 @@ class GameClass:
                             "penaltyPoints": self.general_values["nonSelectionPenalty"],
                             "totalPoints": current_player["totalPoints"]
                         }, "nonSelectionPenalty")
+                        time.sleep(2.5)
                     self.set_current_stage_to(2)
 
                     current_player["hasMadeChoice"] = False
