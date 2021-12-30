@@ -21,6 +21,7 @@ const buildWallets = (publicKeys, privateKeys) => {
     throw "Length Mismatch";
   }
 
+  authorizedWalletCount = publicKeys.length;
   authPublicKeys = publicKeys;
   authPrivateKeys = privateKeys;
 };

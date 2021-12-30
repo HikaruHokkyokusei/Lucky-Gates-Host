@@ -2,24 +2,29 @@ import {AppComponent} from "../app.component";
 import {CookieService} from "./cookie.service";
 import {ToolSetService} from "./tool-set.service";
 
+class AudioDetails {
+  constructor(public src: string, public requiredAudioLevel: number) {
+  }
+}
+
 export class AudioManagerService {
 
   audioElement: HTMLAudioElement | null = null;
-  audioTrackList = [
-    "assets/audio/bensound-endlessMotion.mp3",
-    "assets/audio/bensound-creativeMinds.mp3",
-    "assets/audio/chosic-adventure.mp3",
-    "assets/audio/chosic-leavingForValhalla.mp3",
-    "assets/audio/chosic-sparks.mp3",
-    "assets/audio/chosic-sweetDreams.mp3",
-    "assets/audio/bensound-moose.mp3",
-    "assets/audio/bensound-birthOfAHero.mp3",
-    "assets/audio/bensound-evolution.mp3",
-    "assets/audio/chosic-celtycDream.mp3",
-    "assets/audio/chosic-chase.mp3",
-    "assets/audio/chosic-heroism.mp3",
-    "assets/audio/chosic-theEpic2.mp3",
-    "assets/audio/chosic-theInspiration.mp3"
+  audioTrackList: AudioDetails[] = [
+    new AudioDetails("assets/audio/bensound-endlessMotion.mp3", 0.1),
+    new AudioDetails("assets/audio/bensound-creativeMinds.mp3", 0.1),
+    new AudioDetails("assets/audio/chosic-adventure.mp3", 0.3),
+    new AudioDetails("assets/audio/chosic-leavingForValhalla.mp3", 0.2),
+    new AudioDetails("assets/audio/chosic-sparks.mp3", 0.25),
+    new AudioDetails("assets/audio/chosic-sweetDreams.mp3", 0.4),
+    new AudioDetails("assets/audio/bensound-moose.mp3", 0.1),
+    new AudioDetails("assets/audio/bensound-birthOfAHero.mp3", 0.1),
+    new AudioDetails("assets/audio/bensound-evolution.mp3", 0.1),
+    new AudioDetails("assets/audio/chosic-celtycDream.mp3", 0.15),
+    new AudioDetails("assets/audio/chosic-chase.mp3", 0.17),
+    new AudioDetails("assets/audio/chosic-heroism.mp3", 0.17),
+    new AudioDetails("assets/audio/chosic-theEpic2.mp3", 0.15),
+    new AudioDetails("assets/audio/chosic-theInspiration.mp3", 0.2)
   ];
   splitPosition: number = 6;
   audioIcon = "assets/images/MusicPause.png";
@@ -28,6 +33,7 @@ export class AudioManagerService {
   shouldPlayBG: boolean = false;
   shouldPlayAudio: boolean = false;
   isPlayingAudio = false;
+  requiredAudioLevel: number = 0.15;
 
   constructor(private appComponent: AppComponent) {
   }
@@ -74,7 +80,7 @@ export class AudioManagerService {
     });
 
     if (this.audioElement != null && this.audioElement.paused) {
-      this.audioElement.volume = 0.15;
+      this.audioElement.volume = this.requiredAudioLevel;
       this.audioElement.play().then(() => {
         if (this.playerInterval != 0 && !this.audioElement?.paused) {
           clearInterval(this.playerInterval);
@@ -111,10 +117,12 @@ export class AudioManagerService {
 
   changeAudioTrack = () => {
     if (this.audioElement != null) {
-      this.audioElement.src = this.audioTrackList[ToolSetService.getRandomNumber(
+      let audioDetails = this.audioTrackList[ToolSetService.getRandomNumber(
         (this.appComponent?.windowNumberToShow === 2) ? this.splitPosition : 0,
         (this.appComponent?.windowNumberToShow === 2) ? this.audioTrackList.length : this.splitPosition
       )];
+      this.audioElement.src = audioDetails.src;
+      this.requiredAudioLevel = audioDetails.requiredAudioLevel;
       if (this.isPlayingAudio) {
         this.playAudio();
       }
