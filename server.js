@@ -1,5 +1,6 @@
 "use strict";
 
+const startTime = Date.now();
 const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
@@ -7,7 +8,10 @@ const uuid = require('uuid');
 const angularJson = require('./angular.json');
 const serverSupplement = require("./server-supplement");
 
-let portNumber = process.env["PORT"] || 6969;
+let portNumber = process.env["PORT"];
+if (!portNumber) {
+  portNumber = 6969;
+}
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -199,6 +203,10 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(portNumber, () => {
-  console.log('Listening on port ' + process.env.PORT);
+serverSupplement.initInformer.on("initializationComplete", () => {
+  const endTime = Date.now();
+  console.log("Initialization Complete in " + (endTime - startTime) / 1000 + " seconds");
+  httpServer.listen(portNumber, () => {
+    console.log('Listening on port ' + process.env.PORT);
+  });
 });

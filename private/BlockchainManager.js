@@ -1,18 +1,14 @@
 "use strict";
 
 const Web3 = require('web3');
+const getRandomNumber = require("./ToolSet").Miscellaneous.getRandomNumber;
 const configs = require('./PythonScripts/configs.json');
 const configsForRegisteredCoins = require('./PythonScripts/configsForRegisteredCoin.json');
 const configsForSmartContract = require('./PythonScripts/configsForSmartContract.json');
 
-const getRandomNumber = (start, end) => {
-  return Math.floor((end - start) * Math.random()) + start;
-};
-
 const web3UrlHolder = {};
 const web3ObjHolder = {};
-const ownerWalletAddress = process.env[configs["blockchainData"]["ownerWalletAddressConfigKey"]];
-const ownerPrivateKey = process.env[configs["blockchainData"]["ownerPrivateKeyConfigKey"]];
+let authPublicKeys, authPrivateKeys, authorizedWalletCount, lastUsedWalletIndex = -1;
 
 const keysForApiURL = configs["blockchainData"]["keysForApiURL"];
 for (let key in keysForApiURL) {
@@ -20,8 +16,19 @@ for (let key in keysForApiURL) {
   web3ObjHolder[key] = new Web3(web3UrlHolder[key][getRandomNumber(0, web3UrlHolder[key].length)]);
 }
 
+const buildWallets = (publicKeys, privateKeys) => {
+  if (publicKeys.length !== privateKeys.length) {
+    throw "Length Mismatch";
+  }
+
+  authPublicKeys = publicKeys;
+  authPrivateKeys = privateKeys;
+};
+
 const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName) => {
   try {
+    const walletToUse = (++lastUsedWalletIndex) % authorizedWalletCount;
+    lastUsedWalletIndex = walletToUse;
     coinChainName = coinChainName.toUpperCase();
     let paymentManagerContractAddy = configsForRegisteredCoins[coinChainName]["paymentManagerContractAddress"];
     let paymentManager = new web3ObjHolder[coinChainName].eth.Contract(
@@ -56,14 +63,14 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
     }
 
     let transaction = {
-      from: ownerWalletAddress,
+      from: authPublicKeys[walletToUse],
       to: paymentManagerContractAddy,
       data: paymentManager.methods["markPaymentAsComplete"](playerAddress, referenceId).encodeABI(),
       gas: 500000,
       gasPrice: await web3ObjHolder[coinChainName].eth.getGasPrice()
     };
 
-    let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, ownerPrivateKey);
+    let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, authPrivateKeys[walletToUse]);
     let result = await web3ObjHolder[coinChainName].eth.sendSignedTransaction(signedTransaction.rawTransaction);
 
     if (result.status) {
@@ -90,6 +97,8 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
 
 const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoinAddress, rewardAmount, feeAmount) => {
   try {
+    const walletToUse = (++lastUsedWalletIndex) % authorizedWalletCount;
+    lastUsedWalletIndex = walletToUse;
     let paymentManagerContractAddy = configsForRegisteredCoins[coinChainName]["paymentManagerContractAddress"];
     let paymentManager = new web3ObjHolder[coinChainName].eth.Contract(
       configsForSmartContract["paymentManagerABI"], paymentManagerContractAddy
@@ -101,14 +110,14 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
     let feeValue = BigInt(feeAmount) * (multiplier);
 
     let transaction = {
-      from: ownerWalletAddress,
+      from: authPublicKeys[walletToUse],
       to: paymentManagerContractAddy,
       data: paymentManager.methods["sendRewardToWinner"](gameCoinAddress, playerAddress, rewardValue, feeValue).encodeABI(),
       gas: 500000,
       gasPrice: await web3ObjHolder[coinChainName].eth.getGasPrice()
     };
 
-    let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, ownerPrivateKey);
+    let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, authPrivateKeys[walletToUse]);
     let trxHash = signedTransaction["transactionHash"];
     web3ObjHolder[coinChainName].eth.sendSignedTransaction(signedTransaction.rawTransaction).then((receipt) => {
       console.log("Send Reward Transaction Complete.\nTrxHash : " + receipt["transactionHash"] + ", status : " + receipt["status"]);
@@ -127,6 +136,7 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
 };
 
 module.exports = {
+  buildWallets,
   verifyPaymentForPlayer,
   sendRewardToWinner
 };

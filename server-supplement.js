@@ -1,13 +1,13 @@
 "use strict";
-
+const Web3 = require("web3");
+const events = require("events");
 const toolSet = require("./private/ToolSet");
 const blockchainManager = require("./private/BlockchainManager");
-const Web3 = require("web3");
-const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
 
+const web3 = new Web3();  // No Provider Set Here. Only to be used to recover address from signed Message.
 const adminUsername = process.env["adminUsername"];
 const adminPassword = process.env["adminPassword"];
-const tools = new toolSet.Miscellaneous();
+const tools = toolSet.Miscellaneous;
 
 
 let adminSocketId = null;
@@ -33,6 +33,7 @@ let emitter;
 const setEmitter = (ioEmitter) => {
   emitter = ioEmitter;
 };
+const initInformer = new events.EventEmitter();
 
 
 let activeSocketConnections = 0;
@@ -49,6 +50,9 @@ const connectionCount = () => {
 };
 
 const playerAddressToSocketIdMap = new toolSet.TwoWayMap({});  // playerAddress <<==>> socketId
+const playerAddressToGameIdMap = {};  // playerAddress => gameId
+const lastGameStateMap = {};  // gameId => gameState
+
 const bindAddress = (socketId, signedMessage, playerAddress) => {
   if (connectedClients[socketId] != null && Web3.utils.isAddress(playerAddress)) {
     playerAddress = Web3.utils.toChecksumAddress(playerAddress);
@@ -69,7 +73,6 @@ const bindAddress = (socketId, signedMessage, playerAddress) => {
 const isSocketBoundToAddress = (socketId) => {
   return playerAddressToSocketIdMap.getKeyFromValue(socketId) != null;
 }
-
 const deleteConnection = (socket) => {
   activeSocketConnections--;
   delete connectedClients[socket.id];
@@ -78,10 +81,6 @@ const deleteConnection = (socket) => {
     setAdmin(null);
   }
 };
-
-
-const playerAddressToGameIdMap = {};  // playerAddress => gameId
-const lastGameStateMap = {};  // gameId => gameState
 
 /*
 * "gameId" => {
@@ -99,138 +98,7 @@ const getAvailableGameList = () => {
   return gameIdToPlayerCollectionMap;
 };
 
-const deleteDoorPatternIfAny = (inObject) => {
-  for (let key in inObject) {
-    if (key === "doorPattern") {
-      delete inObject[key];
-    } else if (typeof inObject[key] == "object") {
-      deleteDoorPatternIfAny(inObject[key]);
-    }
-  }
-};
-const scriptOutputHandler = async (packet) => {
-  if (adminSocketId != null) {
-    connectedClients[adminSocketId]["socket"].emit('setOutput', packet);
-  }
-  await deleteDoorPatternIfAny(packet);
-
-  if (packet["Header"] != null && packet["Body"] != null) {
-    let gameCreator, isGameCreatorAdmin = false, shouldForwardToPlayers = true;
-    const gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
-    const playerAddress = packet["Body"]["playerAddress"]; // Can be null.
-    const playerSocketId = (playerAddress == null) ? null : playerAddressToSocketIdMap.getValueFromKey(playerAddress);
-    const gameState = packet["Body"]["gameState"];
-    if (gameState != null) {
-      lastGameStateMap[gameId] = gameState;
-      gameCreator = gameState["gameCreator"];
-      isGameCreatorAdmin = gameCreator === "admin";
-      if (gameIdToPlayerCollectionMap[gameId] != null) {
-        gameIdToPlayerCollectionMap[gameId]["currentStage"] = gameState["currentStage"];
-      }
-    }
-
-    if (packet["Body"]["error"] == null || packet["Header"]["command"] === "ticket") {
-      switch (packet["Header"]["command"]) {
-        case "gameCreation":
-          gameIdToPlayerCollectionMap[gameId] = {
-            "gameCoinAddress": gameState["gameCoinAddress"],
-            "coinChainName": gameState["coinChainName"],
-            "currentStage": gameState["currentStage"],
-            "gameCreator": gameCreator,
-            "playerAddresses": {}
-          };
-          if (!isGameCreatorAdmin) {
-            connectedClients[playerAddressToSocketIdMap.getValueFromKey(gameCreator)]["socket"].emit('synchronizeGamePacket', packet);
-          }
-          shouldForwardToPlayers = false;
-          break;
-
-        case "playerAddition":
-          playerAddressToGameIdMap[playerAddress] = gameId;
-          gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress] = true;
-          if (connectedClients[playerSocketId] != null) {
-            connectedClients[playerSocketId]["socket"].join(gameId);
-          }
-          break;
-
-        case "informPlayers":
-          if (packet["Header"]["action"] === "stageUpdated") {
-            addPlayerToGame(gameId, gameCreator, null);
-            shouldForwardToPlayers = false;
-          } else if (packet["Header"]["action"] === "winnerSelected") {
-            blockchainManager.sendRewardToWinner(gameId, packet["Body"]["playerAddress"], packet["Body"]["coinChainName"],
-              packet["Body"]["gameCoinAddress"], packet["Body"]["rewardAmount"], packet["Body"]["gameFee"])
-              .then(({success, gameId, trxHash}) => {
-                console.log("Send Reward (" + gameId + ") Success : " + success);
-                if (success) {
-                  pythonProcess.sendRawPacketToScript({
-                      command: "game", action: "rewardSent", body: {
-                        gameId,
-                        trxHash
-                      }
-                    }
-                  );
-                }
-              });
-          }
-          break;
-
-        case "playerRemovalFromGame":
-          if (connectedClients[playerSocketId] != null) {
-            emitter(gameId, 'synchronizeGamePacket', packet);
-            connectedClients[playerSocketId]["socket"].leave(gameId);
-          }
-          delete playerAddressToGameIdMap[playerAddress];
-          delete gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress];
-          break;
-
-        case "gameDeletion":
-          delete lastGameStateMap[gameId];
-          delete gameIdToPlayerCollectionMap[gameId];
-          shouldForwardToPlayers = false;
-          break;
-
-        case "ticket":
-          if (playerSocketId != null) {
-            if (packet["Header"]["action"] === "buy") {
-              connectedClients[playerSocketId]["socket"].emit("ticketPurchase", {
-                success: packet["Body"]["error"] == null,
-                ticketCount: packet["Body"]["ticketCount"],
-                reasonIfNotSuccess: packet["Body"]["error"]
-              });
-            } else if (packet["Header"]["action"] === "get") {
-              connectedClients[playerSocketId]["socket"].emit("playerTicketCount", packet["Body"]["ticketCount"]);
-            }
-          }
-          break;
-      }
-
-      if (!isGameCreatorAdmin && shouldForwardToPlayers) {
-        emitter(gameId, 'synchronizeGamePacket', packet);
-      }
-    } else if (!isGameCreatorAdmin) {
-      let emitSocketId = null;
-      if (playerAddress) {
-        emitSocketId = playerSocketId;
-      } else if (gameCreator) {
-        emitSocketId = playerAddressToSocketIdMap.getValueFromKey(gameCreator);
-      }
-
-      if (connectedClients[emitSocketId] != null) {
-        connectedClients[emitSocketId]["socket"].emit("error", packet["Body"]["error"]);
-      }
-    }
-  } else if (packet["message"] === "Python Script Exited") {
-    console.log("Python Script Exited");
-  }
-};
-
-let pythonProcess;
-pythonProcess = new toolSet.PythonProcess({
-  pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
-});
-pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
-
+// Senders
 const createNewGame = (creatorSocketId, gameCoinAddress, coinChainName) => {
   let gameCreator = playerAddressToSocketIdMap.getKeyFromValue(creatorSocketId);
   if (creatorSocketId === adminSocketId) {
@@ -394,7 +262,162 @@ const getPlayerTicketCount = (coinChainName, gameCoinAddress, playerAddress = nu
     }
   });
 };
+// Receiver
+const scriptOutputHandler = async (packet) => {
+  if (adminSocketId != null) {
+    connectedClients[adminSocketId]["socket"].emit('setOutput', packet);
+  }
+  await tools.deleteKeyFromObject("doorPattern", packet);
 
+  if (packet["Header"] != null && packet["Body"] != null) {
+    let gameCreator, isGameCreatorAdmin = false, shouldForwardToPlayers = true;
+    const gameId = packet["Body"]["gameId"]; // In normal situations, should never be null.
+    const playerAddress = packet["Body"]["playerAddress"]; // Can be null.
+    const playerSocketId = (playerAddress == null) ? null : playerAddressToSocketIdMap.getValueFromKey(playerAddress);
+    const gameState = packet["Body"]["gameState"];
+    if (gameState != null) {
+      lastGameStateMap[gameId] = gameState;
+      gameCreator = gameState["gameCreator"];
+      isGameCreatorAdmin = gameCreator === "admin";
+      if (gameIdToPlayerCollectionMap[gameId] != null) {
+        gameIdToPlayerCollectionMap[gameId]["currentStage"] = gameState["currentStage"];
+      }
+    }
+
+    if (packet["Body"]["error"] == null) {
+      switch (packet["Header"]["command"]) {
+        case "authWallets":
+          blockchainManager.buildWallets(packet["Body"]["publicKeys"], packet["Body"]["privateKeys"]);
+          pythonProcess.sendRawPacketToScript({command: "rebuildFromDB"});
+          break;
+
+        case "rebuildFromDB":
+          if (packet["Header"]["action"] === "newPendingGame") {
+            gameIdToPlayerCollectionMap[gameId] = {
+              "gameCoinAddress": gameState["gameCoinAddress"],
+              "coinChainName": gameState["coinChainName"],
+              "currentStage": gameState["currentStage"],
+              "gameCreator": gameCreator,
+              "playerAddresses": {}
+            };
+            let playerList = gameState["players"];
+            for (let pI in playerList) {
+              let playerAddy = playerList[pI]["playerAddress"];
+              playerAddressToGameIdMap[playerAddy] = gameId;
+              gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddy] = true;
+
+              // Below code is not required as http starts to listen after rebuild has completed.
+              // let playerSocketId = playerAddressToSocketIdMap.getValueFromKey(playerAddy);
+              // if (connectedClients[playerSocketId] != null) {
+              //   connectedClients[playerSocketId]["socket"].join(gameId);
+              // }
+            }
+          } else {
+            // Action = "rebuildComplete"
+            initInformer.emit("initializationComplete");
+          }
+          break;
+
+        case "gameCreation":
+          gameIdToPlayerCollectionMap[gameId] = {
+            "gameCoinAddress": gameState["gameCoinAddress"],
+            "coinChainName": gameState["coinChainName"],
+            "currentStage": gameState["currentStage"],
+            "gameCreator": gameCreator,
+            "playerAddresses": {}
+          };
+          if (!isGameCreatorAdmin) {
+            connectedClients[playerAddressToSocketIdMap.getValueFromKey(gameCreator)]["socket"].emit('synchronizeGamePacket', packet);
+          }
+          shouldForwardToPlayers = false;
+          break;
+
+        case "playerAddition":
+          playerAddressToGameIdMap[playerAddress] = gameId;
+          gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress] = true;
+          if (connectedClients[playerSocketId] != null) {
+            connectedClients[playerSocketId]["socket"].join(gameId);
+          }
+          break;
+
+        case "informPlayers":
+          if (packet["Header"]["action"] === "stageUpdated") {
+            addPlayerToGame(gameId, gameCreator, null);
+            shouldForwardToPlayers = false;
+          } else if (packet["Header"]["action"] === "winnerSelected") {
+            blockchainManager.sendRewardToWinner(gameId, packet["Body"]["playerAddress"], packet["Body"]["coinChainName"],
+              packet["Body"]["gameCoinAddress"], packet["Body"]["rewardAmount"], packet["Body"]["gameFee"])
+              .then(({success, gameId, trxHash}) => {
+                console.log("Send Reward (" + gameId + ") Success : " + success);
+                if (success) {
+                  pythonProcess.sendRawPacketToScript({
+                      command: "game", action: "rewardSent", body: {
+                        gameId,
+                        trxHash
+                      }
+                    }
+                  );
+                }
+              });
+          }
+          break;
+
+        case "playerRemovalFromGame":
+          if (connectedClients[playerSocketId] != null) {
+            emitter(gameId, 'synchronizeGamePacket', packet);
+            connectedClients[playerSocketId]["socket"].leave(gameId);
+          }
+          delete playerAddressToGameIdMap[playerAddress];
+          delete gameIdToPlayerCollectionMap[gameId]["playerAddresses"][playerAddress];
+          break;
+
+        case "gameDeletion":
+          delete lastGameStateMap[gameId];
+          delete gameIdToPlayerCollectionMap[gameId];
+          shouldForwardToPlayers = false;
+          break;
+
+        case "ticket":
+          if (playerSocketId != null) {
+            if (packet["Header"]["action"] === "buy") {
+              connectedClients[playerSocketId]["socket"].emit("ticketPurchase", {
+                success: packet["Body"]["error"] == null,
+                ticketCount: packet["Body"]["ticketCount"],
+                reasonIfNotSuccess: packet["Body"]["error"]
+              });
+            } else if (packet["Header"]["action"] === "get") {
+              connectedClients[playerSocketId]["socket"].emit("playerTicketCount", packet["Body"]["ticketCount"]);
+            }
+          }
+          break;
+      }
+
+      if (!isGameCreatorAdmin && shouldForwardToPlayers) {
+        emitter(gameId, 'synchronizeGamePacket', packet);
+      }
+    } else if (!isGameCreatorAdmin) {
+      let emitSocketId = null;
+      if (playerAddress) {
+        emitSocketId = playerSocketId;
+      } else if (gameCreator) {
+        emitSocketId = playerAddressToSocketIdMap.getValueFromKey(gameCreator);
+      }
+
+      if (connectedClients[emitSocketId] != null) {
+        connectedClients[emitSocketId]["socket"].emit("error", packet["Body"]["error"]);
+      }
+    }
+  } else if (packet["message"] === "Python Script Exited") {
+    console.log("Python Script Exited");
+  }
+};
+
+
+let pythonProcess;
+pythonProcess = new toolSet.PythonProcess({
+  pythonFilePath: "./private/PythonScripts/", scriptOutputHandler: scriptOutputHandler
+});
+pythonProcess.sendRawPacketToScript({command: "authWallets", action: "get"});
 
 let pythonFunctions = {
   "sendRawPacketToScript": pythonProcess.sendRawPacketToScript,
@@ -409,14 +432,15 @@ let pythonFunctions = {
 };
 Object.freeze(pythonFunctions);
 module.exports = {
-  setEmitter: setEmitter,
-  setAdmin: setAdmin,
-  isAdmin: isAdmin,
-  bindAddress: bindAddress,
-  isSocketBoundToAddress: isSocketBoundToAddress,
-  updateConnectionList: updateConnectionList,
-  connectionCount: connectionCount,
-  deleteConnection: deleteConnection,
-  getAvailableGameList: getAvailableGameList,
-  pythonFunctions: pythonFunctions
+  initInformer,
+  setEmitter,
+  setAdmin,
+  isAdmin,
+  bindAddress,
+  isSocketBoundToAddress,
+  updateConnectionList,
+  connectionCount,
+  deleteConnection,
+  getAvailableGameList,
+  pythonFunctions
 };

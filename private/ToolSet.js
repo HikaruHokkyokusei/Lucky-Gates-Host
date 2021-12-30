@@ -114,9 +114,21 @@ class TwoWayMap {
 }
 
 class Miscellaneous {
-  equalsIgnoreCase = (stringA, stringB) => {
+  static equalsIgnoreCase = (stringA, stringB) => {
     return stringA.localeCompare(stringB, undefined, {sensitivity: 'variant'}) === 0;
-  }
+  };
+  static getRandomNumber = (start, end) => {
+    return Math.floor((end - start) * Math.random()) + start;
+  };
+  static deleteKeyFromObject = (keyToDelete, inObject) => {
+    for (let key in inObject) {
+      if (key === keyToDelete) {
+        delete inObject[key];
+      } else if (typeof inObject[key] == "object") {
+        Miscellaneous.deleteKeyFromObject(inObject[key]);
+      }
+    }
+  };
 }
 
 module.exports = {
