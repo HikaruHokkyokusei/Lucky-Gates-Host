@@ -291,7 +291,7 @@ class GameHandler:
         try:
             reply_command, reply_action, reply_body = self.handle_action(packet_body, action)
         except Exception as err:
-            mainLogger.error(err)
+            mainLogger.exception(err)
             reply_command = "error"
             reply_action = None
             reply_body = {"error": "Error during execution of action"}
@@ -300,7 +300,7 @@ class GameHandler:
             self.send_output(reply_body, reply_command, reply_action,
                              packet["Header"].get("requestId"), packet["Header"].get("origin"))
 
-    def create_game_with_options(self, options):
+    def create_game_with_options(self, options, pending_game_state=None):
         if len(self.activeGames) >= self.configs["generalValues"]["maxGameCap"]:
             raise self.GameException("Max Game Limit Reached")
 
@@ -309,13 +309,23 @@ class GameHandler:
         reward_percent = c_data["otherOptions"]["rewardPercent"]
         min_players = c_data["otherOptions"].get("minPlayers")
 
-        new_game = Game.GameClass(handler_parent=self,
-                                  general_values=copy.deepcopy(self.configs["generalValues"]),
-                                  default_game_values=copy.deepcopy(self.configs["defaultGameValues"]),
-                                  default_player_values=copy.deepcopy(self.configs["defaultPlayerValues"]),
-                                  build_options=options, server_ticket_cost=server_ticket_cost,
-                                  reward_percent=reward_percent, min_players=min_players,
-                                  stage_durations=copy.deepcopy(self.configs["stageDurations"]))
+        if pending_game_state is None:
+            new_game = Game.GameClass(handler_parent=self,
+                                      general_values=copy.deepcopy(self.configs["generalValues"]),
+                                      default_game_values=copy.deepcopy(self.configs["defaultGameValues"]),
+                                      default_player_values=copy.deepcopy(self.configs["defaultPlayerValues"]),
+                                      build_options=options, server_ticket_cost=server_ticket_cost,
+                                      reward_percent=reward_percent, min_players=min_players,
+                                      stage_durations=copy.deepcopy(self.configs["stageDurations"]))
+        else:
+            new_game = Game.GameClass(handler_parent=self,
+                                      general_values=copy.deepcopy(self.configs["generalValues"]),
+                                      default_game_values=copy.deepcopy(self.configs["defaultGameValues"]),
+                                      default_player_values=copy.deepcopy(self.configs["defaultPlayerValues"]),
+                                      build_options=None, server_ticket_cost=server_ticket_cost,
+                                      reward_percent=reward_percent, pending_game_state=pending_game_state,
+                                      stage_durations=copy.deepcopy(self.configs["stageDurations"]))
+
         th = threading.Thread(target=new_game.run)
         th.start()
         self.activeGames[new_game.get_game_id()] = {"Game": new_game, "Thread": th}
@@ -339,9 +349,17 @@ class GameHandler:
         if game_states_list is not None:
             for game_state in game_states_list:
                 try:
-                    self.create_game_with_options(game_state)
-                except self.GameException:
-                    pass
+                    options = {
+                        "coinChainName": game_state["coinChainName"],
+                        "gameCoinAddress": game_state["gameCoinAddress"]
+                    }
+                    gi, gs = self.create_game_with_options(options=options, pending_game_state=game_state)
+                    self.send_output({
+                        "gameId": gi,
+                        "gameState": gs
+                    }, "rebuildFromDB", "newPendingGame")
+                except self.GameException as err:
+                    mainLogger.exception(err)
 
     def add_player_to_game(self, game_id, player_address):
         game = self.get_game(game_id)

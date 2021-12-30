@@ -94,6 +94,18 @@ class ContinuousInputHandler:
             self.game_handler.rebuild_pending_games()
         elif command == "game":
             self.game_handler.handle_game_packet(packet)
+        elif command == "authWallets":
+            action = packet["Header"].get("action")
+            if action is None:
+                return
+
+            if action == "get":
+                pub_key, pri_key = self.DBHandler.get_wallets()
+                reply_body = {
+                    "publicKeys": pub_key,
+                    "privateKeys": pri_key
+                }
+                append_packet_buffer(reply_body, "authWallets", "get", packet["Header"]["requestId"], "js")
         elif command == "ticket":
             action = packet["Header"].get("action")
             if action is None:
@@ -106,7 +118,7 @@ class ContinuousInputHandler:
             reply_body = {"error": None}
             if coin_chain_name is None or game_coin_address is None or player_address is None:
                 reply_body["error"] = "Incomplete Information."
-                append_packet_buffer(reply_body, "ticket", action)
+                append_packet_buffer(reply_body, "ticket", action, packet["Header"]["requestId"], "js")
                 return
 
             reply_body["playerAddress"] = player_address
@@ -124,7 +136,6 @@ class ContinuousInputHandler:
                     )
                     if not success:
                         reply_body["error"] = "Unable to update tickets."
-
             elif action == "get":
                 has_tickets, ticket_count = self.DBHandler.does_user_has_tickets(
                     game_coin_address, coin_chain_name, player_address
@@ -134,7 +145,7 @@ class ContinuousInputHandler:
                 reply_body["error"] = "Invalid action"
 
             reply_body["ticketCount"] = ticket_count
-            append_packet_buffer(reply_body, "ticket", action)
+            append_packet_buffer(reply_body, "ticket", action, packet["Header"]["requestId"], "js")
         else:
             ioLogger.error(f"Invalid input command : {command}")
 
@@ -198,6 +209,12 @@ class DBHandler:
                 return True, ticket_count
 
         return False, 0
+
+    def get_wallets(self):
+        found_document = self.database["_Root"].find_one({"id": "Wallets"})
+        public_keys = found_document["publicKeys"]
+        private_keys = found_document["privateKeys"]
+        return public_keys, private_keys
 
     def change_player_tickets_by(self, game_coin_address, coin_chain_name, player_address,
                                  signed_amount, reference_id=None):

@@ -11,7 +11,7 @@
         "isTicketPurchaseActive": true,
         "otherOptions": {
           "minPlayers": 5,
-          "rewardPercent": 75
+          "rewardPercent": 90
         }
       }
     }

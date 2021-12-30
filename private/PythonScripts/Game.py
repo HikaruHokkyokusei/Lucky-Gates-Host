@@ -16,7 +16,8 @@ def set_logger(logger_ref):
 
 class GameClass:
     def __init__(self, handler_parent, general_values, default_game_values, default_player_values,
-                 build_options, server_ticket_cost, reward_percent, stage_durations, min_players=None):
+                 build_options, server_ticket_cost, reward_percent, stage_durations, min_players=None,
+                 pending_game_state=None):
         self.handler_parent = handler_parent
         if min_players is not None:
             default_game_values["minPlayers"] = min_players
@@ -60,22 +61,28 @@ class GameClass:
             "wantToSwitchDoor"
         ]
 
-        if "gameId" in build_options:
+        if pending_game_state is not None:
+            game_id = pending_game_state["gameId"]
+        elif "gameId" in build_options:
             game_id = build_options["gameId"]
         else:
             game_id = uuid.uuid4().hex + uuid.uuid4().hex
 
-        # json.loads is unnecessary, but I have added it, so as to prevent editor warnings...
-        self.gameState = {
-            "buildSuccess": False,
-            "gameId": json.loads('"' + game_id + '"'),
-        }
-        for key in self.game_key_list:
-            self.gameState[key] = build_options[key] if key in build_options \
-                else copy.deepcopy(default_game_values[key])
-        if self.gameState["gameStartTime"] == 0:
-            self.gameState["gameStartTime"] = time.time()
-        self.gameState["buildSuccess"] = True
+        if pending_game_state is None:
+            # json.loads is unnecessary, but I have added it, so as to prevent editor warnings...
+            self.gameState = {
+                "buildSuccess": False,
+                "gameId": json.loads('"' + game_id + '"'),
+            }
+            for key in self.game_key_list:
+                self.gameState[key] = build_options[key] if key in build_options \
+                    else copy.deepcopy(default_game_values[key])
+            if self.gameState["gameStartTime"] == 0:
+                self.gameState["gameStartTime"] = time.time()
+            self.gameState["buildSuccess"] = True
+        else:
+            self.gameState = pending_game_state
+
         self.shouldRunGame = True
 
     def stop(self):
