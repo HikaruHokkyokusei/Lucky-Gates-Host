@@ -190,7 +190,7 @@ contract PaymentManager is Authorizable {
     success = true;
   }
 
-  function markPaymentAsComplete(address _playerAddress, string memory _referenceId) external onlyOwner() returns (bool success) {
+  function markPaymentAsComplete(address _playerAddress, string memory _referenceId) external onlyAuthorized() returns (bool success) {
     PaymentData storage paymentData = allPaymentData[_playerAddress][_referenceId];
     require(paymentData.exists, "Payment with given reference Id for given player already exists. Please try with different Id.");
     require(!paymentData.isCompleted, "The payment has already been completed.");

@@ -1,7 +1,7 @@
 {
   "BSC": {
     "chainId": 56,
-    "paymentManagerContractAddress": "0xE49e3Dffd260cdfffcBF730FbA883b316075FA76",
+    "paymentManagerContractAddress": "0xe7EF2C11a954c1402bbf8169fe1020a081449acc",
     "registeredCoinAddresses": {
       "0x64F36701138f0E85cC10c34Ea535FdBADcB54147": {
         "symbol": "AINU",
@@ -18,7 +18,7 @@
   },
   "GOERLI": {
     "chainId": 5,
-    "paymentManagerContractAddress": "0x2FD5943Dd1c352B103C5ae4A793f0e208b9dfBc8",
+    "paymentManagerContractAddress": "0xe7EF2C11a954c1402bbf8169fe1020a081449acc",
     "registeredCoinAddresses": {
       "0xCB18D3fE531cefe86d11eB42F1C5d47d20f046e9": {
         "symbol": "( . Y . )",
