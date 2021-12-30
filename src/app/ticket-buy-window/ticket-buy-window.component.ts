@@ -325,6 +325,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   onResponseFromServer = (success: boolean, ticketCount: number, reasonIfNotSuccess: string = "") => {
     if (success) {
       this.generateNewPopUp(false, "Successfully added " + ticketCount + " tickets.", 3500);
+      this.appComponent.gameManagerService.playerTicketCount += ticketCount;
     } else {
       this.generateNewPopUp(false, "Error!!<br>Reason : " + reasonIfNotSuccess);
     }
