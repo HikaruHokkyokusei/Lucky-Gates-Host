@@ -5,7 +5,7 @@
     "registeredCoinAddresses": {
       "0x64F36701138f0E85cC10c34Ea535FdBADcB54147": {
         "symbol": "AINU",
-        "decimals": 18,
+        "decimals": 9,
         "ticketCost": 500000000,
         "serverTicketCost": 425000000,
         "isTicketPurchaseActive": true,
@@ -25,7 +25,7 @@
         "decimals": 18,
         "ticketCost": 50,
         "serverTicketCost": 50,
-        "isTicketPurchaseActive": false,
+        "isTicketPurchaseActive": true,
         "otherOptions": {
           "minPlayers": 3,
           "rewardPercent": 80

@@ -113,7 +113,9 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
         if (len > 9) {
           this.localCoinData.symbol = this.localCoinData.symbol.substr(0, 7) + "...";
         }
-        this.buildSuccess = true;
+        if (this.localCoinData.isTicketPurchaseActive) {
+          this.buildSuccess = true;
+        }
       }
     } catch (err) {
       this.buildSuccess = false;
@@ -121,7 +123,11 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     }
 
     if (!this.buildSuccess) {
-      this.errorMessage = "Provided Coin Address for the Selected Chain is not registered.";
+      if (!this.localCoinData.isTicketPurchaseActive) {
+        this.errorMessage = "Purchase for the selected coin is not active at the moment.";
+      } else {
+        this.errorMessage = "Provided Coin Address on the Selected Chain is not registered.";
+      }
     } else if (this.chainId != this.appComponent.web3Service.chainId) {
       this.buildSuccess = false;
       this.errorMessage = "Invalid Chain Selected in Web3 Provider.";
