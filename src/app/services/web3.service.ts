@@ -6,12 +6,17 @@ export class Web3Service {
   web3BuildSuccess: boolean = false;
   didSignMessage: boolean = false;
   appComponent: AppComponent;
-  web3 = new Web3(window.ethereum);
+  web3;
   userAccount: string = "";
   chainId: number = 0;
 
   constructor(appComponent: AppComponent) {
     this.appComponent = appComponent;
+    if (window.ethereum) {
+      this.web3 = new Web3(window.ethereum);
+    } else {
+      this.web3 = null;
+    }
     if (this.web3 != null) {
       window.ethereum.on('accountsChanged', this.setUserAccount);
 
