@@ -1,10 +1,12 @@
 import {AppComponent} from "../app.component";
 
+declare let Web3: any;
+
 export class Web3Service {
   web3BuildSuccess: boolean = false;
   didSignMessage: boolean = false;
   appComponent: AppComponent;
-  web3 = window.web3;
+  web3 = new Web3(window.ethereum);
   userAccount: string = "";
   chainId: number = 0;
 

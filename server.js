@@ -44,26 +44,26 @@ const ioEmitter = (roomId, emitEvent, data) => {
 };
 serverSupplement.setEmitter(ioEmitter);
 
-// --- SERVE MODULES --- //
-app.get('*/web3.min.js', (req, res) => {
-  res.status(200).sendFile(__dirname + '/node_modules/web3/dist/web3.min.js');
+// --- SERVE NODE MODULES --- //
+app.get('/node_modules/*.*', (req, res) => {
+  try {
+    res.status(200).sendFile(__dirname + req.path);
+  } catch {
+    res.sendStatus(404);
+  }
 });
 
-app.get('*/web3.min.js.map', (req, res) => {
-  res.status(200).sendFile(__dirname + '/node_modules/web3/dist/web3.min.js.map');
+// --- SERVE STATIC ADMIN FILES --- //
+app.get("/admin-access/*.*", (req, res) => {
+  try {
+    res.status(200).sendFile(__dirname + req.path);
+  } catch {
+    res.sendStatus(404);
+  }
 });
-
-app.get('*/socket.io.js', (req, res) => {
-  res.status(200).sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
-});
-
-// --- SERVE ADMIN FILES --- //
-app.get("*/admin-access/:fileName", (req, res) => {
-  res.status(200).sendFile(__dirname + "/admin-access/" + req.params.fileName);
-})
 
 // ---- SERVE STATIC FILES ---- //
-app.get('*.*', express.static(outputFolder, {maxAge: '1y'}));
+app.get('*.*', express.static(outputFolder, {maxAge: '3d'}));
 
 // ---- SERVE APPLICATION PATHS ---- //
 app.all('*', function (req, res) {
