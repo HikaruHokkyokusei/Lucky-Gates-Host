@@ -114,7 +114,7 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
       from: authPublicKeys[walletToUse],
       to: paymentManagerContractAddy,
       data: paymentManager.methods["sendRewardToWinner"](gameCoinAddress, playerAddress, rewardValue, feeValue).encodeABI(),
-      gas: 500000,
+      gas: 2500000,
       gasPrice: await web3ObjHolder[coinChainName].eth.getGasPrice()
     };
 

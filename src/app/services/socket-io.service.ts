@@ -64,7 +64,7 @@ export class SocketIOService {
               }
               this.appComponent.popUpManagerService.popNewPopUp("Thanks for Playing. Your Reward has been sent.", 5000);
             } else {
-              this.appComponent.popUpManagerService.popNewPopUp("You have been removed from the game.<br><br>" + body["reasonForRemoval"],
+              this.appComponent.popUpManagerService.popNewPopUp("You Lost!!<br><br>You have been removed from the game.<br><br>" + body["reasonForRemoval"],
                 5000);
             }
             this.appComponent.gameManagerService.resetGameState();
