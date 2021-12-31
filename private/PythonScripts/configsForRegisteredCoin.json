@@ -10,7 +10,7 @@
         "serverTicketCost": 425000000,
         "isTicketPurchaseActive": true,
         "otherOptions": {
-          "minPlayers": 5,
+          "minPlayers": 3,
           "rewardPercent": 90
         }
       }

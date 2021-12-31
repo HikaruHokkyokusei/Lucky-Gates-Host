@@ -130,7 +130,16 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
       }
     } else if (this.chainId != this.appComponent.web3Service.chainId) {
       this.buildSuccess = false;
-      this.errorMessage = "Invalid Chain Selected in Web3 Provider.";
+      this.errorMessage = "Invalid Chain Selected in Web3 Provider. Please select " + this.localCoinChainName + " chain.";
+      window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{chainId: this.appComponent.web3Service.chainId}]
+      }).then(() => {
+      }).catch((switchError: any) => {
+        if (switchError === 4902) {
+          // TODO : Do something if chain is not added to player's metamask...
+        }
+      });
     }
   }
 
