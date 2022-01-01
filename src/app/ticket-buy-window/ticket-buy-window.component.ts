@@ -296,7 +296,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     if (this.buildSuccess && !this.currentActivePurchase.encounteredError &&
       !this.currentActivePurchase.hasEnded && this.currentActivePurchase.hasFetchedData) {
       this.generateNewPopUp(false, "Waiting for Payment Transaction to complete.<br>" +
-        "Please copy the below shown reference ID before making the payment.<br>" + this.currentActivePurchase.id,
+        "Before signing the transaction, copy the ref. ID below (Required in case an error occurs).<br>" + this.currentActivePurchase.id,
         -1, false);
 
       this.paymentManagerContract.methods.initiateNewPayment(
