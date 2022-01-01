@@ -1,40 +1,28 @@
-export class Theme {
-  constructor(
-    public bgImage: string,
-    public bgOpacity: number,
-    public buttonBgColor: string,
-    public buttonTextColor: string,
-    public headerBgColor: string,
-    public headerTitleColor: string,
-    public myTurnHeaderColor: string,
-    public otherTurnHeaderColor: string
-  ) {
-  }
-}
+import {Theme} from "../models/Theme/theme.model";
 
 export abstract class ThemeService {
 
   static themeList: Theme[] = [
-    new Theme(
-      "../assets/images/T1-Body-BG.jpg",
-      0.33,
-      "#151515",
-      "#ff5b82",
-      "#faebd7",
-      "#880000",
-      "#e3183e",
-      "#2a2a2a"
-    ),
-    new Theme(
-      "../assets/images/T2-Body-BG.png",
-      0.75,
-      "#001545",
-      "#ffc000",
-      "#faebd7",
-      "#880000",
-      "#e3183e",
-      "#2a2a2a"
-    )
+    {
+      bgImage: "../assets/images/T1-Body-BG.jpg",
+      bgOpacity: 0.33,
+      buttonBgColor: "#151515",
+      buttonTextColor: "#ff5b82",
+      headerBgColor: "#faebd7",
+      headerTitleColor: "#880000",
+      myTurnHeaderColor: "#e3183e",
+      otherTurnHeaderColor: "#2a2a2a"
+    },
+    {
+      bgImage: "../assets/images/T2-Body-BG.png",
+      bgOpacity: 0.75,
+      buttonBgColor: "#001545",
+      buttonTextColor: "#ffc000",
+      headerBgColor: "#faebd7",
+      headerTitleColor: "#880000",
+      myTurnHeaderColor: "#e3183e",
+      otherTurnHeaderColor: "#2a2a2a"
+    }
   ];
 
   static currentTheme: number = 1;

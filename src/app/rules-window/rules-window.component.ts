@@ -2,8 +2,8 @@ import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
 import * as configs from "private/PythonScripts/configs.json";
 import * as configsForRegisteredCoin from "private/PythonScripts/configsForRegisteredCoin.json";
-import {CoinCollectionData} from "../ticket-buy-window/ticket-buy-window.component";
 import {ToolSetService} from "../services/tool-set.service";
+import {CoinCollectionData} from "../models/CoinAndPayment/coin-collection-data.model";
 
 @Component({
   selector: 'app-rules-window[appComponent]',

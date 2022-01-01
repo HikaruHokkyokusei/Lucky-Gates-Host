@@ -1,30 +1,68 @@
 import {AppComponent} from "../app.component";
 import {CookieService} from "./cookie.service";
 import {ToolSetService} from "./tool-set.service";
-
-class AudioDetails {
-  constructor(public src: string, public requiredAudioLevel: number) {
-  }
-}
+import {AudioDetails} from "../models/Audio/AudioDetails.model";
 
 export class AudioManagerService {
 
   audioElement: HTMLAudioElement | null = null;
   audioTrackList: AudioDetails[] = [
-    new AudioDetails("assets/audio/bensound-endlessMotion.mp3", 0.1),
-    new AudioDetails("assets/audio/bensound-creativeMinds.mp3", 0.1),
-    new AudioDetails("assets/audio/chosic-adventure.mp3", 0.3),
-    new AudioDetails("assets/audio/chosic-leavingForValhalla.mp3", 0.2),
-    new AudioDetails("assets/audio/chosic-sparks.mp3", 0.25),
-    new AudioDetails("assets/audio/chosic-sweetDreams.mp3", 0.4),
-    new AudioDetails("assets/audio/bensound-moose.mp3", 0.1),
-    new AudioDetails("assets/audio/bensound-birthOfAHero.mp3", 0.1),
-    new AudioDetails("assets/audio/bensound-evolution.mp3", 0.1),
-    new AudioDetails("assets/audio/chosic-celtycDream.mp3", 0.15),
-    new AudioDetails("assets/audio/chosic-chase.mp3", 0.17),
-    new AudioDetails("assets/audio/chosic-heroism.mp3", 0.17),
-    new AudioDetails("assets/audio/chosic-theEpic2.mp3", 0.15),
-    new AudioDetails("assets/audio/chosic-theInspiration.mp3", 0.2)
+    {
+      src: "assets/audio/bensound-endlessMotion.mp3",
+      requiredAudioLevel: 0.1
+    },
+    {
+      src: "assets/audio/bensound-creativeMinds.mp3",
+      requiredAudioLevel: 0.1
+    },
+    {
+      src: "assets/audio/chosic-adventure.mp3",
+      requiredAudioLevel: 0.3
+    },
+    {
+      src: "assets/audio/chosic-leavingForValhalla.mp3",
+      requiredAudioLevel: 0.2
+    },
+    {
+      src: "assets/audio/chosic-sparks.mp3",
+      requiredAudioLevel: 0.25
+    },
+    {
+      src: "assets/audio/chosic-sweetDreams.mp3",
+      requiredAudioLevel: 0.4
+    },
+    {
+      src: "assets/audio/bensound-moose.mp3",
+      requiredAudioLevel: 0.1
+    },
+    {
+      src: "assets/audio/bensound-birthOfAHero.mp3",
+      requiredAudioLevel: 0.1
+    },
+    {
+      src: "assets/audio/bensound-evolution.mp3",
+      requiredAudioLevel: 0.1
+    },
+    {
+      src: "assets/audio/chosic-celtycDream.mp3",
+      requiredAudioLevel: 0.15
+    },
+    {
+      src: "assets/audio/chosic-chase.mp3",
+      requiredAudioLevel: 0.17
+    },
+    {
+      src: "assets/audio/chosic-heroism.mp3",
+      requiredAudioLevel: 0.17
+    },
+    {
+      src: "assets/audio/chosic-theEpic2.mp3",
+      requiredAudioLevel: 0.15
+    },
+    {
+      src: "assets/audio/chosic-theInspiration.mp3",
+      requiredAudioLevel: 0.2
+    }
   ];
   splitPosition: number = 6;
   audioIcon = "assets/images/MusicPause.png";

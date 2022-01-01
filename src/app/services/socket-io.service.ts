@@ -1,6 +1,6 @@
 import {io} from 'socket.io-client';
 import {AppComponent} from "../app.component";
-import {GameState} from "./game-manager.service";
+import {GameState} from "../models/GameManager/game-state.model";
 
 export class SocketIOService {
   socket;

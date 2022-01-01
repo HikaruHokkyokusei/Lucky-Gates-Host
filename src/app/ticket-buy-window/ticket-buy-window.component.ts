@@ -5,38 +5,9 @@ import * as RCPJson from "private/PythonScripts/configsForRegisteredCoin.json";
 import * as configSmartContract from "private/PythonScripts/configsForSmartContract.json";
 import {ButtonData} from "../UIElements/pop-up/pop-up.component";
 import {ToolSetService} from "../services/tool-set.service";
-
-interface CoinData {
-  symbol: string
-  decimals: number,
-  ticketCost: number,
-  serverTicketCost: number,
-  isTicketPurchaseActive: boolean,
-  otherOptions: any
-}
-
-export interface CoinCollectionData {
-  [coinChainName: string]: {
-    chainId: number;
-    paymentManagerContractAddress: string;
-    registeredCoinAddresses: {
-      [gameCoinAddress: string]: CoinData
-    }
-  }
-}
-
-interface PurchaseData {
-  id: string,
-  encounteredError: boolean,
-  hasEnded: boolean,
-  amountToBuy: number,
-  costOfPurchase: bigint,
-  purchaseCostWithDecimals: bigint,
-  hasFetchedData: boolean,
-  playerBalance: bigint,
-  coinAllowance: bigint,
-  networkGasFee: bigint
-}
+import {CoinData} from "../models/CoinAndPayment/coin-data.model";
+import {CoinCollectionData} from "../models/CoinAndPayment/coin-collection-data.model";
+import {PurchaseData} from "../models/CoinAndPayment/purchase.model";
 
 @Component({
   selector: 'app-ticket-buy-window[appComponent]',

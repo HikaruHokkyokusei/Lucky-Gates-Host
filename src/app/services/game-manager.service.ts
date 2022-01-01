@@ -2,63 +2,10 @@ import {AppComponent} from "../app.component";
 import {ActivatedRoute, Router} from "@angular/router";
 import {GameWindowComponent} from "../game-window/game-window.component";
 import {CookieService} from "./cookie.service";
-
-export interface TransferData {
-  gameCoinAddress?: string,
-  coinChainName?: string,
-  gameId?: string,
-  doorNumber?: number,
-  wantToSwitch?: boolean
-}
-
-export interface Player {
-  playerAddress: string
-  reasonForRemovalFromGame?: string,
-  doorsOpenedByGame?: number[],
-  hasMadeChoice?: boolean,
-  selectedDoor?: number,
-  wantToSwitchDoor?: boolean,
-  totalPoints?: number
-}
-
-export interface GameState {
-  gameId?: string,
-  gameCoinAddress?: string,
-  coinChainName?: string,
-  gameCreator?: string,
-  minPlayers?: number,
-  maxPlayers?: number,
-  winnerReward?: number,
-  sendRewardTransactionHash?: string,
-  gameFee?: number,
-  players?: Player[],
-  removedPlayers?: Player[],
-  currentStage?: number,
-  gameStartTime?: number,
-  stageStartTime?: number,
-  stageEndTime?: number,
-  gameEndTime?: number,
-  requiredDoorSelectionStage?: number,
-  currentChoiceMakingPlayer?: number,
-  gameEndReason?: string,
-}
-
-export interface AvailableGameListJSON {
-  [gameId: string]: {
-    gameCoinAddress: string,
-    coinChainName: string,
-    currentStage: number,
-    gameCreator: string,
-    playerAddresses: {
-      [playerAddress: string]: string
-    }
-  }
-}
-
-export interface AvailableGame {
-  gameId: string,
-  playerCount: number;
-}
+import {GameState} from "../models/GameManager/game-state.model";
+import {AvailableGame} from "../models/GameManager/available-game.model";
+import {AvailableGameListJSON} from "../models/GameManager/available-game-list-json.model";
+import {TransferData} from "../models/GameManager/transfer-data.model";
 
 export class GameManagerService {
   playerTicketCount: number = 0;
