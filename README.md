@@ -26,3 +26,14 @@ Application can then be visited on `localhost:PORT`.
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Logs
+
+Logs of the game are automatically uploaded to goFile (Set up in main.py file of python scripts).
+
+Additionally, if the app is deployed on heroku, following commands can also be user: -
+
+<ul>
+<li>heroku ps:copy "./private/PythonScripts/jsLog.log" -a <code>APP_NAME</code></li>
+<li>heroku ps:copy "./private/PythonScripts/pyLog.log" -a <code>APP_NAME</code></li>
+</ul>

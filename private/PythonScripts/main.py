@@ -16,7 +16,7 @@ asyncio.set_event_loop(loop)
 
 mainLogger = logging.getLogger(__name__)
 mainLogger.setLevel(logging.DEBUG)
-handler = logging.handlers.WatchedFileHandler('log.log', 'w+', 'utf-8')
+handler = logging.handlers.WatchedFileHandler('pyLog.log', 'w+', 'utf-8')
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
 mainLogger.addHandler(handler)
@@ -95,7 +95,7 @@ class GameHandler:
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
         time_stamp = str(time.time())
-        loop.run_until_complete(go_file.upload(file="./log.log", description=time_stamp,
+        loop.run_until_complete(go_file.upload(file="./pyLog.log", description=time_stamp,
                                                folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
         loop.run_until_complete(go_file.upload(file="./jsLog.log", description=time_stamp,
                                                folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
