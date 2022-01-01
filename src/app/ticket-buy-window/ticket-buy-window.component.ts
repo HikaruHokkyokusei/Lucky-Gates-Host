@@ -133,7 +133,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
       this.errorMessage = "Invalid Chain Selected in Web3 Provider. Please select " + this.localCoinChainName + " chain.";
       window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{chainId: this.appComponent.web3Service.chainId}]
+        params: [{chainId: "0x" + this.appComponent.web3Service.chainId.toString(16)}]
       }).then(() => {
       }).catch((switchError: any) => {
         if (switchError === 4902) {
