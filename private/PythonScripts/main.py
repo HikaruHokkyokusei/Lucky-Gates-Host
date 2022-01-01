@@ -7,9 +7,10 @@ import sys
 import threading
 import time
 
-import IOTools
-import Game
 from pygofile import Gofile
+
+import Game
+import IOTools
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)

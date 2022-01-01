@@ -241,7 +241,7 @@ class DBHandler:
                             }
                         }
                         if reference_id is not None:
-                            insert_doc["referenceIds"] = {reference_id: True}
+                            insert_doc["referenceIds"] = {reference_id: signed_amount}
                         player_tickets_collection.insert_one(insert_doc)
                         return True
                 else:
@@ -253,7 +253,7 @@ class DBHandler:
                         "tickets." + coin_chain_name + "." + game_coin_address: new_ticket_count
                     }
                     if reference_id is not None:
-                        update_doc["referenceIds." + reference_id] = True
+                        update_doc["referenceIds." + reference_id] = signed_amount
 
                     if new_ticket_count >= 0:
                         player_tickets_collection.update_one(player_document, {
