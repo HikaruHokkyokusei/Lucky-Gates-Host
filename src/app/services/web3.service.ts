@@ -5,13 +5,27 @@ declare let Web3: any;
 export class Web3Service {
   web3BuildSuccess: boolean = false;
   didSignMessage: boolean = false;
-  appComponent: AppComponent;
-  web3;
+  web3: any = null;
   userAccount: string = "";
   chainId: number = 0;
 
-  constructor(appComponent: AppComponent) {
-    this.appComponent = appComponent;
+  constructor(private appComponent: AppComponent) {
+    this.startWeb3BuildingProcess("Metamask");
+  }
+
+  startWeb3BuildingProcess = (web3ProviderName: any) => {
+    if (web3ProviderName === "Metamask") {
+      this.initializeWeb3FromMetamask();
+    } else if (web3ProviderName === "WalletConnect") {
+      this.initializeWeb3FromWalletConnect();
+    } else {
+      // TODO : Work on this...
+      //  create custom pop up to ask whether metamask or walletConnect
+      window.alert("Please connect your wallet.");
+    }
+  };
+
+  private initializeWeb3FromMetamask = () => {
     if (window.ethereum) {
       this.web3 = new Web3(window.ethereum);
     } else {
@@ -44,7 +58,11 @@ export class Web3Service {
     } else {
       this.web3BuildSuccess = false;
     }
-  }
+  };
+
+  private initializeWeb3FromWalletConnect = () => {
+    // TODO : Work on this...
+  };
 
   private setUserAccount = (accList: string[]) => {
     if (accList != null && accList.length > 0) {
