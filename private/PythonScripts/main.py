@@ -39,8 +39,9 @@ def exit_function():
 def build_io_threads():
     return_list = []
     IOTools.set_logger(mainLogger)
-    c_i_r = IOTools.ContinuousInputReader(should_log=shouldLogIO)
-    c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function, game_handler=Game_Handler, db_handler=DBHandler)
+    c_i_r = IOTools.ContinuousInputReader()
+    c_i_h = IOTools.ContinuousInputHandler(should_log=shouldLogIO, exit_function=exit_function,
+                                           game_handler=Game_Handler, db_handler=DBHandler)
     c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
     c_i_r_th = threading.Thread(target=c_i_r.run)
     c_i_h_th = threading.Thread(target=c_i_h.run)
@@ -93,7 +94,11 @@ class GameHandler:
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
-        loop.run_until_complete(go_file.upload(file="./log.log", folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
+        time_stamp = str(time.time())
+        loop.run_until_complete(go_file.upload(file="./log.log", description=time_stamp,
+                                               folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
+        loop.run_until_complete(go_file.upload(file="./jsLog.log", description=time_stamp,
+                                               folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)

@@ -1,5 +1,7 @@
 "use strict";
 
+const logger = global["globalLoggerObject"];
+
 const childProcess = require('child_process');
 const uuid = require("uuid");
 const splitter = new RegExp("[\r\n]+");
@@ -8,7 +10,7 @@ class PythonProcess {
   constructor({
                 pythonFilePath = './PythonScripts/',
                 scriptOutputHandler = (generatedOutput) => {
-                  console.log(generatedOutput);
+                  logger.info(generatedOutput);
                 },
                 pythonFileName = 'main.py'
               }) {
@@ -29,14 +31,14 @@ class PythonProcess {
             data = JSON.parse(data);
             scriptOutputHandler(data);
           } catch (err) {
-            console.log("Parsing Error : " + err);
-            console.log(data);
+            logger.info("Parsing Error : " + err);
+            logger.info(data);
           }
         }
       }
     });
     this.pythonProcess.on('exit', (code, signal) => {
-      console.log('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
+      logger.info('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
     });
   }
 

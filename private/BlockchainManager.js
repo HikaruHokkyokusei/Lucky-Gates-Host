@@ -1,5 +1,7 @@
 "use strict";
 
+const logger = global["globalLoggerObject"];
+
 const Web3 = require('web3');
 const getRandomNumber = require("./ToolSet").Miscellaneous.getRandomNumber;
 const configs = require('./PythonScripts/configs.json');
@@ -85,10 +87,10 @@ const verifyPaymentForPlayer = async (referenceId, playerAddress, coinChainName)
       };
     }
   } catch (err) {
-    console.log("Payment Verification Error.\nInput Params : " +
+    logger.info("Payment Verification Error.\nInput Params : " +
       referenceId + ", " + playerAddress + ", " + coinChainName
     );
-    console.log(err);
+    logger.info(err);
     return {
       success: false, ticketCount: 0, gameCoinAddress: "", reasonIfNotSuccess: "Unknown Error Encountered at server. " +
         "Please keep the reference Id handy and contact support."
@@ -121,17 +123,17 @@ const sendRewardToWinner = async (gameId, playerAddress, coinChainName, gameCoin
     let signedTransaction = await web3ObjHolder[coinChainName].eth.accounts.signTransaction(transaction, authPrivateKeys[walletToUse]);
     let trxHash = signedTransaction["transactionHash"];
     web3ObjHolder[coinChainName].eth.sendSignedTransaction(signedTransaction.rawTransaction).then((receipt) => {
-      console.log("Send Reward Transaction Complete.\nTrxHash : " + receipt["transactionHash"] + ", status : " + receipt["status"]);
+      logger.info("Send Reward Transaction Complete.\nTrxHash : " + receipt["transactionHash"] + ", status : " + receipt["status"]);
     }).catch((err) => {
-      console.log("Error in sent Trx.");
-      console.log(err);
+      logger.info("Error in sent Trx.");
+      logger.info(err);
     });
 
     return {success: true, gameId, trxHash};
   } catch (err) {
-    console.log("Error when sending reward. gameId : " + gameId + ", playerAddress : " + playerAddress + ", coinChainName" +
+    logger.info("Error when sending reward. gameId : " + gameId + ", playerAddress : " + playerAddress + ", coinChainName" +
       coinChainName + ", gameCoinAddress : " + gameCoinAddress + ", rewardAmount : " + rewardAmount + ", feeAmount : " + feeAmount);
-    console.log(err);
+    logger.info(err);
     return {success: false, gameId, trxHash: ""};
   }
 };

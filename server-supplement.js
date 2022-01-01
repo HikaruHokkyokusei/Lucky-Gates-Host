@@ -1,4 +1,7 @@
 "use strict";
+
+const logger = global["globalLoggerObject"];
+
 const Web3 = require("web3");
 const events = require("events");
 const toolSet = require("./private/ToolSet");
@@ -19,7 +22,7 @@ const setAdmin = (socketId, credentials) => {
 
   if (credentials["username"] === adminUsername && credentials["password"] === adminPassword) {
     adminSocketId = socketId;
-    console.log(socketId + " has gained admin privileges...");
+    logger.info(socketId + " has gained admin privileges...");
     return true;
   } else {
     return false;
@@ -66,7 +69,7 @@ const bindAddress = (socketId, signedMessage, playerAddress) => {
         }
       }
     } catch {
-      console.log("Unable to bind player address.");
+      logger.info("Unable to bind player address.");
     }
   }
 };
@@ -348,7 +351,7 @@ const scriptOutputHandler = async (packet) => {
             blockchainManager.sendRewardToWinner(gameId, packet["Body"]["playerAddress"], packet["Body"]["coinChainName"],
               packet["Body"]["gameCoinAddress"], packet["Body"]["rewardAmount"], packet["Body"]["gameFee"])
               .then(({success, gameId, trxHash}) => {
-                console.log("Send Reward (" + gameId + ") Success : " + success);
+                logger.info("Send Reward (" + gameId + ") Success : " + success);
                 if (success) {
                   pythonProcess.sendRawPacketToScript({
                       command: "game", action: "rewardSent", body: {
@@ -408,7 +411,7 @@ const scriptOutputHandler = async (packet) => {
       }
     }
   } else if (packet["message"] === "Python Script Exited") {
-    console.log("Python Script Exited");
+    logger.info("Python Script Exited");
   }
 };
 

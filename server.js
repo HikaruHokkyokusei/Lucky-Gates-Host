@@ -1,6 +1,30 @@
 "use strict";
 
 const startTime = Date.now();
+
+const winston = require('winston');
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: {service: 'user-service'},
+  transports: [
+    // - Write all logs with level `info` and below to `combined.log`
+    new winston.transports.File({filename: './private/PythonScripts/jsLog.log'})
+  ],
+});
+
+// If we're not in production then log to the `console` with the format: `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+if (process.env["NODE_ENV"] !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
+}
+Object.freeze(logger);
+
+// Putting it in global object so that it can be accessed from anywhere.
+// This practice should be avoided and be used in cases only like this.
+global["globalLoggerObject"] = logger;
+
 const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
@@ -19,11 +43,11 @@ const outputFolder = __dirname + "/" + angularJson["projects"]["Lucky-Gates-Host
 
 // Shutdown Handler
 const shutdownHandler = (event) => {
-  console.log("Shutdown Handler Start for " + event);
+  logger.info("Shutdown Handler Start for " + event);
   serverSupplement.pythonFunctions["stopScript"]();
 
   setTimeout(() => {
-    console.log("Shutdown Handler End");
+    logger.info("Shutdown Handler End");
     process.exit(1);
   }, 25000);
 };
@@ -205,8 +229,8 @@ io.on('connection', (socket) => {
 
 serverSupplement.initInformer.on("initializationComplete", () => {
   const endTime = Date.now();
-  console.log("Initialization Complete in " + (endTime - startTime) / 1000 + " seconds");
+  logger.info("Initialization Complete in " + (endTime - startTime) / 1000 + " seconds");
   httpServer.listen(portNumber, () => {
-    console.log('Listening on port ' + process.env.PORT);
+    logger.info('Listening on port ' + process.env.PORT);
   });
 });
