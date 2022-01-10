@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 import logging.handlers
@@ -7,13 +6,10 @@ import sys
 import threading
 import time
 
-from pygofile import Gofile
+from boxsdk import OAuth2, Client
 
 import Game
 import IOTools
-
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
 
 mainLogger = logging.getLogger(__name__)
 mainLogger.setLevel(logging.DEBUG)
@@ -29,7 +25,6 @@ IOElements = None
 configs = None
 configsForRegisteredCoin = None
 shouldLogIO = True
-go_file = None
 
 
 def exit_function():
@@ -54,6 +49,18 @@ def build_io_threads():
     c_i_h_th.start()
     c_o_w_th.start()
     return return_list
+
+
+def upload_logs():
+    folder_id = "153729106791"
+    epoch = time.time()
+    py_file_path = "./pyLog.log"
+    js_file_path = "./jsLog.log"
+    py_file_name = f"LGH-PyLogs-{epoch}.log"
+    js_file_name = f"LGH-JsLogs-{epoch}.log"
+    box_client = Client(OAuth2(client_id=box_cid, client_secret=box_cs, access_token=box_dt))
+    box_client.folder(folder_id).upload(file_path=py_file_path, file_name=py_file_name)
+    box_client.folder(folder_id).upload(file_path=js_file_path, file_name=js_file_name)
 
 
 class LogWriter(object):
@@ -95,11 +102,7 @@ class GameHandler:
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
-        time_stamp = str(time.time())
-        loop.run_until_complete(go_file.upload(file="./pyLog.log", description=time_stamp,
-                                               folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
-        loop.run_until_complete(go_file.upload(file="./jsLog.log", description=time_stamp,
-                                               folder_id="b5c672c3-f3c9-477f-bfc9-bf235cb115ae"))
+        upload_logs()
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
@@ -381,7 +384,7 @@ class GameHandler:
             raise self.GameException("No such game exists")
 
 
-def exit_handler(exit_signal, frame_type):
+def exit_handler(exit_signal):
     mainLogger.debug("Exit Handler Called. Signal : " + str(exit_signal))
     for io_elem in IOElements:
         io_elem["Object"].stop()
@@ -395,7 +398,7 @@ signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 6:
+    if len(sys.argv) >= 8:
         sys.stderr = LogWriter(mainLogger.warning)
 
         configs_file = open("./configs.json", "r")
@@ -405,7 +408,8 @@ if __name__ == '__main__':
         configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
-        go_file = Gofile(sys.argv[5])
+        box_cid, box_cs, box_dt = sys.argv[5], sys.argv[6], sys.argv[7]
+
         Game.set_logger(mainLogger)
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
