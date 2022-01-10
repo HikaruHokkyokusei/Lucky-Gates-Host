@@ -9,32 +9,43 @@ Base framework for the project was generated using [Angular CLI](https://github.
 ## Initialization
 
 Following environment variables need to be set up before using this project: -
-<ul>
+
 <label>For server: -</label>
-<li><code>PORT</code></li>
+<ul>
+  <li><code>PORT</code></li>
+</ul>
 
 <label>For admin console: -</label>
-<li><code>adminUsername</code></li>
-<li><code>adminPassword</code></li>
+<ul>
+  <li><code>adminUsername</code></li>
+  <li><code>adminPassword</code></li>
+</ul>
 
 <label>For MongoDB: -</label>
-<li><code>DBUsername</code></li>
-<li><code>DBPassword</code></li>
-<li><code>DBClusterName</code></li>
-<li><code>DBName</code></li>
+<ul>
+  <li><code>DBUsername</code></li>
+  <li><code>DBPassword</code></li>
+  <li><code>DBClusterName</code></li>
+  <li><code>DBName</code></li>
+</ul>
 
 <label>For owner wallet: -</label>
-<li><code>ownerWalletAddress</code></li>
-<li><code>ownerPrivateKey</code></li>
+<ul>
+  <li><code>ownerWalletAddress</code></li>
+  <li><code>ownerPrivateKey</code></li>
+</ul>
 
-<label>For blockchain data providers `(Value format -> ["...", "...", ...])`: -</label>
-<li><code>BSC_API</code></li>
-<li><code>GOERLI_API</code></li>
+<label>For blockchain data providers <code>(Value format -> ["...", "...", ...])</code>: -</label>
+<ul>
+  <li><code>BSC_API</code></li>
+  <li><code>GOERLI_API</code></li>
+</ul>
 
 <label>For box API/SDK: -</label>
-<li><code>BoxClientId</code></li>
-<li><code>BoxClientSecret</code></li>
-<li><code>BoxDeveloperToken</code></li>
+<ul>
+  <li><code>BoxClientId</code></li>
+  <li><code>BoxClientSecret</code></li>
+  <li><code>BoxDeveloperToken</code></li>
 </ul>
 
 ## Build
@@ -64,8 +75,8 @@ Box App Type: - `Custom App -> Server Authentication (Client Credentials Grant)`
 Additionally, if the app is deployed on heroku, following commands can also be used: -
 
 <ul>
-<li>heroku ps:copy "./private/PythonScripts/jsLog.log" -a <code>APP_NAME</code></li>
-<li>heroku ps:copy "./private/PythonScripts/pyLog.log" -a <code>APP_NAME</code></li>
+  <li>heroku ps:copy "./private/PythonScripts/jsLog.log" -a <code>APP_NAME</code></li>
+  <li>heroku ps:copy "./private/PythonScripts/pyLog.log" -a <code>APP_NAME</code></li>
 </ul>
 
 Note: - First time user of above command requires a dyno restart.
