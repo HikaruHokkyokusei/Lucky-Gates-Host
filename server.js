@@ -9,7 +9,7 @@ const logger = winston.createLogger({
   defaultMeta: {service: 'user-service'},
   transports: [
     // - Write all logs with level `info` and below to `combined.log`
-    new winston.transports.File({filename: './private/PythonScripts/jsLog.log'})
+    new winston.transports.File({filename: './private/PythonScripts/jsLog.log', options: {flags: "w"}})
   ],
 });
 
