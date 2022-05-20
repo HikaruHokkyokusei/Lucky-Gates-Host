@@ -128,7 +128,7 @@ export class AudioManagerService {
         this.audioIcon = "assets/images/MusicPlay.png";
       }).catch(() => {
         if (this.playerInterval == 0) {
-          this.playerInterval = setInterval(() => {
+          this.playerInterval = window.setInterval(() => {
             this.playAudio(true);
           }, 2500);
         }

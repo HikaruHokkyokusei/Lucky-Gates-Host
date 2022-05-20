@@ -17,7 +17,7 @@ export class PlayerMenuComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.intervalId = setInterval(() => {
+    this.intervalId = window.setInterval(() => {
       let shouldContinue = this.updateTimerValue();
       this.changeDetector.detectChanges();
 

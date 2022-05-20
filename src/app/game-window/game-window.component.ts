@@ -36,7 +36,7 @@ export class GameWindowComponent implements CanSetButtonComponent, CanSetAspectV
 
   ngOnInit(): void {
     this.appComponent.gameManagerService.setGameWindow(this);
-    this.intervalId = setInterval(() => {
+    this.intervalId = window.setInterval(() => {
       this.updateTimerValue();
 
       if (this.executeCount >= 4) {

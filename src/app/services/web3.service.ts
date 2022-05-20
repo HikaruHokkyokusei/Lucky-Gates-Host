@@ -1,11 +1,12 @@
 import {AppComponent} from "../app.component";
+import type {default as W} from "web3";
 
 declare let Web3: any;
 
 export class Web3Service {
   web3BuildSuccess: boolean = false;
   didSignMessage: boolean = false;
-  web3: any = null;
+  web3: W | null = null;
   userAccount: string = "";
   chainId: number = 0;
 
@@ -66,7 +67,7 @@ export class Web3Service {
 
   private setUserAccount = (accList: string[]) => {
     if (accList != null && accList.length > 0) {
-      let userAccount: string = this.web3.utils.toChecksumAddress(accList[0]);
+      let userAccount: string = this.web3!.utils.toChecksumAddress(accList[0]);
       if (this.userAccount !== userAccount) {
         this.userAccount = userAccount;
         this.web3BuildSuccess = true;
@@ -79,7 +80,7 @@ export class Web3Service {
   requestSignatureFromUser = async (messageToSign: string) => {
     if (this.web3BuildSuccess) {
       try {
-        let signedMessage = await this.web3.eth.personal.sign(messageToSign, this.userAccount, "Unnecessary Dummy Parameter");
+        let signedMessage = await this.web3!.eth.personal.sign(messageToSign, this.userAccount, "Unnecessary Dummy Parameter");
         this.didSignMessage = true;
         return signedMessage;
       } catch (err) {
@@ -89,5 +90,6 @@ export class Web3Service {
     } else {
       this.didSignMessage = false;
     }
+    return "";
   }
 }

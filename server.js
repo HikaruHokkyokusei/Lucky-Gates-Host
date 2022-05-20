@@ -51,9 +51,9 @@ const shutdownHandler = (event) => {
     process.exit(1);
   }, 25000);
 };
-if (process.stdin.isTTY && !process.stdin.isRaw) {
-  process.stdin.setRawMode(true);
-}
+// if (process.stdin.isTTY && !process.stdin.isRaw) {
+//   process.stdin.setRawMode(true);
+// }
 process.on("SIGINT", shutdownHandler);
 process.on("SIGTERM", shutdownHandler);
 process.stdin.resume();

@@ -38,6 +38,9 @@ class PythonProcess {
         }
       }
     });
+    this.pythonProcess.stderr.on('data', (data) => {
+      logger.error(data);
+    });
     this.pythonProcess.on('exit', (code, signal) => {
       logger.info('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
     });

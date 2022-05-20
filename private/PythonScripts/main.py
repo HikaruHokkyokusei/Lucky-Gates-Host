@@ -52,7 +52,7 @@ def build_io_threads():
 
 
 def upload_logs():
-    folder_id = "153729106791"
+    folder_id = "163438530263"
     epoch = time.time()
     py_file_path = "./pyLog.log"
     js_file_path = "./jsLog.log"

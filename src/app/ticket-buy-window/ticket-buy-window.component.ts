@@ -66,13 +66,13 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
 
     try {
       this.chainId = registeredCoinData[this.localCoinChainName].chainId;
-      this.paymentManagerContractAddress = this.appComponent.web3Service.web3.utils.toChecksumAddress(
+      this.paymentManagerContractAddress = this.appComponent.web3Service.web3!.utils.toChecksumAddress(
         registeredCoinData[this.localCoinChainName].paymentManagerContractAddress, this.chainId
       );
-      this.paymentManagerContract = new this.appComponent.web3Service.web3.eth.Contract(
+      this.paymentManagerContract = new this.appComponent.web3Service.web3!.eth.Contract(
         this.smartContractConfigs["paymentManagerABI"], this.paymentManagerContractAddress
       );
-      this.erc20Contract = new this.appComponent.web3Service.web3.eth.Contract(
+      this.erc20Contract = new this.appComponent.web3Service.web3!.eth.Contract(
         this.smartContractConfigs["erc20ABI"], this.localGameCoinAddress
       );
 
