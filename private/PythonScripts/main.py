@@ -51,16 +51,49 @@ def build_io_threads():
     return return_list
 
 
-def upload_logs():
-    folder_id = "163438530263"
+# Old. Not used anymore...
+# But good for future reference...
+def upload_logs_legacy(box_pat):
+    """
+    How does box API works?
+    First create and account.
+    Then, Go to developer console: https://app.box.com/developers/console
+    Next, Create a Limited Access APP (Server use only)
+    Next, If the app is not authorized in the Authorization Tab, then click on review and submit.
+    Next, Go to Admin console -> Apps -> Custom Apps Manager  and  then authorize the app.
+    Now, We are set to go. Go the app and generate the primary access token.
+    Use that token in the OAuth2.
+    All the files created and updated can be viewed in the admin console.
+    Admin Console -> Console -> APP_NAME -> ...
+
+    :param box_pat: Box Primary Access Token (For App Token Authorization)
+    :return None:
+    """
     epoch = time.time()
     py_file_path = "./pyLog.log"
     js_file_path = "./jsLog.log"
     py_file_name = f"LGH-PyLogs-{epoch}.log"
     js_file_name = f"LGH-JsLogs-{epoch}.log"
-    box_client = Client(OAuth2(client_id=box_cid, client_secret=box_cs, access_token=box_dt))
-    box_client.folder(folder_id).upload(file_path=py_file_path, file_name=py_file_name)
-    box_client.folder(folder_id).upload(file_path=js_file_path, file_name=js_file_name)
+    box_client = Client(OAuth2(client_id="", client_secret="", access_token=box_pat))
+    box_client.folder(box_fid).upload(file_path=py_file_path, file_name=py_file_name)
+    box_client.folder(box_fid).upload(file_path=js_file_path, file_name=js_file_name)
+
+
+def upload_logs():
+    box_client = Client(OAuth2(
+        client_id=box_cid,
+        client_secret=box_cs,
+        access_token=box_at,
+        refresh_token=box_rt,
+        store_tokens=DBHandler.save_box_creds
+    ))
+    epoch = time.time()
+    py_file_path = "./pyLog.log"
+    js_file_path = "./jsLog.log"
+    py_file_name = f"LGH-PyLogs-{epoch}.log"
+    js_file_name = f"LGH-JsLogs-{epoch}.log"
+    box_client.folder(box_fid).upload(file_path=py_file_path, file_name=py_file_name)
+    box_client.folder(box_fid).upload(file_path=js_file_path, file_name=js_file_name)
 
 
 class LogWriter(object):
@@ -384,7 +417,7 @@ class GameHandler:
             raise self.GameException("No such game exists")
 
 
-def exit_handler(exit_signal):
+def exit_handler(exit_signal, frame_type):
     mainLogger.debug("Exit Handler Called. Signal : " + str(exit_signal))
     for io_elem in IOElements:
         io_elem["Object"].stop()
@@ -398,7 +431,7 @@ signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 8:
+    if len(sys.argv) >= 6:
         sys.stderr = LogWriter(mainLogger.warning)
 
         configs_file = open("./configs.json", "r")
@@ -408,11 +441,13 @@ if __name__ == '__main__':
         configsForRegisteredCoin = json.load(configs_file)
         configs_file.close()
 
-        box_cid, box_cs, box_dt = sys.argv[5], sys.argv[6], sys.argv[7]
-
         Game.set_logger(mainLogger)
         Game_Handler = GameHandler()
         DBHandler = IOTools.DBHandler(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        box_fid = sys.argv[5]
+        # box_pat = sys.argv[6]
+        box_cid, box_cs, box_at, box_rt = DBHandler.get_box_creds()
+
         IOElements = build_io_threads()
 
         try:

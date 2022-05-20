@@ -45,10 +45,15 @@ class ContinuousOutputWriter:
     def run(self):
         while self.should_write:
             while len(OutputBuffer) > 0:
-                message = json.dumps(OutputBuffer.pop(0))
+                data_packet = OutputBuffer.pop(0)
+                message = json.dumps(data_packet)
+                print(f"{message}")
+                if data_packet.get("Body", {}).get("publicKeys") is not None:
+                    data_packet["Body"]["publicKeys"] = "****"
+                    data_packet["Body"]["privateKeys"] = "****"
+                    message = json.dumps(data_packet)
                 if self.should_log:
                     ioLogger.debug(f"Out : {message}")
-                print(f"{message}")
                 sys.stdout.flush()
             time.sleep(sleepTime)
 
@@ -67,7 +72,7 @@ class ContinuousInputReader:
                 inp = json.loads(inp)
                 InputBuffer.append(inp)
             except Exception as err:
-                ioLogger.debug(f"In : {inp}")
+                ioLogger.debug(f"In Err : {inp}")
                 ioLogger.exception(err)
             time.sleep(sleepTime)
 
@@ -89,7 +94,7 @@ class ContinuousInputHandler:
             return
 
         if self.should_log:
-            if command != "ticket" or packet["Header"]["action"] != "get":
+            if command != "ticket" or packet.get("Header", {}).get("action", None) != "get":
                 ioLogger.debug(f"In : {packet}")
 
         if command == "exit":
@@ -220,6 +225,16 @@ class DBHandler:
         public_keys = found_document["publicKeys"]
         private_keys = found_document["privateKeys"]
         return public_keys, private_keys
+
+    def save_box_creds(self, access_token, refresh_token):
+        self.upsert_document("_Root", {"id": "Box API"}, {
+            "accessToken": access_token,
+            "refreshToken": refresh_token
+        })
+
+    def get_box_creds(self):
+        found_doc = self.database["_Root"].find_one({"id": "Box API"})
+        return found_doc["clientId"], found_doc["clientSecret"], found_doc["accessToken"], found_doc["refreshToken"]
 
     def change_player_tickets_by(self, game_coin_address, coin_chain_name, player_address,
                                  signed_amount, reference_id=None):

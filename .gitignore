@@ -52,6 +52,7 @@ temp.js
 /private/PythonScripts/.idea/
 /private/PythonScripts/Temp/
 /temp.txt
+/private/PythonScripts/__pycache__/
 /private/PythonScripts/pyLog.log
 /private/PythonScripts/log.json
 /private/PythonScripts/jsLog.log
