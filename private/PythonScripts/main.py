@@ -35,10 +35,10 @@ def exit_function():
 def build_io_threads():
     return_list = []
     IOTools.set_logger(mainLogger)
-    c_i_r = IOTools.ContinuousInputReader()
-    c_i_h = IOTools.ContinuousInputHandler(should_log=shouldLogIO, exit_function=exit_function,
-                                           game_handler=Game_Handler, db_handler=DBHandler)
+    c_i_r = IOTools.ContinuousInputReader(should_log=shouldLogIO)
     c_o_w = IOTools.ContinuousOutputWriter(should_log=shouldLogIO)
+    c_i_h = IOTools.ContinuousInputHandler(exit_function=exit_function,
+                                           game_handler=Game_Handler, db_handler=DBHandler)
     c_i_r_th = threading.Thread(target=c_i_r.run)
     c_i_h_th = threading.Thread(target=c_i_h.run)
     c_o_w_th = threading.Thread(target=c_o_w.run)

@@ -59,8 +59,9 @@ class ContinuousOutputWriter:
 
 
 class ContinuousInputReader:
-    def __init__(self):
+    def __init__(self, should_log):
         self.should_read = True
+        self.should_log = should_log
 
     def stop(self):
         self.should_read = False
@@ -69,6 +70,8 @@ class ContinuousInputReader:
         while self.should_read:
             inp = input()
             try:
+                if self.should_log:
+                    ioLogger.debug(f"In : {inp}")
                 inp = json.loads(inp)
                 InputBuffer.append(inp)
             except Exception as err:
@@ -78,9 +81,8 @@ class ContinuousInputReader:
 
 
 class ContinuousInputHandler:
-    def __init__(self, should_log, exit_function, game_handler, db_handler):
+    def __init__(self, exit_function, game_handler, db_handler):
         self.should_handle = True
-        self.should_log = should_log
         self.DBHandler = db_handler
         self.exit_function = exit_function
         self.game_handler = game_handler
@@ -92,10 +94,6 @@ class ContinuousInputHandler:
         command = packet.get("Header", {}).get("command", None)
         if command is None:
             return
-
-        if self.should_log:
-            if command != "ticket" or packet.get("Header", {}).get("action", None) != "get":
-                ioLogger.debug(f"In : {packet}")
 
         if command == "exit":
             self.exit_function()
