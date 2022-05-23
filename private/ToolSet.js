@@ -43,6 +43,7 @@ class PythonProcess {
     });
     this.pythonProcess.on('exit', (code, signal) => {
       logger.info('Python Script exited with ' + `code : ${code} and signal : ${signal}`);
+      process.exit(code);
     });
   }
 

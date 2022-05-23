@@ -133,9 +133,9 @@ class GameHandler:
         for game in self.activeGames:
             game.stop()
             self.save_pending_game_in_database(game.get_game_id(), game.gameState)
+        upload_logs()
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
-        upload_logs()
 
     def game_completed(self, game_id, game_end_reason):
         pop_element = self.activeGames.pop(game_id, None)
