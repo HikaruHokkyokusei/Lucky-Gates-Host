@@ -10,7 +10,9 @@
           "/assets/images/lucky-gates.png",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "../private/PythonScripts/configsForSmartContract.json",
+          "../private/PythonScripts/configsForRegisteredCoin.json"
         ]
       }
     },

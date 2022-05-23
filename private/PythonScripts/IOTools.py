@@ -180,11 +180,6 @@ class DBHandler:
     def delete_matching_documents(self, collection_name, match_document):
         self.database[collection_name].delete_many(match_document)
 
-    def pop_all_documents(self, collection_name, common_key):
-        found_documents = self.database[collection_name].find({})
-        self.database[collection_name].delete_many({common_key: {"$regex": ".*"}})
-        return found_documents
-
     def upsert_document(self, collection_name, match_document, new_document):
         self.database[collection_name].update_one(match_document, {"$set": new_document}, upsert=True)
 
@@ -192,11 +187,10 @@ class DBHandler:
         self.database[collection_name].insert_one(new_document)
 
     def get_pending_game_list(self):
-        popped_doc_list = self.pop_all_documents("PendingGames", "gameId")
-        return_list = []
-        for document in popped_doc_list:
-            return_list.append(document["gameState"])
-        return return_list
+        cursor = self.database["PendingGames"].find({})
+        found_documents = list(cursor)
+        self.database["PendingGames"].delete_many({})
+        return found_documents
 
     def is_game_coin_registered(self, game_coin_address, coin_chain_name):
         reg_coin_list = self.database["_Root"].find_one({"id": "Coin Registry"})["registeredCoins"]

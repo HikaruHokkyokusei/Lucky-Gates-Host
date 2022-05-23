@@ -294,7 +294,7 @@ class GameClass:
                     "stageEndTime": self.get_stage_end_time(),
                 }
                 self.send_information_to_players(reply_body, action="stageUpdated")
-            else:
+            elif self.gameState["currentStage"] > 0:
                 # Time reset in case of rebuilding of pending games.
                 self.set_current_stage_to(self.gameState["currentStage"])
 

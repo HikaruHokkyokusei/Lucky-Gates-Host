@@ -131,8 +131,9 @@ class GameHandler:
         else:
             return
         for game in self.activeGames:
-            game.stop()
-            self.save_pending_game_in_database(game.get_game_id(), game.gameState)
+            game_instance = self.activeGames[game]["Game"]
+            game_instance.stop()
+            self.save_pending_game_in_database(game_instance.get_game_id(), game_instance.gameState)
         upload_logs()
         DBHandler.stop()
         mainLogger.debug("Python Script Exited")
@@ -385,11 +386,12 @@ class GameHandler:
         return self.create_game_with_options(options=build_options)
 
     def rebuild_pending_games(self):
-        game_states_list = None
+        game_doc_list = None
         if DBHandler is not None:
-            game_states_list = DBHandler.get_pending_game_list()
-        if game_states_list is not None:
-            for game_state in game_states_list:
+            game_doc_list = DBHandler.get_pending_game_list()
+        if game_doc_list is not None:
+            for game_doc in game_doc_list:
+                game_state = game_doc["gameState"]
                 try:
                     options = {
                         "coinChainName": game_state["coinChainName"],

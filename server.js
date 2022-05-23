@@ -49,7 +49,7 @@ const shutdownHandler = (event) => {
   setTimeout(() => {
     logger.info("Shutdown Handler End");
     process.exit(1);
-  }, 25000);
+  }, 29750);
 };
 // if (process.stdin.isTTY && !process.stdin.isRaw) {
 //   process.stdin.setRawMode(true);
