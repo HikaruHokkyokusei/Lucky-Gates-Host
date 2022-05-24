@@ -44,7 +44,7 @@ export class SocketIOService {
         }
       }
 
-      console.log("Received : " + header["command"] + ", " + header["action"] + " packet");
+      console.log("Received : " + header["command"] + "\n" + header["action"] + " packet");
 
       switch (header["command"]) {
         case "gameCreation":
@@ -89,19 +89,12 @@ export class SocketIOService {
 
             case "earlyGameBeginning":
               this.appComponent.popUpManagerService.popNewPopUp("The game will start in 15 seconds<br><br>Please be ready!!",
-                13750, false);
+                14500, false);
               break;
 
             case "doorsOpenedByGame":
-              if (body["playerAddress"] === this.appComponent.web3Service.userAccount) {
-                this.appComponent.gameManagerService.doorsOpenedByGame(body["openedDoors"], body["respectivePoints"]);
-              } else {
-                let len = body["openedDoors"].length;
-                for (let i = 0; i < len; i++) {
-                  this.appComponent.gameManagerService.currentGameWindow?.openDoorAnimation(body["openedDoors"][i],
-                    body["respectivePoints"][i], "");
-                }
-              }
+              this.appComponent.gameManagerService.doorsOpenedByGame(body["openedDoors"], body["respectivePoints"],
+                body["playerAddress"] === this.appComponent.web3Service.userAccount);
               break;
 
             case "openFinalDoor":

@@ -1,6 +1,6 @@
 {
   "name": "lucky-gates-host",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "scripts": {
     "ng": "ng",
     "server": "node server",
@@ -10,7 +10,7 @@
     "test": "ng test"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "private": true,
   "dependencies": {

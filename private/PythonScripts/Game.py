@@ -156,10 +156,13 @@ class GameClass:
                 current_player["doorsOpenedByGame"].append(index)
 
         current_player["doorsOpenedByGame"].sort()
-        doors_opened_by_game = current_player["doorsOpenedByGame"]
+        doors_opened_by_game = copy.deepcopy(current_player["doorsOpenedByGame"])
         respective_points = []
         for door_index in doors_opened_by_game:
             respective_points.append(current_player["doorPattern"][door_index])
+
+        for i in range(len(doors_opened_by_game)):
+            current_player["doorsOpenedByGame"][i] = [current_player["doorsOpenedByGame"][i], respective_points[i]]
 
         self.send_information_to_players({
             "playerAddress": current_player["playerAddress"],

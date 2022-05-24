@@ -120,6 +120,21 @@ export class GameManagerService {
 
   postGameRejoin = () => {
     // TODO : Complete this... Things to do after rejoining & synchronizing with a game.
+    if (this.gameState.currentStage === 3) {
+      if (this.gameState.currentChoiceMakingPlayer != null && this.gameState.players != null) {
+        let isMe = this.gameState.players[this.gameState.currentChoiceMakingPlayer || 0]?.playerAddress === this.appComponent.web3Service.userAccount;
+
+        let len = (this.gameState.players[this.gameState.currentChoiceMakingPlayer].doorsOpenedByGame?.length) || 0;
+        let indexArr = [], pointsArr = [];
+        for (let i = 0; i < len; i++) {
+          let tempArr = this.gameState.players[this.gameState.currentChoiceMakingPlayer].doorsOpenedByGame?.at(i) || [0, 0];
+          indexArr.push(tempArr[0]);
+          pointsArr.push(tempArr[1]);
+        }
+
+        this.doorsOpenedByGame(indexArr, pointsArr, isMe, 500);
+      }
+    }
   };
 
   synchronizeAvailableGameList = (availableGameList: AvailableGameListJSON) => {
@@ -187,57 +202,59 @@ export class GameManagerService {
     }
   };
 
-  doorsOpenedByGame = (doorsOpened: number[], respectivePoints: number[]) => {
+  doorsOpenedByGame = (doorsOpened: number[], respectivePoints: number[], isMe: boolean, timeoutDuration: number = 5750) => {
     if (this.currentGameWindow != null) {
       for (let i = 0; i < doorsOpened.length; i++) {
-        this.currentGameWindow.openDoorAnimation(doorsOpened[i], respectivePoints[i], "Door already open");
+        this.currentGameWindow.openDoorAnimation(doorsOpened[i], respectivePoints[i], isMe ? "Door already open" : "");
       }
     }
 
-    setTimeout(() => {
-      let len = respectivePoints.length;
-      let message: string = "You choose door ";
-      let val: number | string | undefined;
-      if (this.gameState["players"] != null && this.gameState["currentChoiceMakingPlayer"] != null) {
-        val = this.gameState["players"][this.gameState["currentChoiceMakingPlayer"]]["selectedDoor"];
-        if (val != null) {
-          val += 1;
+    if (isMe) {
+      setTimeout(() => {
+        let len = respectivePoints.length;
+        let message: string = "You choose door ";
+        let val: number | string | undefined;
+        if (this.gameState["players"] != null && this.gameState["currentChoiceMakingPlayer"] != null) {
+          val = this.gameState["players"][this.gameState["currentChoiceMakingPlayer"]]["selectedDoor"];
+          if (val != null) {
+            val += 1;
+          } else {
+            val = "-";
+          }
         } else {
           val = "-";
         }
-      } else {
-        val = "-";
-      }
 
-      message += (val + ".<br><br>" + len + " other doors contain ");
-      for (let i = 0; i < len; i++) {
-        if (i < len - 2) {
-          message += respectivePoints[i] + ", ";
-        } else if (i < len - 1) {
-          message += respectivePoints[i] + " and "
-        } else {
-          message += respectivePoints[i] + " points.";
+        message += (val + ".<br><br>" + len + " other doors contain ");
+        for (let i = 0; i < len; i++) {
+          if (i < len - 2) {
+            message += respectivePoints[i] + ", ";
+          } else if (i < len - 1) {
+            message += respectivePoints[i] + " and "
+          } else {
+            message += respectivePoints[i] + " points.";
+          }
         }
-      }
-      message += " Would you like to stick with current choice, or switch the door?";
+        message += " Would you like to stick with current choice, or switch the door?";
 
-      this.appComponent.popUpManagerService.popNewPopUp(message, 45000, false, [
-        {
-          buttonText: "Switch",
-          onClickFunction: () => {
-            this.sendPlayerSwitchSelection(true);
+        this.appComponent.popUpManagerService.popNewPopUp(message, 45000, false, [
+          {
+            buttonText: "Switch",
+            onClickFunction: () => {
+              this.sendPlayerSwitchSelection(true);
+            },
+            millisBeforeClose: 500
           },
-          millisBeforeClose: 500
-        },
-        {
-          buttonText: "Don't Switch",
-          onClickFunction: () => {
-            this.sendPlayerSwitchSelection(false);
-          },
-          millisBeforeClose: 500
-        }
-      ]);
-    }, 5750);
+          {
+            buttonText: "Don't Switch",
+            onClickFunction: () => {
+              this.sendPlayerSwitchSelection(false);
+            },
+            millisBeforeClose: 500
+          }
+        ]);
+      }, timeoutDuration);
+    }
   };
 
   sendPlayerDoorSelection = (doorNumber: number) => {
