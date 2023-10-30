@@ -36,7 +36,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
     isTicketPurchaseActive: false,
     otherOptions: null
   };
-  amountToBuy: number = 0;
+  amountToBuy: number = 1;
   activePopUpId: string = "";
   lastPopUpMessage: string = "";
   currentActivePurchase: PurchaseData = {
@@ -82,7 +82,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
         this.displayTicketCost = ToolSetService.nFormatter(this.localCoinData.ticketCost);
         let len = this.localCoinData.symbol.length;
         if (len > 9) {
-          this.localCoinData.symbol = this.localCoinData.symbol.substr(0, 7) + "...";
+          this.localCoinData.symbol = this.localCoinData.symbol.substr(0, 11) + "...";
         }
         if (this.localCoinData.isTicketPurchaseActive) {
           this.buildSuccess = true;
@@ -130,7 +130,7 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   };
 
   onClickSub = () => {
-    if (this.amountToBuy > 0) {
+    if (this.amountToBuy > 1) {
       this.amountToBuy--;
     }
   };
@@ -322,5 +322,4 @@ export class TicketBuyWindowComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.closeOldPopUpIfAny(false);
   }
-
 }
